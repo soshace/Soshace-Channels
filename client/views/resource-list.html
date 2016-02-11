@@ -1,0 +1,18 @@
+<template name="resourceList">
+  <p>{{_id}}</p>
+  <div class="resource-list__add">
+    {{> addResource}}
+  </div>
+
+  <div class="resources">
+    List of resources:
+    <ul>
+      {{#each resources}}
+      <li>
+        <a href="/resource/{{_id}}">{{name}}</a>
+      </li>
+      {{/each}}
+    </ul>
+  </div>
+
+</template>

@@ -17,11 +17,7 @@ Router.route('/register', {
 
 Router.route('/groups', {
   name: 'groups',
-  template: 'group-list'
-});
-
-Router.route('/about', {
-  template: 'about'
+  template: 'groupList'
 });
 
 Router.route('/group/:_id', {
@@ -30,4 +26,21 @@ Router.route('/group/:_id', {
     var currentGroup = this.params._id;
     return Groups.findOne({ _id: currentGroup});
   }
+});
+
+Router.route('/resources', {
+  name: 'resources',
+  template: 'resourceList'
+});
+
+Router.route('/resource/:_id', {
+  template: 'resource',
+  data: function() {
+    var currentResource = this.params._id;
+    return Resources.findOne({ _id: currentResource});
+  }
+});
+
+Router.route('/about', {
+  template: 'about'
 });
