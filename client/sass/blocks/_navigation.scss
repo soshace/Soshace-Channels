@@ -1,7 +1,6 @@
 
 .navigation {
 
-
   &__list {
     margin: 0;
     padding: 0;
@@ -19,6 +18,7 @@
   &__link {
     display: block;
     padding: 30px 5px;
+
     font-size: $font-size;
     text-decoration: none;
     color: white;

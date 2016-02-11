@@ -8,12 +8,14 @@
 
         {{> addGroup}}
 
-        <div class="groups">
-          List of groups:
-          <ul>
+        <div class="group-list__list-wrap">
+
+          <p class="group-list__header">List of groups:</p>
+
+          <ul class="group-list__list">
             {{#each groups}}
-            <li>
-              <a href="{{pathFor route='group'}}">{{name}}</a>
+            <li class="group-list__item">
+              <a class="group-list__link" href="{{pathFor route='group'}}">{{name}}</a>
             </li>
             {{/each}}
           </ul>
