@@ -9,7 +9,10 @@ Template.login.events({
       if (error) {
         console.log(error.reason);
       } else {
-        Router.go('flow');
+        var currentRoute = Router.current().route.getName();
+        if (currentRoute == 'login') {
+          Router.go('flow');
+        }
       }
     });
   }

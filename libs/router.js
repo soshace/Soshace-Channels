@@ -25,7 +25,16 @@ Router.route('/group/:_id', {
   template: 'group',
   data: function() {
     var currentGroup = this.params._id;
-    return Groups.findOne({ _id: currentGroup});
+    var currentUser = Meteor.userId();
+    return Groups.findOne({ _id: currentGroup, createdBy: currentUser });
+  },
+  onBeforeAction: function() {
+    var currentUser = Meteor.userId();
+    if (currentUser) {
+      this.next();
+    } else {
+      this.render('login');
+    }
   }
 });
 
