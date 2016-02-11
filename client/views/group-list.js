@@ -1,5 +1,6 @@
 Template.groupList.helpers({
   groups: function() {
-    return Groups.find({}, {sort: {createdAt: -1}});
+    var currentUser = Meteor.userId();
+    return Groups.find({ createdBy: currentUser }, {sort: {createdAt: -1}});
   }
 });
