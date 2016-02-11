@@ -1,0 +1,11 @@
+<template name="groupList">
+  <div class="group-list__add">
+    {{> addGroup}}
+  </div>
+
+  <div class="groups">
+      {{#each groups}}
+          {{> group}}
+      {{/each}}
+  </div>
+</template>
