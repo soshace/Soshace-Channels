@@ -1,11 +1,18 @@
 <template name="groupList">
+  <p>{{_id}}</p>
   <div class="group-list__add">
     {{> addGroup}}
   </div>
 
   <div class="groups">
+    List of groups:
+    <ul>
       {{#each groups}}
-          {{> group}}
+      <li>
+        <a href="/group/{{_id}}">{{name}}</a>
+      </li>
       {{/each}}
+    </ul>
   </div>
+
 </template>
