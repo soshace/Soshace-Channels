@@ -21,6 +21,7 @@ Router.route('/groups', {
 });
 
 Router.route('/group/:_id', {
+  name: 'group',
   template: 'group',
   data: function() {
     var currentGroup = this.params._id;
@@ -34,6 +35,7 @@ Router.route('/resources', {
 });
 
 Router.route('/resource/:_id', {
+  name: 'resource',
   template: 'resource',
   data: function() {
     var currentResource = this.params._id;

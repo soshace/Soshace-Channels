@@ -1,5 +1,5 @@
 <template name="groupList">
-  <p>{{_id}}</p>
+
   <div class="group-list__add">
     {{> addGroup}}
   </div>
@@ -9,10 +9,12 @@
     <ul>
       {{#each groups}}
       <li>
-        <a href="/group/{{_id}}">{{name}}</a>
+        <a href="{{pathFor route='group'}}">{{name}}</a>
       </li>
       {{/each}}
     </ul>
   </div>
+
+  <p>ID of a selected Group: {{_id}}</p>
 
 </template>

@@ -6,6 +6,8 @@ Template.addGroup.events({
     Groups.insert({
       name: groupName,
       createdAt: new Date()
+    }, function(error, results) {
+      Router.go('group', { _id: results });
     });
     event.target.groupName.value = '';
   }

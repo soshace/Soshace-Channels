@@ -1,5 +1,5 @@
 <template name="resourceList">
-  <p>{{_id}}</p>
+
   <div class="resource-list__add">
     {{> addResource}}
   </div>
@@ -9,10 +9,12 @@
     <ul>
       {{#each resources}}
       <li>
-        <a href="/resource/{{_id}}">{{name}}</a>
+        <a href="{{pathFor route='resource'}}">{{name}}</a>
       </li>
       {{/each}}
     </ul>
   </div>
+
+  <p>ID of a selected Resource: {{_id}}</p>
 
 </template>
