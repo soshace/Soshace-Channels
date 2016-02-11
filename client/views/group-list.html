@@ -1,25 +1,34 @@
 <template name="groupList">
-  {{#if currentUser}}
 
-    {{> addGroup}}
+  <div class="group-list">
 
-    <div class="groups">
-      List of groups:
-      <ul>
-        {{#each groups}}
-        <li>
-          <a href="{{pathFor route='group'}}">{{name}}</a>
-        </li>
-        {{/each}}
-      </ul>
+    <div class="group-list__inner">
 
+      {{#if currentUser}}
+
+        {{> addGroup}}
+
+        <div class="groups">
+          List of groups:
+          <ul>
+            {{#each groups}}
+            <li>
+              <a href="{{pathFor route='group'}}">{{name}}</a>
+            </li>
+            {{/each}}
+          </ul>
+
+        </div>
+
+        <p>ID of a selected Group: {{_id}}</p>
+
+      {{else}}
+
+        <p>You need to login to view your Groups.</p>
+
+      {{/if}}
     </div>
 
-    <p>ID of a selected Group: {{_id}}</p>
+  </div>
 
-  {{else}}
-
-    <p>You need to login to view your Groups.</p>
-
-  {{/if}}
 </template>

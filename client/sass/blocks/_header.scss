@@ -1,0 +1,26 @@
+
+.header {
+
+  background: $dark-bg;
+  color: white;
+
+  &__inner {
+    @include container();
+    @include clearfix();
+  }
+
+  &__title {
+    float: left;
+    width: 35%;
+    padding: 6px 0;
+
+    font-size: $font-size + 5px;
+    line-height: $line-height;
+    color: orange;
+  }
+
+  &__nav {
+    float: right;
+    max-width: 65%;
+  }
+}

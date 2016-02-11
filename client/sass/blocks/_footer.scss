@@ -1,0 +1,15 @@
+
+.footer {
+  background: $dark-bg;
+  color: white;
+
+  &__inner {
+    @include container();
+    @include clearfix();
+  }
+
+  &__copyright {
+    float: right;
+  }
+
+}

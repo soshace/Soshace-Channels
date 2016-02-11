@@ -1,0 +1,8 @@
+
+.flow {
+  padding: 100px 0;
+
+  &__inner {
+    @include container();
+  }
+}

@@ -1,0 +1,56 @@
+//
+//
+// Container for mobile version (280px)
+@mixin container() {
+  // width: 280px;
+  // padding: 0 20px;
+  // margin: 0 auto;
+  width: auto;
+  padding: 0 7%;
+  transition: padding 0.3s ease;
+}
+
+//
+//
+// Container for tablet version
+@mixin container--tablet() {
+  // width: 600px;
+  // padding: 0 20px;
+  // margin: 0 auto;
+  width: auto;
+  padding: 0 3%;
+  transition: padding 0.3s ease;
+}
+
+//
+//
+// Container for desktop version
+@mixin container--desktop() {
+  // width: 940px;
+  // padding: 0 10px;
+  // margin: 0 auto;
+  width: auto;
+  padding: 0 1%;
+  transition: padding 0.3s ease;
+}
+
+//
+//
+// Clearfix for parent of float elements
+@mixin clearfix() {
+    &:before,
+    &:after {
+      content: "";
+      display: table;
+    }
+    &:after {
+      clear: both;
+    }
+}
+
+//
+//
+// Just border
+@mixin someborder() {
+  border: 1px dotted red;
+}

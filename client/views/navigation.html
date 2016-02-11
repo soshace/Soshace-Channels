@@ -1,15 +1,29 @@
 <template name="navigation">
-  <nav>
-    <ul>
-      <li><a href="{{pathFor route='flow'}}">Flow</a></li>
-      <li><a href="{{pathFor route='groups'}}">Groups</a></li>
-      <li><a href="{{pathFor route='resources'}}">Resources</a></li>
-      <li><a href="{{pathFor route='about'}}">About</a></li>
+  <nav class="navigation">
+    <ul class="navigation__list">
+      <li class="navigation__item">
+        <a class="navigation__link" href="{{pathFor route='flow'}}">Flow</a>
+      </li>
+      <li class="navigation__item">
+        <a class="navigation__link" href="{{pathFor route='groups'}}">Groups</a>
+      </li>
+      <li class="navigation__item">
+        <a class="navigation__link" href="{{pathFor route='resources'}}">Resources</a>
+      </li>
+      <li class="navigation__item">
+        <a class="navigation__link" href="{{pathFor route='about'}}">About</a>
+      </li>
       {{#if currentUser}}
-        <li><a href="#" class="logout">Logout</a></li>
+        <li class="navigation__item">
+          <a class="navigation__link logout" href="#">Logout</a>
+        </li>
       {{else}}
-        <li><a href="{{pathFor route='register'}}">Register</a></li>
-        <li><a href="{{pathFor route='login'}}">Login</a></li>
+        <li class="navigation__item">
+          <a class="navigation__link" href="{{pathFor route='register'}}">Register</a>
+        </li>
+        <li  class="navigation__item">
+          <a class="navigation__link" href="{{pathFor route='login'}}">Login</a>
+        </li>
       {{/if}}
     </ul>
   </nav>

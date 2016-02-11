@@ -1,0 +1,9 @@
+
+.group-list {
+
+  padding: 50px 0;
+
+  &__inner {
+    @include container();
+  }
+}
