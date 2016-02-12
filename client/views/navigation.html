@@ -12,6 +12,9 @@
       </li>
       {{#if currentUser}}
         <li class="navigation__item">
+          <a class="navigation__link" href="{{pathFor route='settings'}}">Settings</a>
+        </li>
+        <li class="navigation__item">
           <a class="navigation__link logout" href="#">Logout</a>
         </li>
       {{else}}

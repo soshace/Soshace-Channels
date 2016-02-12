@@ -15,6 +15,10 @@ Router.route('/register', {
   template: 'register',
 });
 
+Router.route('/settings', {
+  template: 'settings'
+});
+
 Router.route('/channels', {
   name: 'channels',
   template: 'channelList'
