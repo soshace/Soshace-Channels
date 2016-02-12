@@ -15,18 +15,18 @@ Router.route('/register', {
   template: 'register',
 });
 
-Router.route('/groups', {
-  name: 'groups',
-  template: 'groupList'
+Router.route('/channels', {
+  name: 'channels',
+  template: 'channelList'
 });
 
-Router.route('/group/:_id', {
-  name: 'group',
-  template: 'group',
+Router.route('/channel/:_id', {
+  name: 'channel',
+  template: 'channel',
   data: function() {
-    var currentGroup = this.params._id;
+    var currentChannel = this.params._id;
     var currentUser = Meteor.userId();
-    return Groups.findOne({ _id: currentGroup, createdBy: currentUser });
+    return Channels.findOne({ _id: currentChannel, createdBy: currentUser });
   },
   onBeforeAction: function() {
     var currentUser = Meteor.userId();
@@ -50,8 +50,4 @@ Router.route('/resource/:_id', {
     var currentResource = this.params._id;
     return Resources.findOne({ _id: currentResource});
   }
-});
-
-Router.route('/about', {
-  template: 'about'
 });

@@ -1,16 +1,16 @@
-Template.addGroup.events({
+Template.addChannel.events({
   'submit form': function(event) {
     event.preventDefault();
     // get name from input
-    var groupName = event.target.groupName.value;
+    var channelName = event.target.channelName.value;
     var currentUser = Meteor.userId();
-    Groups.insert({
-      name: groupName,
+    Channels.insert({
+      name: channelName,
       createdBy: currentUser,
       createdAt: new Date()
     }, function(error, results) {
-      Router.go('group', { _id: results });
+      Router.go('channel', { _id: results });
     });
-    event.target.groupName.value = '';
+    event.target.channelName.value = '';
   }
 });

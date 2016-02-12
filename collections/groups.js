@@ -1,1 +1,1 @@
-Groups = new Mongo.Collection('groups');
+Channels = new Mongo.Collection('channels');

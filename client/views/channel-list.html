@@ -1,0 +1,36 @@
+<template name="channelList">
+
+  <div class="channel-list">
+
+    <div class="channel-list__inner">
+
+      {{#if currentUser}}
+
+        {{> addChannel}}
+
+        <div class="channel-list__list-wrap">
+
+          <p class="channel-list__header">List of channels:</p>
+
+          <ul class="channel-list__list">
+            {{#each channels}}
+            <li class="channel-list__item">
+              <a class="channel-list__link" href="{{pathFor route='channel'}}">{{name}}</a>
+            </li>
+            {{/each}}
+          </ul>
+
+        </div>
+
+        <p>ID of a selected Channel: {{_id}}</p>
+
+      {{else}}
+
+        <p>You need to login to view your Channels.</p>
+
+      {{/if}}
+    </div>
+
+  </div>
+
+</template>
