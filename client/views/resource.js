@@ -1,5 +1,5 @@
 Template.resource.events({
-  'click .delete-resource': function(event) {
+  'click .resource__delete': function(event) {
     event.preventDefault();
     var documentId = this._id;
     var confirm = window.confirm('Delete ' + this.name + ' ?');

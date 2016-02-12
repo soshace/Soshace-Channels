@@ -1,14 +1,24 @@
 <template name="resource">
 
-  <p>
-    {{> resourceList}}
-  </p>
+  {{> resourceList}}
 
   <div class="resource">
-    <h3>{{name}}</h3>
-    <a href="#" class="delete-resource">Delete</a>
-    <p>Group</p>
-    <p>Group</p>
+
+    <div class="resource__inner">
+
+      <div class="resource__header">
+        <h3 class="resource__name">{{name}}</h3>
+        <div class="resource__functions">
+          <a href="#" class="resource__delete">Delete</a>
+        </div>
+      </div>
+
+      <p>Something </p>
+      <p>Something </p>
+      <p>Something </p>
+
+    </div>
+
   </div>
 
 </template>

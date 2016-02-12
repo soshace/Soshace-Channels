@@ -1,13 +1,19 @@
 <template name="channel">
 
-    {{> channelList}}
+  {{> channelList}}
 
   <div class="channel">
 
     <div class="channel__inner">
 
-      <h3>{{name}}</h3>
-      <a href="#" class="delete-channel">Delete</a>
+      <div class="channel__header">
+        <h3 class="channel__name">{{name}}</h3>
+        <div class="channel__functions">
+          <a href="#" class="channel__add-resource">Add Resource</a>
+          <a href="#" class="channel__delete">Delete Channel</a>
+        </div>
+      </div>
+
       <p>Resource</p>
       <p>Resource</p>
 
