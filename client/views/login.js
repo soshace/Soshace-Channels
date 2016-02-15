@@ -1,26 +1,44 @@
+// Login without validation & showind errors to user
 // Template.login.events({
 //   'submit form': function(event) {
 //     event.preventDefault();
 //
+//     var email = event.target.email.value;
+//     var password = event.target.password.value;
+//
+//     Meteor.loginWithPassword(email, password, function(error) {
+//       if (error) {
+//         console.log(error.reason);
+//       } else {
+//         var currentRoute = Router.current().route.getName();
+//         if (currentRoute == 'login') {
+//           Router.go('flow');
+//         }
+//       }
+//     });
 //
 //   }
 // });
 
-
-// Template.login.onCreated(function(){
-//     console.log("The 'login' template was just created.");
-// });
-
 Template.login.onRendered(function(){
-    $('.login__form').validate({
+    var validator = $('.login__form').validate({
       submitHandler: function(event) {
 
-        var email = event.target.email.value;
-        var password = event.target.password.value;
+        var email = $('[name=email]').val();
+        var password = $('[name=password]').val();
 
         Meteor.loginWithPassword(email, password, function(error) {
           if (error) {
-            console.log(error.reason);
+            if (error.reason == 'User not found') {
+              validator.showErrors({
+                email: error.reason
+              });
+            }
+            if (error.reason == 'Incorrect password') {
+              validator.showErrors({
+                password: error.reason
+              });
+            }
           } else {
             var currentRoute = Router.current().route.getName();
             if (currentRoute == 'login') {
@@ -32,6 +50,10 @@ Template.login.onRendered(function(){
       }
     });
 });
+
+// Template.login.onCreated(function(){
+//     console.log("The 'login' template was just created.");
+// });
 
 // Template.login.onDestroyed(function(){
 //     console.log("The 'login' template was just destroyed.");
