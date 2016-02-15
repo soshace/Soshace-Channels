@@ -3,7 +3,7 @@ Meteor.methods({
     var currentUser = Meteor.userId();
     //check(channelName, String);
 
-    if (channelName === '') {
+    if (!channelName) {
       channelName = defaultName(currentUser);
     }
 
@@ -19,6 +19,7 @@ Meteor.methods({
 
     return Channels.insert(data);
   },
+
   'removeChannel': function(documentId) {
     var currentUser = Meteor.userId();
     var data = {
@@ -31,6 +32,21 @@ Meteor.methods({
     }
 
     Channels.remove(data);
+  },
+
+  'addNewResourceToChannel': function(resourcesToAdd, channelId) {
+    var currentUser = Meteor.userId();
+    var channel = Channels.findOne({ _id: channelId});
+
+    var data = {
+      resources: resourcesToAdd
+    };
+
+    if (!currentUser) {
+      throw new Meteor.Error('not-logged-in', 'You are not logged-in.');
+    }
+
+    channel.insert(data);
   }
 });
 

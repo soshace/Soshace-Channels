@@ -13,4 +13,10 @@ Template.channel.events({
       });
     }
   }
+  // 'click .channel__add-resource': function(event) {
+  //   event.preventDefault();
+  //   var documentId = this._id;
+  //   console.log(documentId);
+  //   console.log(Resources.find());
+  // }
 });

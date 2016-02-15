@@ -24,7 +24,7 @@ Router.route('/channels', {
   name: 'channels',
   template: 'channelList',
   waitOn: function() {
-    return Meteor.subscribe('channels');
+    return [ Meteor.subscribe('channels'), Meteor.subscribe('resources')];
   }
 });
 
@@ -45,7 +45,16 @@ Router.route('/channel/:_id', {
     }
   },
   waitOn: function() {
-    return Meteor.subscribe('channels');
+    return [ Meteor.subscribe('channels'), Meteor.subscribe('resources')];
+  }
+});
+
+Router.route('/channel/resources', {
+  name: 'channel-resources',
+  data: function() {
+    var currentChannel = this.params._id;
+    var currentUser = Meteor.userId();
+    return Channels.findOne({ _id: currentChannel, createdBy: currentUser });
   }
 });
 

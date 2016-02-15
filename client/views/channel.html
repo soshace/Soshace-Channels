@@ -1,6 +1,6 @@
 <template name="channel">
 
-  <!-- {{> channelList}} -->
+  {{> channelList}}
 
   <div class="channel">
 
@@ -9,10 +9,13 @@
       <div class="channel__header">
         <h3 class="channel__name">{{name}}</h3>
         <div class="channel__functions">
-          <a href="#" class="channel__add-resource">Add Resource</a>
+          <a href="{{pathFor route='channel'}}">Flow</a>
+          <a href="{{pathFor route='channel-resources'}}" class="channel__add-resource">Resources</a>
           <a href="#" class="channel__delete">Delete Channel</a>
         </div>
       </div>
+
+      {{> channelResources}}
 
       <p>Resource</p>
       <p>Resource</p>
