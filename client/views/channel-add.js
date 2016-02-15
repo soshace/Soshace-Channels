@@ -3,14 +3,14 @@ Template.addChannel.events({
     event.preventDefault();
     // get name from input
     var channelName = event.target.channelName.value;
-    var currentUser = Meteor.userId();
-    Channels.insert({
-      name: channelName,
-      createdBy: currentUser,
-      createdAt: new Date()
-    }, function(error, results) {
-      Router.go('channel', { _id: results });
+
+    Meteor.call('createNewChannel', channelName, function(error, results) {
+      if (error) {
+        console.log(error.reason);
+      } else {
+        Router.go('channel', { _id: results });
+        event.target.channelName.value = '';
+      }
     });
-    event.target.channelName.value = '';
   }
 });

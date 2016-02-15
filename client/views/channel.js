@@ -4,8 +4,13 @@ Template.channel.events({
     var documentId = this._id;
     var confirm = window.confirm('Delete ' + this.name + ' ?');
     if (confirm) {
-      Channels.remove({_id: documentId});
-      Router.go('channels');
+      Meteor.call('removeChannel', documentId, function(error, results) {
+        if (error) {
+          console.log(error.reason);
+        } else {
+          Router.go('channels');
+        }
+      });
     }
   }
 });

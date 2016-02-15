@@ -1,5 +1,6 @@
 Router.configure({
-  layoutTemplate: 'main'
+  layoutTemplate: 'main',
+  loadingTemplate: 'loading'
 });
 
 Router.route('/', {
@@ -22,7 +23,7 @@ Router.route('/settings', {
 Router.route('/channels', {
   name: 'channels',
   template: 'channelList',
-  subscriptions: function() {
+  waitOn: function() {
     return Meteor.subscribe('channels');
   }
 });
@@ -43,7 +44,7 @@ Router.route('/channel/:_id', {
       this.render('login');
     }
   },
-  subscriptions: function() {
+  waitOn: function() {
     return Meteor.subscribe('channels');
   }
 });
@@ -51,7 +52,7 @@ Router.route('/channel/:_id', {
 Router.route('/resources', {
   name: 'resources',
   template: 'resourceList',
-  subscriptions: function() {
+  waitOn: function() {
     return Meteor.subscribe('resources');
   }
 });
@@ -64,7 +65,7 @@ Router.route('/resource/:_id', {
     var currentUser = Meteor.userId();
     return Resources.findOne({ _id: currentResource, createdBy: currentUser });
   },
-  subscriptions: function() {
+  waitOn: function() {
     return Meteor.subscribe('resources');
   }
 });

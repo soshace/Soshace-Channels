@@ -4,8 +4,13 @@ Template.resource.events({
     var documentId = this._id;
     var confirm = window.confirm('Delete ' + this.name + ' ?');
     if (confirm) {
-      Resources.remove({_id: documentId});
-      Router.go('resources');
+      Meteor.call('removeResource', documentId, function(error, results) {
+        if (error) {
+          console.log(error.reason);
+        } else {
+          Router.go('resources');
+        }
+      });
     }
   }
 });
