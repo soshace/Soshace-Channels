@@ -4,24 +4,31 @@
 
     <div class="resource-list__inner">
 
-      {{> addResource}}
+      {{#if currentUser}}
 
-      <div class="resource-list__list-wrap">
+        {{> addResource}}
 
-        <p class="resource-list__header">List of resources:</p>
+        <div class="resource-list__list-wrap">
 
-        <ul class="resource-list__list">
-          {{#each resources}}
-          <li class="resource-list__item">
-            <a class="resource-list__link" href="{{pathFor route='resource'}}">{{name}}</a>
-          </li>
-          {{/each}}
-        </ul>
+          <p class="resource-list__header">List of resources:</p>
 
-      </div>
+          <ul class="resource-list__list">
+            {{#each resources}}
+            <li class="resource-list__item">
+              <a class="resource-list__link" href="{{pathFor route='resource'}}">{{name}}</a>
+            </li>
+            {{/each}}
+          </ul>
 
-      <p>ID of a selected Resource: {{_id}}</p>
+        </div>
 
+        <p>ID of a selected Resource: {{_id}}</p>
+
+      {{else}}
+
+        <p>You need to login to view your Channels.</p>
+
+      {{/if}}
     </div>
 
   </div>

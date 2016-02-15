@@ -1,3 +1,4 @@
+
 Template.channelList.helpers({
   channels: function() {
     var currentUser = Meteor.userId();
