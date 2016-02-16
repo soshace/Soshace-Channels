@@ -77,6 +77,14 @@ Router.route('/resource/:_id', {
     var currentUser = Meteor.userId();
     return Resources.findOne({ _id: currentResource, createdBy: currentUser });
   },
+  onBeforeAction: function() {
+    var currentUser = Meteor.userId();
+    if (currentUser) {
+      this.next();
+    } else {
+      this.render('login');
+    }
+  },
   waitOn: function() {
     return Meteor.subscribe('resources');
   }

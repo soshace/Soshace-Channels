@@ -17,8 +17,11 @@
 
       {{> channelAddResource}}
 
-      <p>Resources in this channel:</p>
-      <p>{{resources}}</p>
+      <h3>Resources in this channel:</h3>
+      {{#each resources}}
+      <p data-id="{{_id}}">{{name}}</p>
+      <p>... news from resource ... </p>
+      {{/each}}
 
     </div>
 

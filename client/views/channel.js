@@ -15,10 +15,18 @@ Template.channel.events({
       });
     }
   }
-  // 'click .channel__add-resource': function(event) {
-  //   event.preventDefault();
-  //   var documentId = this._id;
-  //   console.log(documentId);
-  //   console.log(Resources.find());
-  // }
+});
+
+Template.channel.helpers({
+  resources: function() {
+    var currentUser = Meteor.userId(),
+        channel = Channels.findOne({ _id: this._id }),
+        resourcesIds = channel.resources;
+
+    var selector = {
+      _id: { $in: resourcesIds}
+    };
+
+    return Resources.find(selector);
+  }
 });

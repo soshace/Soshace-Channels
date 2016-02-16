@@ -1,4 +1,4 @@
-Meteor.subscribe('resources');
+//Meteor.subscribe('resources');
 
 Template.channelAddResource.helpers({
   resources: function() {
