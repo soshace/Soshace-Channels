@@ -1,6 +1,6 @@
 Meteor.methods({
   'createNewResource': function(resourceName) {
-    var currentUser = Meteor.userId();
+    var currentUser = this.userId;
 
     if (resourceName === '') {
       resourceName = defaultName(currentUser);
@@ -19,7 +19,7 @@ Meteor.methods({
     return Resources.insert(data);
   },
   'removeResource': function(documentId) {
-    var currentUser = Meteor.userId();
+    var currentUser = this.userId;
     var data = {
       _id: documentId,
       createdBy: currentUser
@@ -36,7 +36,7 @@ Meteor.methods({
 function defaultName(currentUser) {
     var nextLetter = 'Resource ' + 'A';
     var nextName = nextLetter;
-    
+
     while (Resources.findOne({ name: nextName, createdBy: currentUser })) {
         nextLetter = String.fromCharCode(nextLetter.charCodeAt(0) + 1);
         nextName = 'Resource ' + nextLetter;

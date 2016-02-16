@@ -17,7 +17,10 @@ Router.route('/register', {
 });
 
 Router.route('/settings', {
-  template: 'settings'
+  template: 'settings',
+  waitOn: function() {
+    return [ Meteor.subscribe('channels'), Meteor.subscribe('resources'), Meteor.subscribe('Meteor.users.trelloData')];
+  }
 });
 
 Router.route('/channels', {

@@ -20,8 +20,8 @@ Template.channelAddResource.events({
 
     console.log('ID of a resource: ' + selectedResource);
     console.log('Channel ID: ' + channelId);
-    
-    // call function & handle errors
+
+    // Сall function & handle errors
     Meteor.call('addNewResourceToChannel', selectedResource, channelId, function(error, results) {
       if (error) {
         console.log(error.reason);

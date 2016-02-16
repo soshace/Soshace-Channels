@@ -1,6 +1,6 @@
 Meteor.methods({
   'createNewChannel': function(channelName) {
-    var currentUser = Meteor.userId();
+    var currentUser = this.userId;
     //check(channelName, String);
 
     if (!channelName) {
@@ -21,7 +21,7 @@ Meteor.methods({
   },
 
   'removeChannel': function(documentId) {
-    var currentUser = Meteor.userId();
+    var currentUser = this.userId;
     var data = {
       _id: documentId,
       createdBy: currentUser
@@ -35,12 +35,14 @@ Meteor.methods({
   },
 
   'addNewResourceToChannel': function(resourceToAdd, channelId) {
-    var currentUser = Meteor.userId();
+    var currentUser = this.userId;
 
     var data = {
       resources: resourceToAdd
     };
 
+    // TODO: сделать более точное сравнение
+    // возможно приведение типов (проверить аналогичные условия)
     if (!currentUser) {
       throw new Meteor.Error('not-logged-in', 'You are not logged-in.');
     }
@@ -50,7 +52,11 @@ Meteor.methods({
 
     // add resource to channel field 'resources'
     // '$addToSet' - adds elements to an array only if they do not already exist in the set.
-    Channels.update( {_id: channelId}, {$addToSet: { resources: resourceToAdd}});
+    Channels.update( { _id: channelId }, {
+      $addToSet: {
+        resources: resourceToAdd
+      }
+    });
   }
 });
 
