@@ -49,14 +49,14 @@ Router.route('/channel/:_id', {
   }
 });
 
-Router.route('/channel/resources', {
-  name: 'channel-resources',
-  data: function() {
-    var currentChannel = this.params._id;
-    var currentUser = Meteor.userId();
-    return Channels.findOne({ _id: currentChannel, createdBy: currentUser });
-  }
-});
+// Router.route('/channel/resources', {
+//   name: 'channel-resources',
+//   data: function() {
+//     var currentChannel = this.params._id;
+//     var currentUser = Meteor.userId();
+//     return Channels.findOne({ _id: currentChannel, createdBy: currentUser });
+//   }
+// });
 
 Router.route('/resources', {
   name: 'resources',

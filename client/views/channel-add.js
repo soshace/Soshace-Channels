@@ -1,6 +1,7 @@
 Template.addChannel.events({
   'submit form': function(event) {
     event.preventDefault();
+    
     // get name from input
     var channelName = $('[name=name]').val();
 

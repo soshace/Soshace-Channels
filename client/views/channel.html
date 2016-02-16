@@ -10,15 +10,15 @@
         <h3 class="channel__name">{{name}}</h3>
         <div class="channel__functions">
           <a href="{{pathFor route='channel'}}">Flow</a>
-          <a href="{{pathFor route='channel-resources'}}" class="channel__add-resource">Resources</a>
-          <a href="#" class="channel__delete">Delete Channel</a>
+          <a class="channel__add-resource" href="{{pathFor route='channel-resources'}}">Resources</a>
+          <a class="channel__delete" href="#">Delete Channel</a>
         </div>
       </div>
 
-      {{> channelResources}}
+      {{> channelAddResource}}
 
-      <p>Resource</p>
-      <p>Resource</p>
+      <p>Resources in this channel:</p>
+      <p>{{resources}}</p>
 
     </div>
 

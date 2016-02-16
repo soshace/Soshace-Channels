@@ -34,25 +34,30 @@ Meteor.methods({
     Channels.remove(data);
   },
 
-  'addNewResourceToChannel': function(resourcesToAdd, channelId) {
+  'addNewResourceToChannel': function(resourceToAdd, channelId) {
     var currentUser = Meteor.userId();
-    var channel = Channels.findOne({ _id: channelId});
 
     var data = {
-      resources: resourcesToAdd
+      resources: resourceToAdd
     };
 
     if (!currentUser) {
       throw new Meteor.Error('not-logged-in', 'You are not logged-in.');
     }
 
-    channel.insert(data);
+    // check if this resource is already in channel
+    // ...
+
+    // add resource to channel field 'resources'
+    // '$addToSet' - adds elements to an array only if they do not already exist in the set.
+    Channels.update( {_id: channelId}, {$addToSet: { resources: resourceToAdd}});
   }
 });
 
 function defaultName(currentUser) {
     var nextLetter = 'A';
     var nextName = 'Channel ' + nextLetter;
+
     while (Channels.findOne({ name: nextName, createdBy: currentUser })) {
         nextLetter = String.fromCharCode(nextLetter.charCodeAt(0) + 1);
         nextName = 'Channel ' + nextLetter;

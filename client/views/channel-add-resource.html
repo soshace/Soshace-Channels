@@ -1,0 +1,17 @@
+<template name="channelAddResource" >
+
+  <form>
+
+    <select class="channel__resource-list" name="resource-to-add">
+
+      {{#each resources}}
+      <option value="{{_id}}">{{name}}</option>
+      {{/each}}
+
+    </select>
+
+    <input type="submit" value="add">
+    
+  </form>
+
+</template>

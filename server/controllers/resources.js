@@ -36,6 +36,7 @@ Meteor.methods({
 function defaultName(currentUser) {
     var nextLetter = 'Resource ' + 'A';
     var nextName = nextLetter;
+    
     while (Resources.findOne({ name: nextName, createdBy: currentUser })) {
         nextLetter = String.fromCharCode(nextLetter.charCodeAt(0) + 1);
         nextName = 'Resource ' + nextLetter;
