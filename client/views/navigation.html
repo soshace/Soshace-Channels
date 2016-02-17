@@ -1,30 +1,40 @@
 <template name="navigation">
   <nav class="navigation">
-    <ul class="navigation__list">
-      <li class="navigation__item">
+
+    <ul class="nav">
+
+      <li class="">
         <a class="navigation__link" href="{{pathFor route='flow'}}">Flow</a>
       </li>
-      <li class="navigation__item">
+
+      <li class="">
         <a class="navigation__link" href="{{pathFor route='channels'}}">Channels</a>
       </li>
-      <li class="navigation__item">
+
+      <li class="">
         <a class="navigation__link" href="{{pathFor route='resources'}}">Resources</a>
       </li>
+
       {{#if currentUser}}
-        <li class="navigation__item">
+        <li class="">
           <a class="navigation__link" href="{{pathFor route='settings'}}">Settings</a>
         </li>
-        <li class="navigation__item">
+
+        <li class="">
           <a class="navigation__link logout" href="#">Logout</a>
         </li>
+
       {{else}}
-        <li class="navigation__item">
+        <li class="">
           <a class="navigation__link" href="{{pathFor route='register'}}">Register</a>
         </li>
-        <li  class="navigation__item">
+
+        <li  class="">
           <a class="navigation__link" href="{{pathFor route='login'}}">Login</a>
         </li>
       {{/if}}
+
     </ul>
+
   </nav>
 </template>
