@@ -1,16 +1,16 @@
 
-Template.settings.helpers({
-  channels: function() {
-    var currentUser = Meteor.userId();
-    return Channels.find({ createdBy: currentUser }, {sort: {createdAt: -1}});
-  },
-  resources: function() {
-    var currentUser = Meteor.userId();
-    return Resources.find({ createdBy: currentUser }, {sort: {createdAt: -1}});
-  },
-});
+// Template.services.helpers({
+//   channels: function() {
+//     var currentUser = Meteor.userId();
+//     return Channels.find({ createdBy: currentUser }, {sort: {createdAt: -1}});
+//   },
+//   resources: function() {
+//     var currentUser = Meteor.userId();
+//     return Resources.find({ createdBy: currentUser }, {sort: {createdAt: -1}});
+//   },
+// });
 
-Template.settings.events({
+Template.services.events({
   'submit form': function(event) {
     event.preventDefault();
 

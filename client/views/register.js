@@ -38,7 +38,7 @@ Template.register.onRendered(function(){
               });
             }
           } else {
-            Router.go('settings');
+            Router.go('services');
           }
         });
 

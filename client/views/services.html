@@ -1,0 +1,75 @@
+<template name="services">
+
+  <h1 class="page-header">Services</h1>
+
+  {{#if currentUser}}
+    <div class="row">
+
+      <div class="col-md-12">
+        <div class="panel panel-inverse">
+          <div class="panel-heading">
+            <h4 class="panel-title">Your local info</h4>
+          </div>
+          <div class="panel-body">
+            <p><strong>Login:</strong> {{currentUser.emails.[0].address}}</p>
+            <p><strong>ID:</strong> {{currentUser._id}}</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="row">
+
+      <div class="col-md-3">
+        <div class="panel panel-inverse">
+
+          <div class="panel-heading">
+            <h4 class="panel-title">Your Trello info</h4>
+          </div>
+
+          <div class="panel-body">
+            <p><strong>Key</strong>: {{currentUser.trelloData.apikey}}</p>
+            <p><strong>Login</strong>: {{currentUser.trelloData.login}}</p>
+            <p><strong>Password</strong>: {{currentUser.trelloData.password}}</p>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="panel panel-inverse">
+
+          <div class="panel-heading">
+            <h4 class="panel-title">Save/change Trello info to user account</h4>
+          </div>
+
+          <div class="panel-body">
+            <form>
+              <div class="form-group">
+                <input class="form-control" type="text" name="trello-key" placeholder="Enter key">
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="trello-login" placeholder="Enter login">
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="trello-password" placeholder="Enter password">
+              </div>
+
+              <input class="btn btn-sm btn-primary" type="submit" value="Save">
+            </form>
+          </div>
+
+        </div>
+
+
+      </div>
+    </div>
+
+  {{else}}
+
+    <p>You need to login.</p>
+
+  {{/if}}
+
+</template>

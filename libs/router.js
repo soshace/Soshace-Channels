@@ -16,8 +16,8 @@ Router.route('/register', {
   template: 'register',
 });
 
-Router.route('/settings', {
-  template: 'settings',
+Router.route('/services', {
+  template: 'services',
   waitOn: function() {
     return [ Meteor.subscribe('channels'), Meteor.subscribe('resources'), Meteor.subscribe('Meteor.users.trelloData')];
   }
