@@ -3,3 +3,11 @@
   color: #00acac;
   padding: 8px 20px;
 }
+
+.bg-green:hover {
+  background: #00AC96 !important;
+}
+
+.channel-resource-list {
+  margin-bottom: 30px;
+}

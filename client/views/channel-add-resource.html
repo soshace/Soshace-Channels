@@ -1,17 +1,36 @@
 <template name="channelAddResource" >
 
-  <form>
-    Select resource to add:
-    <select class="channel__resource-list" name="resource-to-add">
+  <div class="row">
+    <div class="col-md-6">
 
-      {{#each resources}}
-      <option value="{{_id}}">{{name}}</option>
-      {{/each}}
+      <div class="panel panel-inverse">
 
-    </select>
+        <div class="panel-heading">
+          <h4 class="panel-title">Select resource to add:</h4>
+        </div>
 
-    <input type="submit" value="add">
+        <div class="panel-body">
+          <form>
+            <div class="form-group">
+              <select class="form-control" name="resource-to-add">
 
-  </form>
+                {{#each resources}}
+                <option value="{{_id}}">{{name}}</option>
+                {{/each}}
+
+              </select>
+            </div>
+
+            <div class="form-group">
+              <input class="btn btn-sm btn-success" type="submit" value="Add">
+            </div>
+
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
 
 </template>

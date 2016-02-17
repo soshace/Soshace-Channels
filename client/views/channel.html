@@ -1,27 +1,75 @@
 <template name="channel">
 
-  {{> channelList}}
+  <h1 class="page-header">{{name}}</h1>
+  <a class="btn btn-danger m-r-5 m-b-5 channel__delete pull-right" href="#">Delete Channel</a>
 
-  <div class="channel">
+  <div class="row">
 
-    <div class="channel__inner">
+    <div class="col-md-12">
 
-      <div class="channel__header">
-        <h3 class="channel__name">{{name}}</h3>
-        <div class="channel__functions">
-          <a href="{{pathFor route='channel'}}">Flow</a>
-          <a class="channel__add-resource" href="{{pathFor route='channel-resources'}}">Resources</a>
-          <a class="channel__delete" href="#">Delete Channel</a>
+      <ul class="nav nav-tabs">
+        <li class="active">
+          <a href="#feed" data-toggle="tab" aria-expanded="true">Feed</a>
+        </li>
+        <li>
+          <a href="#resources" data-toggle="tab" aria-expanded="false">Resources</a>
+        </li>
+        <li>
+          <a href="#members" data-toggle="tab" aria-expanded="false">Members</a>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+
+        <div class="tab-pane fade active in" id="feed">
+
+          <ul class="media-list media-list-with-divider">
+
+            {{#each resources}}
+            <li class="media media-sm">
+
+              <span class="pull-left">
+                <img class="media-object" src="http://placehold.it/30x30" alt="">
+              </span>
+
+              <div class="media-body">
+                <h4 class="media-heading">{{name}}</h4>
+                <p class="m-b-5">
+                  ... news from resource ... ... news from resource ...... news from resource ... ... news from resource ...... news from resource ... ... news from resource ...
+                </p>
+                <i class="text-muted right">04/16/2016, 12:55</i>
+              </div>
+
+            </li>
+            {{/each}}
+
+          </ul>
+
         </div>
+
+        <div class="tab-pane fade" id="resources">
+          {{> channelAddResource}}
+          <h3>Resources at this channel:</h3>
+          <ul class="channel-resource-list">
+            {{#each resources}}
+              <li>{{name}}</li>
+            {{/each}}
+          </ul>
+
+
+
+        </div>
+
+        <div class="tab-pane fade" id="members">
+          <ul>
+            <li>Member</li>
+            <li>Member</li>
+            <li>Member</li>
+          </ul>
+        </div>
+
       </div>
 
-      {{> channelAddResource}}
-
-      <h3>Resources in this channel:</h3>
-      {{#each resources}}
-      <p data-id="{{_id}}">{{name}}</p>
-      <p>... news from resource ... </p>
-      {{/each}}
 
     </div>
 
