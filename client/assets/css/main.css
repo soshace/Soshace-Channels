@@ -8,6 +8,10 @@
   background: #00AC96 !important;
 }
 
+.bg-purple:hover {
+  background: #727CE6 !important;
+}
+
 .channel-resource-list {
   margin-bottom: 30px;
 }

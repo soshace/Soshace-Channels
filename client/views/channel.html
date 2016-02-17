@@ -1,10 +1,9 @@
 <template name="channel">
 
-  <h1 class="page-header">{{name}}</h1>
-  <a class="btn btn-danger m-r-5 m-b-5 channel__delete pull-right" href="#">Delete Channel</a>
+  <h1 class="page-header">Channel - {{name}}</h1>
+  <a class="channel__delete btn btn-danger m-b-15 pull-right" href="#">Delete Channel</a>
 
   <div class="row">
-
     <div class="col-md-12">
 
       <ul class="nav nav-tabs">
@@ -22,7 +21,6 @@
       <div class="tab-content">
 
         <div class="tab-pane fade active in" id="feed">
-
           <ul class="media-list media-list-with-divider">
 
             {{#each resources}}
@@ -44,20 +42,18 @@
             {{/each}}
 
           </ul>
-
         </div>
 
         <div class="tab-pane fade" id="resources">
           {{> channelAddResource}}
+
           <h3>Resources at this channel:</h3>
+
           <ul class="channel-resource-list">
             {{#each resources}}
               <li>{{name}}</li>
             {{/each}}
           </ul>
-
-
-
         </div>
 
         <div class="tab-pane fade" id="members">
@@ -70,9 +66,7 @@
 
       </div>
 
-
     </div>
-
   </div>
 
 </template>

@@ -2,33 +2,32 @@
 
   <h1 class="page-header">Channels</h1>
 
+  {{#if currentUser}}
+
   <div class="row">
 
-    {{#if currentUser}}
+    {{#each channels}}
+      <a class="" href="{{pathFor route='channel'}}">
+        <div class="col-md-3 col-sm-6">
+          <div class="widget widget-stats bg-green">
 
-      {{#each channels}}
-        <a class="" href="{{pathFor route='channel'}}">
-          <div class="col-md-3 col-sm-6">
-            <div class="widget widget-stats bg-green">
-
-              <div class="stats-info">
-                <h4>{{name}}</h4>
-              </div>
-
+            <div class="stats-info">
+              <h4>{{name}}</h4>
             </div>
+
           </div>
-        </a>
-      {{/each}}
+        </div>
+      </a>
+    {{/each}}
 
-      <!-- <p>ID of a selected Channel: {{_id}}</p> -->
-
-      {{> addChannel}}
-
-    {{else}}
-
-      <h3>You need to login to view your Channels.</h3>
-
-    {{/if}}
   </div>
+
+  {{> addChannel}}
+
+  {{else}}
+
+    <p>You need to login to view your Channels.</p>
+
+  {{/if}}
 
 </template>
