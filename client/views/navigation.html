@@ -1,40 +1,38 @@
 <template name="navigation">
-  <nav class="navigation">
 
-    <ul class="nav">
+  <ul class="nav">
 
+    <li class="active">
+      <a class="" href="{{pathFor route='flow'}}">Flow</a>
+    </li>
+
+    <li class="">
+      <a class="" href="{{pathFor route='channels'}}">Channels</a>
+    </li>
+
+    <li class="">
+      <a class="" href="{{pathFor route='resources'}}">Resources</a>
+    </li>
+
+    {{#if currentUser}}
       <li class="">
-        <a class="navigation__link" href="{{pathFor route='flow'}}">Flow</a>
+        <a class="" href="{{pathFor route='settings'}}">Settings</a>
       </li>
 
       <li class="">
-        <a class="navigation__link" href="{{pathFor route='channels'}}">Channels</a>
+        <a class="logout" href="#">Logout</a>
       </li>
 
+    {{else}}
       <li class="">
-        <a class="navigation__link" href="{{pathFor route='resources'}}">Resources</a>
+        <a class="" href="{{pathFor route='register'}}">Register</a>
       </li>
 
-      {{#if currentUser}}
-        <li class="">
-          <a class="navigation__link" href="{{pathFor route='settings'}}">Settings</a>
-        </li>
+      <li  class="">
+        <a class="" href="{{pathFor route='login'}}">Login</a>
+      </li>
+    {{/if}}
 
-        <li class="">
-          <a class="navigation__link logout" href="#">Logout</a>
-        </li>
+  </ul>
 
-      {{else}}
-        <li class="">
-          <a class="navigation__link" href="{{pathFor route='register'}}">Register</a>
-        </li>
-
-        <li  class="">
-          <a class="navigation__link" href="{{pathFor route='login'}}">Login</a>
-        </li>
-      {{/if}}
-
-    </ul>
-
-  </nav>
 </template>

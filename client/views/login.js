@@ -21,7 +21,7 @@
 // });
 
 Template.login.onRendered(function(){
-    var validator = $('.login__form').validate({
+    var validator = $('form').validate({
       submitHandler: function(event) {
 
         var email = $('[name=email]').val();
