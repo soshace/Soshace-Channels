@@ -4,11 +4,9 @@ Template.services.events({
 
     // get data from inputs
     var form = $('form'),
-        trelloKey = $('[name=trello-key]').val(),
         trelloLogin = $('[name=trello-login]').val(),
         trelloPassword = $('[name=trello-password]').val(),
         trelloData = {
-          apikey: trelloKey,
           login: trelloLogin,
           password: trelloPassword
         };

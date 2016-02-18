@@ -21,3 +21,17 @@ Meteor.publish('Meteor.users.trelloData', function () {
 
   return Meteor.users.find(selector, options);
 });
+
+Meteor.publish('Meteor.users', function () {
+  // var currentUser = this.userId;
+  //
+  // var selector = {
+  //   _id: currentUser
+  // };
+  //
+  // var options = {
+  //   fields: { contacts: 1}
+  // };
+  return Meteor.users.find();
+  //return Meteor.users.find(selector, options);
+});

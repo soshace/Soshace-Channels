@@ -23,6 +23,13 @@ Router.route('/services', {
   }
 });
 
+Router.route('/contacts', {
+  template: 'contacts',
+  waitOn: function() {
+    return [ Meteor.subscribe('Meteor.users') ];
+  }
+});
+
 Router.route('/channels', {
   name: 'channels',
   template: 'channelList',
@@ -51,15 +58,6 @@ Router.route('/channel/:_id', {
     return [ Meteor.subscribe('channels'), Meteor.subscribe('resources')];
   }
 });
-
-// Router.route('/channel/resources', {
-//   name: 'channel-resources',
-//   data: function() {
-//     var currentChannel = this.params._id;
-//     var currentUser = Meteor.userId();
-//     return Channels.findOne({ _id: currentChannel, createdBy: currentUser });
-//   }
-// });
 
 Router.route('/resources', {
   name: 'resources',

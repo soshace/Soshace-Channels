@@ -1,0 +1,53 @@
+<template name="contacts">
+
+  <div class="row">
+
+    <div class="col-md-6">
+      <div class="panel panel-inverse">
+
+        <div class="panel-heading">
+          <h4 class="panel-title">Contacts</h4>
+        </div>
+
+        <div class="panel-body">
+          <ul>
+            {{#each contacts}}
+              <li>{{emails}}</li>
+            {{/each}}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="panel">
+        <div class="panel-body">
+
+          <form class="form-horizontal">
+            <fieldset>
+              <legend>Add contact</legend>
+
+              <div class="form-group">
+                <label class="col-md-6 control-label" for="login-field">Enter User id:</label>
+                <div class="col-md-6">
+                  <input class="form-control" type="text" name="login" id="login-field" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="col-md-6 col-md-offset-6">
+                  <input class="btn btn-sm btn-primary" type="submit" value="Add">
+                </div>
+              </div>
+
+            </fieldset>
+          </form>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+</template>

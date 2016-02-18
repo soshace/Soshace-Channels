@@ -24,13 +24,15 @@ Template.register.onRendered(function(){
     var validator = $('form').validate({
       submitHandler: function(event) {
 
-        var email = $('[name=email]').val();
-        var password = $('[name=password]').val();
+        var emailVal = $('[name=email]').val(),
+            passwordVal = $('[name=password]').val();
+            options = {
+              email: emailVal,
+              password: passwordVal,
+              contacts: []
+            };
 
-        Accounts.createUser({
-          email: email,
-          password: password
-        }, function(error) {
+        Accounts.createUser(options, function(error) {
           if (error) {
             if (error.reason == 'Email already exists.') {
               validator.showErrors({
@@ -38,10 +40,9 @@ Template.register.onRendered(function(){
               });
             }
           } else {
-            Router.go('services');
+            Router.go('channels');
           }
         });
-
       }
     });
 });
