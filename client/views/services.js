@@ -1,15 +1,3 @@
-
-// Template.services.helpers({
-//   channels: function() {
-//     var currentUser = Meteor.userId();
-//     return Channels.find({ createdBy: currentUser }, {sort: {createdAt: -1}});
-//   },
-//   resources: function() {
-//     var currentUser = Meteor.userId();
-//     return Resources.find({ createdBy: currentUser }, {sort: {createdAt: -1}});
-//   },
-// });
-
 Template.services.events({
   'submit form': function(event) {
     event.preventDefault();
@@ -35,6 +23,24 @@ Template.services.events({
         console.log(results);
         form[0].reset();
       }
+    });
+  },
+
+  'click .trello-auth': function(event) {
+    event.preventDefault();
+
+    var authenticationSuccess = function() { console.log('Successful authentication'); },
+        authenticationFailure = function() { console.log('Failed authentication'); };
+
+    Trello.authorize({
+      type: 'popup',
+      name: 'SSI App',
+      scope: {
+        read: true,
+        write: true },
+      expiration: 'never',
+      success: authenticationSuccess,
+      error: authenticationFailure
     });
   }
 });
