@@ -22,8 +22,7 @@
 
         <div class="tab-pane fade active in" id="feed">
           <ul class="media-list media-list-with-divider">
-
-            {{#each resources}}
+            {{#each trelloBoards}}
             <li class="media media-sm">
 
               <span class="pull-left">
@@ -32,10 +31,21 @@
 
               <div class="media-body">
                 <h4 class="media-heading">{{name}}</h4>
-                <p class="m-b-5">
-                  ... news from resource ... ... news from resource ...... news from resource ... ... news from resource ...... news from resource ... ... news from resource ...
-                </p>
-                <i class="text-muted pull-right">04/16/2016, 12:55</i>
+                <a href="{{shortUrl}}">link</a>
+
+                {{#each lists}}
+                  <div>
+                    <p class="m-b-5">
+                      {{name}}
+                    </p>
+                    <ul>
+                      {{#each cards}}
+                        <li>{{name}}</li>
+                      {{/each}}
+                    </ul>
+                  </div>
+                {{/each}}
+                <i class="text-muted pull-right">{{formatDate dateLastActivity}}</i>
               </div>
 
             </li>
