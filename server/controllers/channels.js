@@ -10,7 +10,8 @@ Meteor.methods({
     var data = {
       name: channelName,
       createdBy: currentUser,
-      createdAt: new Date()
+      createdAt: new Date(),
+      members: []
     };
 
     if (!currentUser) {
@@ -20,10 +21,10 @@ Meteor.methods({
     return Channels.insert(data);
   },
 
-  'removeChannel': function(documentId) {
+  'removeChannel': function(channelId) {
     var currentUser = this.userId;
     var data = {
-      _id: documentId,
+      _id: channelId,
       createdBy: currentUser
     };
 
@@ -55,6 +56,20 @@ Meteor.methods({
     Channels.update( { _id: channelId }, {
       $addToSet: {
         resources: resourceToAdd
+      }
+    });
+  },
+
+  'addMember': function(channelId, userId) {
+
+    // TODO: add check if user is logged-in (if(!currentUser))??? see above methods
+    // var currentUser = this.userId;
+
+    // check userId???
+
+    Channels.update( { _id: channelId }, {
+      $addToSet: {
+        members: userId
       }
     });
   }

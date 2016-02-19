@@ -55,7 +55,7 @@ Router.route('/channel/:_id', {
     }
   },
   waitOn: function() {
-    return [ Meteor.subscribe('channels'), Meteor.subscribe('resources')];
+    return [ Meteor.subscribe('channels'), Meteor.subscribe('resources'), Meteor.subscribe('Meteor.users')];
   }
 });
 

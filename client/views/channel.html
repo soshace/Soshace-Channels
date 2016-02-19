@@ -57,11 +57,49 @@
         </div>
 
         <div class="tab-pane fade" id="members">
-          <ul>
-            <li>Member</li>
-            <li>Member</li>
-            <li>Member</li>
-          </ul>
+
+          <div class="row">
+
+            <div class="col-md-6">
+              <div class="panel panel-inverse">
+                <div class="panel-heading">
+                  <h4 class="panel-title">Channel Members:</h4>
+                </div>
+                <div class="panel-body">
+                  <ul>
+                    {{#each members}}
+                      <li>
+                        {{username}}
+                        <a class="channel__remove-member btn btn-danger m-l-15 m-b-15 m-t-15" href="#">Remove</a>
+                      </li>
+                    {{/each}}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="panel panel-inverse">
+                <div class="panel-heading">
+                  <h4 class="panel-title">Your Contacts:</h4>
+                </div>
+                <div class="panel-body">
+                  <ul>
+                    {{#each contacts}}
+                      <li>
+                        {{username}}
+                        <a class="channel__add-member btn btn-success m-l-15 m-b-15 m-t-15" data-userid="{{_id}}" href="#">add to channel</a>
+                      </li>
+
+                    {{/each}}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+
         </div>
 
       </div>

@@ -1,6 +1,20 @@
 Channels = new Mongo.Collection('channels');
 
-Channels.schema = new SimpleSchema({
+var Schemas = {};
+
+Schemas.ChannelMessages = new SimpleSchema({
+  body: {
+    type: String
+  },
+  date: {
+    type: Date
+  },
+  author: {
+    type: String
+  }
+});
+
+Schemas.Channel = new SimpleSchema({
   name: {
     type: String
   },
@@ -11,6 +25,16 @@ Channels.schema = new SimpleSchema({
     type: String
   },
   resources: {
-    type: [String], optional: true
+    type: [String],
+    optional: true
+  },
+  members: {
+    type: [String]
+  },
+  mesages: {
+    type: Schemas.ChannelMessages,
+    optional: true
   }
 });
+
+Channels.attachSchema(Schemas.Channel);
