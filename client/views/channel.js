@@ -37,6 +37,21 @@ Template.channel.events({
         console.log(results);
       }
     });
+  },
+
+  'click .channel__remove-member': function(event, template) {
+    event.preventDefault();
+
+    var channelId = template.data._id,
+        userId = event.target.dataset.userid;
+
+    Meteor.call('removeMember', channelId, userId, function(error, results) {
+      if (error) {
+        console.log(error.reason);
+      } else {
+        console.log(results);
+      }
+    });
   }
 });
 
@@ -77,12 +92,11 @@ Template.channel.helpers({
     };
 
     options = {
-      fields: { username: 1 }
+      fields: { username: 1, _id: 1 }
     };
 
     // Return channel members logins
     return Meteor.users.find(selector, options);
-
   }
 });
 

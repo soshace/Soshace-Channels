@@ -72,6 +72,17 @@ Meteor.methods({
         members: userId
       }
     });
+  },
+
+  'removeMember': function(channelId, userId) {
+    
+    // some checks?
+
+    Channels.update( { _id: channelId }, {
+      $pull: {
+        members: userId
+      }
+    });
   }
 });
 
