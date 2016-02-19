@@ -25,9 +25,11 @@ Template.register.onRendered(function(){
       submitHandler: function(event) {
 
         var emailVal = $('[name=email]').val(),
+            usernameVal = $('[name=username]').val(),
             passwordVal = $('[name=password]').val();
             options = {
               email: emailVal,
+              username: usernameVal,
               password: passwordVal,
               contacts: []
             };
@@ -39,6 +41,18 @@ Template.register.onRendered(function(){
                 email: error.reason
               });
             }
+            if (error.reason == 'Username already exists.') {
+              validator.showErrors({
+                username: error.reason
+              });
+            }
+            if (error.reason == 'Username failed regular expression validation') {
+              validator.showErrors({
+                username: 'Please, enter correct username.'
+              });
+            }
+
+            console.log(error);
           } else {
             Router.go('channels');
           }

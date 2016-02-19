@@ -12,6 +12,10 @@ $.validator.setDefaults({
     email: {
       required: 'Required field',
       email: 'Not valid'
+    },
+    username: {
+      required: 'Reqiured field',
+      username: 'Not valid'
     }
   }
 });
