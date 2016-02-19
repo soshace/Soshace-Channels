@@ -15,33 +15,24 @@ Meteor.methods({
     });
   },
 
-  'addContact': function(userIdToAdd) {
+  'addContact': function(newContact) {
     var currentUser = this.userId;
 
     var selector = {
-      _id: userIdToAdd
+      username: newContact
     };
 
     var userToAdd = Meteor.users.findOne(selector);
 
     Meteor.users.update(currentUser, {
       $addToSet: {
-        contacts: userToAdd._id
-      }
+        'profile.contacts': userToAdd._id
+      }}, function(error, results) {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log(results);
+        }
     });
   }
-  // ,
-  //
-  // 'getContactsEmails': function(contacts) {
-  //
-  //   var selector = {
-  //     _id: { $in: contacts}
-  //   };
-  //
-  //   var options = {
-  //     fields: { emails: 1}
-  //   };
-  //
-  //   return Meteor.users.find(selector, options);
-  // }
 });

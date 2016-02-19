@@ -7,7 +7,7 @@ Schema.UserProfile = new SimpleSchema({
         optional: true
     },
     contacts: {
-        type: [Object],
+        type: [String],
         optional: true
     }
 });
