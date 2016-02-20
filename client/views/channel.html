@@ -17,12 +17,11 @@
           <a href="#members" data-toggle="tab" aria-expanded="false">Members</a>
         </li>
       </ul>
-
       <div class="tab-content">
 
         <div class="tab-pane fade active in" id="feed">
           <ul class="media-list media-list-with-divider">
-            {{#each trelloBoards}}
+            {{#each channelFeed}}
             <li class="media media-sm">
 
               <span class="pull-left">
@@ -45,7 +44,7 @@
                     </ul>
                   </div>
                 {{/each}}
-                <i class="text-muted pull-right">{{formatDate dateLastActivity}}</i>
+                <i class="text-muted pull-right">{{dateLastActivity}}</i>
               </div>
 
             </li>
