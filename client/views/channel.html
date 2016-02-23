@@ -1,7 +1,6 @@
 <template name="channel">
 
   <h1 class="page-header">Channel - {{name}}</h1>
-  <a class="channel__delete btn btn-danger m-b-15 pull-right" href="#">Delete Channel</a>
 
   <div class="row">
     <div class="col-md-12">
@@ -14,7 +13,7 @@
           <a href="#members" data-toggle="tab" aria-expanded="false">Members</a>
         </li>
         <li>
-          <a href="#resources" data-toggle="tab" aria-expanded="false">Settings</a>
+          <a href="#settings" data-toggle="tab" aria-expanded="false">Settings</a>
         </li>
       </ul>
 
@@ -136,21 +135,13 @@
                   </form>
               </div>
             </div>
-
           </div>
-
         </div>
 
-        <div class="tab-pane fade" id="resources">
-          {{> channelAddResource}}
+        <div class="tab-pane fade" id="settings">
 
-          <h3>Resources at this channel:</h3>
+          <a class="channel__delete btn btn-danger m-t-15 m-b-15" href="#">Delete Channel</a>
 
-          <ul class="channel-resource-list">
-            {{#each resources}}
-              <li>{{name}}</li>
-            {{/each}}
-          </ul>
         </div>
 
       </div>

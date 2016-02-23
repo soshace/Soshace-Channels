@@ -19,7 +19,7 @@ Router.route('/register', {
 Router.route('/services', {
   template: 'services',
   waitOn: function() {
-    return [ Meteor.subscribe('channels'), Meteor.subscribe('resources'), Meteor.subscribe('Meteor.users.trelloData')];
+    return [ Meteor.subscribe('channels'), Meteor.subscribe('Meteor.users')];
   }
 });
 
@@ -34,7 +34,7 @@ Router.route('/channels', {
   name: 'channels',
   template: 'channelList',
   waitOn: function() {
-    return [ Meteor.subscribe('channels'), Meteor.subscribe('resources')];
+    return Meteor.subscribe('channels');
   }
 });
 
@@ -55,35 +55,6 @@ Router.route('/channel/:_id', {
     }
   },
   waitOn: function() {
-    return [ Meteor.subscribe('channels'), Meteor.subscribe('resources'), Meteor.subscribe('Meteor.users')];
-  }
-});
-
-Router.route('/resources', {
-  name: 'resources',
-  template: 'resourceList',
-  waitOn: function() {
-    return Meteor.subscribe('resources');
-  }
-});
-
-Router.route('/resource/:_id', {
-  name: 'resource',
-  template: 'resource',
-  data: function() {
-    var currentResource = this.params._id;
-    var currentUser = Meteor.userId();
-    return Resources.findOne({ _id: currentResource, createdBy: currentUser });
-  },
-  onBeforeAction: function() {
-    var currentUser = Meteor.userId();
-    if (currentUser) {
-      this.next();
-    } else {
-      this.render('login');
-    }
-  },
-  waitOn: function() {
-    return Meteor.subscribe('resources');
+    return [ Meteor.subscribe('channels'), Meteor.subscribe('Meteor.users')];
   }
 });
