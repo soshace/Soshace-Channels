@@ -1,3 +1,5 @@
+// 'Channels' collections and it's schema
+
 Channels = new Mongo.Collection('channels');
 
 var Schemas = {};

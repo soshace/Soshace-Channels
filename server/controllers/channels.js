@@ -1,3 +1,5 @@
+// Methods working with 'Channels' collection
+
 Meteor.methods({
   'createNewChannel': function(channelName) {
     var currentUser = this.userId;
@@ -75,7 +77,7 @@ Meteor.methods({
   },
 
   'removeMember': function(channelId, userId) {
-    
+
     // some checks?
 
     Channels.update( { _id: channelId }, {

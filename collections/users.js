@@ -1,3 +1,5 @@
+// Schema for 'Meteor.users' collection
+
 var Schema = {};
 
 Schema.UserProfile = new SimpleSchema({

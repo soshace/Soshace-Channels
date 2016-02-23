@@ -1,3 +1,4 @@
+// Methods working with 'Resources' collection
 Meteor.methods({
   'createNewResource': function(resourceName) {
     var currentUser = this.userId;
