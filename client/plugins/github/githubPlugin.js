@@ -1,5 +1,5 @@
 (function() {
-	var _events = [],
+	let _data = [],
 		_loadCompleteEventName = 'githubLoadComplete';
 
 	// Constructor
@@ -9,7 +9,7 @@
 
 		this.loadCompleteEventName = _loadCompleteEventName;
 
-		var defaults = {
+		let defaults = {
 			showRepos: true,
 			userName: 'soshace'
 		}
@@ -18,14 +18,14 @@
 			this.options = extendDefaults(defaults, arguments[0]);
 		}
 
-		$.getJSON('https://api.github.com/users/soshace/events', function(data) {
-			// console.log(data);
-			_events = data;
+		$.getJSON('https://api.github.com/repos/soshace/social-sharing-interface/commits',{access_token:Session.get('githubToken')},function(data) {
+			_data = data;
+			console.log(data);
 			runTemplating();
-			var loadCompleteEvent = new CustomEvent(_loadCompleteEventName, {
-				'detail': _events
+			let loadCompleteEvent = new CustomEvent(_loadCompleteEventName, {
+				'detail': _data
 			});
-			window.dispatchEvent(loadCompleteEvent);						
+			window.dispatchEvent(loadCompleteEvent);
 		});
 	}
 
@@ -34,7 +34,7 @@
 
 	//Private methods
 	function extendDefaults(source, properties) { // Utility method to extend defaults with user options
-		var property;
+		let property;
 		for (property in properties) {
 			if (properties.hasOwnProperty(property)) {
 				source[property] = properties[property];
@@ -44,12 +44,20 @@
 	}
 
 	function runTemplating() {
-		var bone = '<div>{{type}}</div>';
+		// var bone = '<div>{{type}}</div>';
 		// var _template = Handlebars.compile(bone);
-		for (let event of _events){
+		for (let commit of _data) {
 			// event = _template(event);
-			event.name = `EventID: ${event.id}; Type: ${event.type}; repo: ${event.repo.name}; author: ${event.actor.login}`;
-			event.dateLastActivity = event.created_at;
+			commit.name = commit.author.login;
+			commit.dateLastActivity = formatDateTime(commit.commit.committer.date);
+			commit.message = commit.commit.message;
+			commit.shortUrl = commit.html_url;
 		}
 	}
+
+	function formatDateTime(dt) {
+		let date = new Date(dt);
+		return `${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}  ${date.getHours()}:${date.getMinutes()}`;
+	};
+
 })()
