@@ -1,6 +1,8 @@
 Meteor.publish('channels', function() {
   var currentUser = this.userId;
-  return Channels.find({ createdBy: currentUser });
+
+  //return Channels.find({ createdBy: currentUser });
+  return Channels.find({});
 });
 
 Meteor.publish('resources', function() {

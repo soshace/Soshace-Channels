@@ -31,7 +31,8 @@ Template.register.onRendered(function(){
               email: emailVal,
               username: usernameVal,
               password: passwordVal,
-              contacts: []
+              contacts: [],
+              channels: []
             };
 
         Accounts.createUser(options, function(error) {

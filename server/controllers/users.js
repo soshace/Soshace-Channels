@@ -1,14 +1,16 @@
 // Methods working with 'Meteor.users' collection
 
-// Add empty array to users field 'contacts' (which defined in client/views/register.js)
+// Add empty arrays to users fields 'contacts'/'channels'
+// (which defined in client/views/register.js)
 // when user creates an account (registation)
 Accounts.onCreateUser(function(options, user) {
    // Use provided profile in options, or create an empty object
    user.profile = options.profile || {};
 
-   // Assigns first and last names to the newly created user object
+   // Assigns 'contacts'/'channels'  to the newly created user object
    user.profile.contacts = options.contacts;
-   //user.profile.lastName = options.lastName;
+   user.profile.channels = options.channels;
+
    // Returns the user object
    return user;
 });

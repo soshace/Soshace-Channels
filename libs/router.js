@@ -44,7 +44,7 @@ Router.route('/channel/:_id', {
   data: function() {
     var currentChannel = this.params._id;
     var currentUser = Meteor.userId();
-    return Channels.findOne({ _id: currentChannel, createdBy: currentUser });
+    return Channels.findOne({ _id: currentChannel });
   },
   onBeforeAction: function() {
     var currentUser = Meteor.userId();

@@ -4,15 +4,21 @@
 
   {{#if currentUser}}
 
-  <div class="row">
+  <div class="row panel bg-white m-b-30">
+
+    <h4 class="m-20">Your Channels</h4>
 
     {{#each channels}}
-      <a class="" href="{{pathFor route='channel'}}">
+      <a href="{{pathFor route='channel'}}">
         <div class="col-md-3 col-sm-6">
           <div class="widget widget-stats bg-green">
 
             <div class="stats-info">
               <h4>{{name}}</h4>
+            </div>
+
+            <div class="stats-link">
+              <a href="{{pathFor route='channel'}}">Last update: 02/02/2016</a>
             </div>
 
           </div>
@@ -23,6 +29,30 @@
   </div>
 
   {{> addChannel}}
+
+  <div class="row panel bg-white m-t-20">
+
+    <h4 class="m-20">Guest Channels</h4>
+
+    {{#each guestchannels}}
+      <a href="{{pathFor route='channel'}}">
+        <div class="col-md-3 col-sm-6">
+          <div class="widget widget-stats bg-green">
+
+            <div class="stats-info">
+              <h4>{{name}}</h4>
+            </div>
+
+            <div class="stats-link">
+              <a href="{{pathFor route='channel'}}">Last update: 02/02/2016</a>
+            </div>
+
+          </div>
+        </div>
+      </a>
+    {{/each}}
+
+  </div>
 
   {{else}}
 

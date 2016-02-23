@@ -11,6 +11,10 @@ Schema.UserProfile = new SimpleSchema({
     contacts: {
         type: [String],
         optional: true
+    },
+    channels: {
+      type: [String],
+      optional: true
     }
 });
 
