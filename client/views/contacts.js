@@ -27,7 +27,7 @@ Template.contacts.helpers({
       fields: {
         username: 1,
         'profile.firstName': 1,
-        'profile.lastName': 1,
+        'profile.lastName': 1
       }
     };
 
