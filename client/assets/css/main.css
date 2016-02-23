@@ -15,3 +15,17 @@
 .channel-resource-list {
   margin-bottom: 30px;
 }
+
+.channel__member {
+  position: relative;
+}
+
+.channel__remove-member {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.border-panel {
+  border: 1px solid #242a30;
+}

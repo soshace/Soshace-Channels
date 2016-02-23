@@ -19,16 +19,16 @@ Template.channel.events({
     }
   },
 
-  'click .channel__add-member': function(event, template) {
+  'submit .channel__add-member': function(event) {
     event.preventDefault();
 
-    // Get current channel id.
-    // Here we can't use 'this._id' for channelId
-    // because of data context of contacts helper
-    var channelId = template.data._id;
+    // Get channel id
+    var channelId = this._id;
 
-    // Take user id from link data attribute
-    var userId = event.target.dataset.userid;
+    // Find select
+    var select = document.querySelector('[name=user-to-channel]');
+    // Get id of a selected user
+    var userId = select.options[select.selectedIndex].value;
 
     Meteor.call('addMember', channelId, userId, function(error, results) {
       if (error) {
@@ -70,7 +70,9 @@ Template.channel.helpers({
     var options = {
       fields: {
         username: 1,
-        _id: 1
+        _id: 1,
+        'profile.firstName': 1,
+        'profile.lastName': 1
       }
     };
 
@@ -80,7 +82,7 @@ Template.channel.helpers({
   members: function() {
     // Get current channel id
     var channelId = this._id;
-    console.log(arguments);
+
     var selector = {
       _id: channelId
     };
@@ -103,7 +105,9 @@ Template.channel.helpers({
     options = {
       fields: {
         username: 1,
-        _id: 1
+        _id: 1,
+        'profile.firstName': 1,
+        'profile.lastName': 1
       }
     };
 

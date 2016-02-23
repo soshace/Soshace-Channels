@@ -1,12 +1,11 @@
 <template name="channel">
 
   <h1 class="page-header">Channel - {{name}}</h1>
-  <a class="channel__delete btn btn-danger m-b-15 pull-right" href="#">Delete Channel</a>
 
   <div class="row">
     <div class="col-md-12">
 
-      <ul class="nav nav-tabs">
+      <ul class="nav nav-tabs nav-tabs-inverse">
         <li class="active">
           <a href="#feed" data-toggle="tab" aria-expanded="true">Feed</a>
         </li>
@@ -14,7 +13,7 @@
           <a href="#members" data-toggle="tab" aria-expanded="false">Members</a>
         </li>
         <li>
-          <a href="#resources" data-toggle="tab" aria-expanded="false">Settings</a>
+          <a href="#settings" data-toggle="tab" aria-expanded="false">Settings</a>
         </li>
       </ul>
 
@@ -24,7 +23,6 @@
           <ul class="media-list media-list-with-divider">
             {{#each channelFeed}}
             <li class="media media-sm">
-
               <span class="pull-left">
                 <img class="media-object" src="http://placehold.it/30x30" alt="">
               </span>
@@ -58,58 +56,93 @@
         <div class="tab-pane fade" id="members">
 
           <div class="row">
+            <div class="col-md-6">
+              <div class="panel">
+                <ul class="registered-users-list clearfix">
+
+                  {{#each members}}
+                    <li class="channel__member">
+                      <img src="http://placehold.it/70x70" alt="User avatar">
+                      <h4 class="username text-ellipsis">
+                        {{profile.firstName}} {{profile.lastName}}
+                        <small>({{username}})</small>
+                      </h4>
+                      <a class="channel__remove-member btn btn-danger" href="#" data-userid={{_id}}>x</a>
+                    </li>
+                  {{/each}}
+
+                </ul>
+              </div>
+            </div>
 
             <div class="col-md-6">
-              <div class="panel panel-inverse">
+              <div class="panel panel-inverse border-panel">
                 <div class="panel-heading">
-                  <h4 class="panel-title">Channel Members:</h4>
+                  <h4 class="panel-title">Roles</h4>
                 </div>
+
                 <div class="panel-body">
-                  <ul>
-                    {{#each members}}
-                      <li>
-                        {{username}}
-                        <a class="channel__remove-member btn btn-danger m-l-15 m-b-15 m-t-15" href="#" data-userid={{_id}}>Remove</a>
-                      </li>
-                    {{/each}}
-                  </ul>
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Role</th>
+                        <th>User</th>
+                        <th>Email</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Creator</td>
+                        <td>Quo</td>
+                        <td>q@qq.ru</td>
+                      </tr>
+                      <tr>
+                        <td>Admin</td>
+                        <td>Quo</td>
+                        <td>q@qq.ru</td>
+                      </tr>
+                      <tr>
+                        <td>Admin</td>
+                        <td>Quo</td>
+                        <td>q@qq.ru</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <a href="#" class="btn btn-sm btn-success">Manage</a>
+
                 </div>
               </div>
             </div>
 
             <div class="col-md-6">
               <div class="panel panel-inverse">
-                <div class="panel-heading">
-                  <h4 class="panel-title">Your Contacts:</h4>
-                </div>
-                <div class="panel-body">
-                  <ul>
-                    {{#each contacts}}
-                      <li>
-                        {{username}}
-                        <a class="channel__add-member btn btn-success m-l-15 m-b-15 m-t-15" data-userid="{{_id}}" href="#">add to channel</a>
-                      </li>
+                  <form class="channel__add-member">
+                    <fieldset>
 
-                    {{/each}}
-                  </ul>
-                </div>
+                      <legend>Add users to channel:</legend>
+
+                      <div class="form-group">
+                        <select class="form-control" name="user-to-channel" >
+                          {{#each contacts}}
+                            <option value="{{_id}}">{{profile.firstName}} {{profile.lastName}} ({{username}})</option>
+                          {{/each}}
+                        </select>
+                      </div>
+
+                      <div class="form-group">
+                        <input class="btn btn-sm btn-success" type="submit" value="Add">
+                      </div>
+                    </fieldset>
+                  </form>
               </div>
             </div>
-
           </div>
-
         </div>
 
-        <div class="tab-pane fade" id="resources">
-          {{> channelAddResource}}
+        <div class="tab-pane fade" id="settings">
 
-          <h3>Resources at this channel:</h3>
+          <a class="channel__delete btn btn-danger m-t-15 m-b-15" href="#">Delete Channel</a>
 
-          <ul class="channel-resource-list">
-            {{#each resources}}
-              <li>{{name}}</li>
-            {{/each}}
-          </ul>
         </div>
 
       </div>

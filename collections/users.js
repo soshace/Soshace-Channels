@@ -3,7 +3,12 @@
 var Schema = {};
 
 Schema.UserProfile = new SimpleSchema({
-    userName: {
+    firstName: {
+        type: String,
+        regEx: /^[a-zA-Z]{2,25}$/,
+        optional: true
+    },
+    lastName: {
         type: String,
         regEx: /^[a-zA-Z]{2,25}$/,
         optional: true

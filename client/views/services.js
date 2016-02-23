@@ -1,25 +1,19 @@
 Template.services.events({
-  'submit form': function(event) {
+  'submit .user-info': function(event) {
     event.preventDefault();
 
-    // get data from inputs
-    var form = $('form'),
-        trelloLogin = $('[name=trello-login]').val(),
-        trelloPassword = $('[name=trello-password]').val(),
-        trelloData = {
-          login: trelloLogin,
-          password: trelloPassword
-        };
+    // get data
+    var form = $('.user-info'),
+        firstName = $('[name=first-name]').val(),
+        lastName = $('[name=last-name]').val();
 
-    console.log(trelloData);
-
-    Meteor.call('saveTrelloData', trelloData, function(error, results) {
+    console.log(lastName);
+    Meteor.call('saveUserName', firstName, lastName, function(error, results) {
       if (error) {
         console.log(error);
       } else {
         console.log('ok');
         console.log(results);
-        form[0].reset();
       }
     });
   },
