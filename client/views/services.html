@@ -5,61 +5,44 @@
   {{#if currentUser}}
     <div class="row">
 
-      <div class="col-md-12">
+      <div class="col-md-6">
         <div class="panel panel-inverse">
           <div class="panel-heading">
             <h4 class="panel-title">Your local info</h4>
           </div>
           <div class="panel-body">
-            <p><strong>Login:</strong> {{currentUser.emails.[0].address}}</p>
-            <p><strong>ID:</strong> {{currentUser._id}}</p>
+            <p><strong>Email:</strong> {{currentUser.emails.[0].address}}</p>
+            <p><strong>ID:</strong> {{currentUser.username}}</p>
+            {{#if currentUser.profile.firstName}}
+              <p><strong>First Name:</strong> {{currentUser.profile.firstName}}</p>
+            {{/if}}
+            {{#if currentUser.profile.lastName}}
+              <p><strong>Last Name:</strong> {{currentUser.profile.lastName}}</p>
+            {{/if}}
           </div>
-        </div>
-
-      </div>
-    </div>
-
-    <div class="row">
-
-      <div class="col-md-3">
-        <div class="panel panel-inverse">
-
-          <div class="panel-heading">
-            <h4 class="panel-title">Your Trello info</h4>
-          </div>
-
-          <div class="panel-body">
-            <p><strong>Login</strong>: {{currentUser.trelloData.login}}</p>
-            <p><strong>Password</strong>: {{currentUser.trelloData.password}}</p>
-          </div>
-
         </div>
       </div>
 
-      <div class="col-md-4">
+      <div class="col-md-6">
         <div class="panel panel-inverse">
-
           <div class="panel-heading">
-            <h4 class="panel-title">Save/change Trello info to user account</h4>
+            <h4 class="panel-title">Change info</h4>
           </div>
-
           <div class="panel-body">
-            <form>
+            <form class="user-info">
               <div class="form-group">
-                <input class="form-control" type="text" name="trello-login" placeholder="Enter login">
+                <input class="form-control" type="text" name="first-name" placeholder="Enter first name">
               </div>
               <div class="form-group">
-                <input class="form-control" type="text" name="trello-password" placeholder="Enter password">
+                <input class="form-control" type="text" name="last-name" placeholder="Enter last name">
               </div>
 
               <input class="btn btn-sm btn-primary" type="submit" value="Save">
             </form>
           </div>
-
         </div>
-
-
       </div>
+
     </div>
 
     <div class="row">

@@ -24,7 +24,11 @@ Template.contacts.helpers({
     };
 
     var options = {
-      fields: { username: 1}
+      fields: {
+        username: 1,
+        'profile.firstName': 1,
+        'profile.lastName': 1,
+      }
     };
 
     return Meteor.users.find(selector, options);

@@ -6,7 +6,7 @@
   <div class="row">
     <div class="col-md-12">
 
-      <ul class="nav nav-tabs">
+      <ul class="nav nav-tabs nav-tabs-inverse">
         <li class="active">
           <a href="#feed" data-toggle="tab" aria-expanded="true">Feed</a>
         </li>
@@ -24,7 +24,6 @@
           <ul class="media-list media-list-with-divider">
             {{#each channelFeed}}
             <li class="media media-sm">
-
               <span class="pull-left">
                 <img class="media-object" src="http://placehold.it/30x30" alt="">
               </span>
@@ -67,8 +66,12 @@
                   <ul>
                     {{#each members}}
                       <li>
-                        {{username}}
-                        <a class="channel__remove-member btn btn-danger m-l-15 m-b-15 m-t-15" href="#" data-userid={{_id}}>Remove</a>
+                        {{#if firstName}}
+                          {{firstName}}
+                        {{else}}
+                          {{username}}
+                          <a class="channel__remove-member btn btn-danger m-l-15 m-b-15 m-t-15" href="#" data-userid={{_id}}>Remove</a>
+                        {{/if}}
                       </li>
                     {{/each}}
                   </ul>

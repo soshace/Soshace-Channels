@@ -17,7 +17,7 @@ Accounts.onCreateUser(function(options, user) {
 
 
 Meteor.methods({
-  'saveTrelloData': function(data) {
+  'saveUserName': function(firstName, lastName) {
     var currentUser = this.userId;
 
     // TODO: сделать более точное сравнение
@@ -25,10 +25,12 @@ Meteor.methods({
     // if (!currentUser) {
     //   throw new Meteor.Error('not-logged-in', 'You are not logged-in.');
     // }
+    console.log(firstName);
 
     Meteor.users.update(currentUser, {
       $set: {
-        trelloData: data
+        'profile.firstName': firstName,
+        'profile.lastName': lastName
       }
     });
   },

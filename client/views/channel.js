@@ -80,7 +80,7 @@ Template.channel.helpers({
   members: function() {
     // Get current channel id
     var channelId = this._id;
-    console.log(arguments);
+
     var selector = {
       _id: channelId
     };

@@ -1,24 +1,8 @@
 <template name="contacts">
 
+  <h1 class="page-header">Contacts</h1>
+
   <div class="row">
-
-    <div class="col-md-6">
-      <div class="panel panel-inverse">
-
-        <div class="panel-heading">
-          <h4 class="panel-title">Contacts</h4>
-        </div>
-
-        <div class="panel-body">
-          <ul>
-            {{#each contacts}}
-              <li>{{username}}</li>
-            {{/each}}
-          </ul>
-        </div>
-      </div>
-    </div>
-
     <div class="col-md-6">
       <div class="panel">
         <div class="panel-body">
@@ -28,7 +12,7 @@
               <legend>Add contact</legend>
 
               <div class="form-group">
-                <label class="col-md-6 control-label" for="login-field">Enter User login:</label>
+                <label class="col-md-6 control-label" for="login-field">Enter User id:</label>
                 <div class="col-md-6">
                   <input class="form-control" type="text" name="login" id="login-field" required>
                 </div>
@@ -44,6 +28,32 @@
           </form>
 
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+
+    <div class="col-md-12">
+      <div class="panel panel-inverse">
+
+        <div class="panel-heading">
+          <h4 class="panel-title">Contacts</h4>
+        </div>
+
+        <ul class="registered-users-list clearfix">
+          {{#each contacts}}
+            <li>
+              <img src="http://placehold.it/80x80" alt="User avatar">
+              <h4 class="username text-ellipsis">{{profile.firstName}} {{profile.lastName}} <small>({{username}})</small></h4>
+            </li>
+          {{/each}}
+        </ul>
+
+        <div class="panel-footer">
+
+        </div>
+
       </div>
     </div>
 
