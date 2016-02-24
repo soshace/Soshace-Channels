@@ -137,34 +137,8 @@
 	}
 
 	function runTemplating() {
-		let template = '<span class="pull-left">';
-		// template += '<img class="media-object" src="http://placehold.it/30x30" alt="">';
-		template += '<img class="media-object" src="/images/logo.png" alt="">';
-		template += '</span>';
-
-		template += '<div class="media-body">';
-		template += '<h4 class="media-heading">{{name}}</h4>';
-		template += '<a href="{{shortUrl}}">link</a>';
-
-		template += '{{#each lists}}';
-
-		template += '<div>';
-		template += '<p class="m-b-5">';
-		template += '{{name}}';
-		template += '</p>';
-		template += '<ul>';
-		template += '{{#each cards}}';
-		template += '<li>{{name}}</li>';
-		template += '{{/each}}';
-		template += '</ul>';
-		template += '</div>';
-		template += '{{/each}}';
-		template += '<i class="text-muted pull-right">{{dateLastActivity}}</i>';
-		template += '</div>';
-
-		let compiledTemplate = Handlebars.compile(template);
 		for (let item of _boards) {
-			item.view = compiledTemplate(item);
+			item.dateLastActivity = formatDateTime(item.dateLastActivity);
 		}
 	}
 

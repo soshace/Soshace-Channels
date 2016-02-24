@@ -48,23 +48,10 @@
 	}
 
 	function runTemplating() {
-		let template = '<span class="pull-left">';
-		template += '<img class="media-object" src="{{avatar}}" alt="">';
-		template += '</span>';
-
-		template += '<div class="media-body">';
-		template += '<h4 class="media-heading">{{commit.message}}</h4>';
-		template += '<p>by {{name}}</p>';
-		template += '<a href="{{html_url}}" target="_blank">View at github</a>';
-		template += '<i class="text-muted pull-right">{{date}}</i>';
-		template += '</div>';
-
-		let compiledTemplate = Handlebars.compile(template);
 		for (let item of _data) {
 			item.name = item.author ? item.author.login : item.commit.author.email;
 			item.avatar = item.author ? item.author.avatar_url : 'http://placehold.it/30x30';
 			item.date = formatDateTime(item.commit.committer.date);
-			item.view = compiledTemplate(item);
 		}
 	}
 

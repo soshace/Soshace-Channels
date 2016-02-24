@@ -117,6 +117,10 @@ Template.channel.helpers({
 
   channelFeed: function() {
     return Session.get('channelFeed');
+  },
+
+  template:function(){
+    return Template['githubTemplate'];
   }
 });
 
@@ -125,14 +129,8 @@ Template.channel.onRendered(function() {
     this._rendered = true;
 
     Session.set('channelFeed', []);
-    var trello = new TrelloPlugin();
-    var github = new GithubPlugin({
-      username: 'soshace'
-    });
+    var github = new GithubPlugin();
 
-    window.addEventListener(trello.loadCompleteEventName, function(event) {
-      updateChannel(event.detail);
-    });
     window.addEventListener(github.loadCompleteEventName, function(event) {
       updateChannel(event.detail);
     });
