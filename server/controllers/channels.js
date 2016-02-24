@@ -1,9 +1,10 @@
 // Methods working with 'Channels' collection
 
 Meteor.methods({
-  'createNewChannel': function(channelName) {
+  'createNewChannel': function(channelName, channelType) {
     var currentUser = this.userId;
     //check(channelName, String);
+    //check(channelType, String);
 
     if (!channelName) {
       channelName = defaultName(currentUser);
@@ -13,7 +14,8 @@ Meteor.methods({
       name: channelName,
       createdBy: currentUser,
       createdAt: new Date(),
-      members: []
+      members: [],
+      serviceType: channelType
     };
 
     if (!currentUser) {

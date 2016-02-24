@@ -1,17 +1,57 @@
 <template name="addChannel">
 
+  <h1 class="page-header">Channels</h1>
+
+  {{#if currentUser}}
+
   <div class="row">
     <div class="col-md-6">
 
-      <div class="panel panel-inverse">
-
-        <div class="panel-heading">
-          <h4 class="panel-title">Create new channel:</h4>
-        </div>
+      <div class="panel">
 
         <div class="panel-body">
-          <form>
-            <input class="form-control input-lg" type="text" placeholder="Type a channel name here or just press ENTER" name="name">
+          <form class="form-horizontal">
+            <fieldset>
+              <legend>Creation:</legend>
+
+              <div class="form-group">
+                <label class="col-md-6 control-label" for="name-field">Enter name for channel:</label>
+                <div class="col-md-6">
+                  <input class="form-control" type="text" name="name" id="name-field" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-md-6 control-label" for="type-field">Select type:</label>
+                <div class="col-md-6">
+                  <select class="channel-add__type form-control" name="type" id="type-field">
+                      <option value="github">Github</option>
+                      <option value="trello">Trello</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row m-b-10">
+                <span class="col-md-6 text-right m-t-5">You need to login service:</span>
+
+                <div class="channel-add__github-auth col-md-6">
+                  <a href="https://github.com/login/oauth/authorize?client_id=40ca9788c56b7ce7307f&scope=repo">
+                    <button class="github-auth btn btn-info m-r-5 m-b-5" type="button">Github Auth</button>
+                  </a>
+                </div>
+
+                <div class="channel-add__trello-auth col-md-6 hidden">
+                  <button class="trello-auth btn btn-info m-r-5 m-b-5" type="button">Trello Auth</button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="col-md-6 col-md-offset-6">
+                  <input class="btn btn-primary" type="submit" value="Create">
+                </div>
+              </div>
+
+            </fieldset>
           </form>
         </div>
 
@@ -19,5 +59,11 @@
 
     </div>
   </div>
+
+  {{else}}
+
+    <p>You need to login to create Channels.</p>
+
+  {{/if}}
 
 </template>

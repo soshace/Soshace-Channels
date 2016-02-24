@@ -38,6 +38,13 @@ Router.route('/channels', {
   }
 });
 
+Router.route('/addchannel', {
+  template: 'addChannel',
+  waitOn: function() {
+    return Meteor.subscribe('channels');
+  }
+});
+
 Router.route('/channel/:_id', {
   name: 'channel',
   template: 'channel',

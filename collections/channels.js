@@ -33,6 +33,9 @@ Schemas.Channel = new SimpleSchema({
   members: {
     type: [String]
   },
+  serviceType: {
+    type: String
+  },
   mesages: {
     type: Schemas.ChannelMessages,
     optional: true
