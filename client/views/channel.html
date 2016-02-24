@@ -23,30 +23,7 @@
           <ul class="media-list media-list-with-divider">
             {{#each channelFeed}}
             <li class="media media-sm">
-              <span class="pull-left">
-                <img class="media-object" src="http://placehold.it/30x30" alt="">
-              </span>
-
-              <div class="media-body">
-                <h4 class="media-heading">{{name}}</h4>
-                <a href="{{shortUrl}}">link</a>
-                <p>{{message}}</p>
-
-                {{#each lists}}
-                  <div>
-                    <p class="m-b-5">
-                      {{name}}
-                    </p>
-                    <ul>
-                      {{#each cards}}
-                        <li>{{name}}</li>
-                      {{/each}}
-                    </ul>
-                  </div>
-                {{/each}}
-                <i class="text-muted pull-right">{{dateLastActivity}}</i>
-              </div>
-
+              {{{view}}}
             </li>
             {{/each}}
 

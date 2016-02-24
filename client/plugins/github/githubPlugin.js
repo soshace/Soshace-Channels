@@ -18,11 +18,13 @@
 			this.options = extendDefaults(defaults, arguments[0]);
 		}
 
+		// $.getJSON('https://api.github.com/applications/40ca9788c56b7ce7307f/tokens/e70a5408e00713cf9483f7340fecdb3232b12787', {
 		$.getJSON('https://api.github.com/repos/soshace/social-sharing-interface/commits', {
+		// $.getJSON('https://api.github.com/repos/vitaliizhukov/bookshelf/commits', {
 			access_token: localStorage.getItem('githubToken')
 		}, function(data) {
 			_data = data;
-			console.log(data);
+			console.log(_data);
 			runTemplating();
 			let loadCompleteEvent = new CustomEvent(_loadCompleteEventName, {
 				'detail': _data
@@ -46,14 +48,23 @@
 	}
 
 	function runTemplating() {
-		// var bone = '<div>{{type}}</div>';
-		// var _template = Handlebars.compile(bone);
+		let template = '<span class="pull-left">';
+		template += '<img class="media-object" src="{{avatar}}" alt="">';
+		template += '</span>';
+
+		template += '<div class="media-body">';
+		template += '<h4 class="media-heading">{{commit.message}}</h4>';
+		template += '<p>by {{name}}</p>';
+		template += '<a href="{{html_url}}" target="_blank">View at github</a>';
+		template += '<i class="text-muted pull-right">{{date}}</i>';
+		template += '</div>';
+
+		let compiledTemplate = Handlebars.compile(template);
 		for (let item of _data) {
-			// event = _template(event);
 			item.name = item.author ? item.author.login : item.commit.author.email;
-			item.dateLastActivity = formatDateTime(item.commit.committer.date);
-			item.message = item.commit.message;
-			item.shortUrl = item.html_url;
+			item.avatar = item.author ? item.author.avatar_url : 'http://placehold.it/30x30';
+			item.date = formatDateTime(item.commit.committer.date);
+			item.view = compiledTemplate(item);
 		}
 	}
 

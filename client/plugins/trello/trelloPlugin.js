@@ -114,8 +114,12 @@
 	function allListsAreFilled() { // Temporary function to checkout if all the lists were filled with cards. Should try to find more propriate way.
 		let res = true;
 		for (let board of _boards) {
-			for (let list of board.lists) {
-				res = list.filled && res;
+			if (board.lists) {
+				for (let list of board.lists) {
+					res = list.filled && res;
+				}
+			} else {
+				res = false;
 			}
 		}
 		return res;
@@ -133,22 +137,35 @@
 	}
 
 	function runTemplating() {
-		// $.get('/trelloItem.hbs', function(data) {
-		// 	console.log(data);
-		// 	if (Handlebars.templates === undefined) {
-		// 		Handlebars.templates = {};
-		// 	}
-		// 	_template = Handlebars.compile(data);
-		// 	for (let i = _boards.length - 1; i >= 0; i--) {
-		// 		// _boards[i] = _template(_boards[i]);
-		// 	};
-		// });
-		// var bone = '<li class="media media-sm"><span class="pull-left"><img class="media-object" src="http://placehold.it/30x30" alt=""></span><div class="media-body"><h4 class="media-heading">{{name}}</h4><a href="{{shortUrl}}">link</a>{{#each lists}}<div><p class="m-b-5">{{name}}</p><ul>{{#each cards}}<li>{{name}}</li>{{/each}}</ul></div>{{/each}}<i class="text-muted pull-right">{{dateLastActivity}}</i></div></li>';
-		var bone = '<li>{{name}}</li>';
-		// var _template = Handlebars.compile(bone);
-		for (let i = _boards.length - 1; i >= 0; i--) {
-			// _boards[i] = _template(_boards[i]);
-		};
+		let template = '<span class="pull-left">';
+		// template += '<img class="media-object" src="http://placehold.it/30x30" alt="">';
+		template += '<img class="media-object" src="/images/logo.png" alt="">';
+		template += '</span>';
+
+		template += '<div class="media-body">';
+		template += '<h4 class="media-heading">{{name}}</h4>';
+		template += '<a href="{{shortUrl}}">link</a>';
+
+		template += '{{#each lists}}';
+
+		template += '<div>';
+		template += '<p class="m-b-5">';
+		template += '{{name}}';
+		template += '</p>';
+		template += '<ul>';
+		template += '{{#each cards}}';
+		template += '<li>{{name}}</li>';
+		template += '{{/each}}';
+		template += '</ul>';
+		template += '</div>';
+		template += '{{/each}}';
+		template += '<i class="text-muted pull-right">{{dateLastActivity}}</i>';
+		template += '</div>';
+
+		let compiledTemplate = Handlebars.compile(template);
+		for (let item of _boards) {
+			item.view = compiledTemplate(item);
+		}
 	}
 
 })()
