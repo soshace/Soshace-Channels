@@ -43,7 +43,7 @@ Template.services.onRendered(function() {
     let success = results.content.split('&')[0].split('=')[0]!=='error';
     if (success){
       let token = results.content.split('&')[0].split('=')[1];
-      Session.set('githubToken',token);
+      localStorage.setItem('githubToken',token);
       console.log(token);
     }
   })

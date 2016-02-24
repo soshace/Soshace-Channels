@@ -18,7 +18,9 @@
 			this.options = extendDefaults(defaults, arguments[0]);
 		}
 
-		$.getJSON('https://api.github.com/repos/soshace/social-sharing-interface/commits',{access_token:Session.get('githubToken')},function(data) {
+		$.getJSON('https://api.github.com/repos/soshace/social-sharing-interface/commits', {
+			access_token: localStorage.getItem('githubToken')
+		}, function(data) {
 			_data = data;
 			console.log(data);
 			runTemplating();
@@ -46,12 +48,12 @@
 	function runTemplating() {
 		// var bone = '<div>{{type}}</div>';
 		// var _template = Handlebars.compile(bone);
-		for (let commit of _data) {
+		for (let item of _data) {
 			// event = _template(event);
-			commit.name = commit.author.login;
-			commit.dateLastActivity = formatDateTime(commit.commit.committer.date);
-			commit.message = commit.commit.message;
-			commit.shortUrl = commit.html_url;
+			item.name = item.author ? item.author.login : item.commit.author.email;
+			item.dateLastActivity = formatDateTime(item.commit.committer.date);
+			item.message = item.commit.message;
+			item.shortUrl = item.html_url;
 		}
 	}
 
