@@ -36,7 +36,10 @@ Schemas.Channel = new SimpleSchema({
   serviceType: {
     type: String
   },
-  mesages: {
+  serviceResource: {
+    type: String
+  },
+  messages: {
     type: Schemas.ChannelMessages,
     optional: true
   }

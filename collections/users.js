@@ -2,6 +2,17 @@
 
 var Schema = {};
 
+Schema.UserServices = new SimpleSchema({
+  name: {
+    type: String
+  },
+  pass: {
+    type: String,
+    optional: true
+  },
+
+});
+
 Schema.UserProfile = new SimpleSchema({
     firstName: {
         type: String,
@@ -19,6 +30,10 @@ Schema.UserProfile = new SimpleSchema({
     },
     channels: {
       type: [String],
+      optional: true
+    },
+    services: {
+      type: Schema.UserServices,
       optional: true
     }
 });
