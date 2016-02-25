@@ -70,5 +70,15 @@ Meteor.methods({
           console.log(results);
         }
     });
+  },
+
+  'sendVerificationLink': function() {
+    var userId = this.usedId;
+
+    console.log(userId);
+
+    // if ( userId ) {
+    //   return Accounts.sendVerificationEmail( userId );
+    // }
   }
 });

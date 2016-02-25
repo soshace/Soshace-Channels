@@ -55,7 +55,16 @@ Template.register.onRendered(function(){
 
             console.log(error);
           } else {
-            Router.go('channels');
+            // need to check if method calls
+            Meteor.call('sendVerificationLink', function(error, response) {
+              if (error) {
+                console.log(error.reason);
+              } else {
+                console.log('success');
+                Router.go('channels');
+              }
+            });
+            //Router.go('channels');
           }
         });
       }
