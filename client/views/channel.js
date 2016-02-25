@@ -119,7 +119,7 @@ Template.channel.helpers({
     return Session.get('channelFeed');
   },
 
-  template:function(){
+  template: function() {
     return Template['githubTemplate'];
   }
 });
@@ -129,7 +129,14 @@ Template.channel.onRendered(function() {
     this._rendered = true;
 
     Session.set('channelFeed', []);
-    Meteor.github = new GithubPlugin(Meteor.user().profile.services.pass,'social-sharing-interface');      
+
+    let resourceId = Channels.findOne({
+      _id: this.data._id
+    }).serviceResource;
+
+    console.log(resourceId);
+    Meteor.github = new GithubPlugin(Meteor.user().profile.services.pass, resourceId);
+    Meteor.github.getRepoCommits();
 
     window.addEventListener(Meteor.github.loadCompleteEventName, function(event) {
       updateChannel(event.detail);

@@ -23,7 +23,29 @@
 			this.options = extendDefaults(defaults, arguments[0]);
 		}
 
-		let request = 'https://api.github.com/repos/soshace/'+_resourceId+'/commits'
+		// let request = 'https://api.github.com/repos/'+_resourceId+'/commits'
+		// $.getJSON(request, {
+		// 	access_token: _token
+		// }, function(data) {
+		// 	_data = data;
+		// 	runTemplating();
+		// 	let loadCompleteEvent = new CustomEvent(_loadCompleteEventName, {
+		// 		'detail': _data
+		// 	});
+		// 	window.dispatchEvent(loadCompleteEvent);
+		// });
+	}
+
+	// Public methods
+	GithubPlugin.prototype.getUserRepos = function(func) {
+		$.getJSON('https://api.github.com/user/repos', {
+			access_token: _token,
+			visibility: 'private'
+		},func);
+	}
+
+	GithubPlugin.prototype.getRepoCommits = function() {
+		let request = 'https://api.github.com/repos/'+_resourceId+'/commits'
 		$.getJSON(request, {
 			access_token: _token
 		}, function(data) {
@@ -34,14 +56,6 @@
 			});
 			window.dispatchEvent(loadCompleteEvent);
 		});
-	}
-
-	// Public methods
-	GithubPlugin.prototype.getUserRepos = function(func) {
-		$.getJSON('https://api.github.com/user/repos', {
-			access_token: _token,
-			visibility: 'private'
-		},func);
 	}
 
 	//Private methods
