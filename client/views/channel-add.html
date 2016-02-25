@@ -32,18 +32,23 @@
               </div>
 
               <div class="row m-b-10">
-                <span class="col-md-6 text-right m-t-5">You need to login service:</span>
+                <span class="col-md-6 text-right m-t-5 auth-message">You need to login service:</span>
 
-                <div class="channel-add__github-auth col-md-6">
-                  <a href="https://github.com/login/oauth/authorize?client_id=40ca9788c56b7ce7307f&scope=repo">
-                    <button class="github-auth btn btn-info m-r-5 m-b-5" type="button">Github Auth</button>
-                  </a>
-                </div>
+                <div class="auth-service">
+                  <div class="channel-add__github-auth col-md-6">
+                    <a href="https://github.com/login/oauth/authorize?client_id=40ca9788c56b7ce7307f&scope=repo">
+                      <button class="github-auth btn btn-info m-r-5 m-b-5" type="button">Github Auth</button>
+                    </a>
+                  </div>
 
-                <div class="channel-add__trello-auth col-md-6 hidden">
-                  <button class="trello-auth btn btn-info m-r-5 m-b-5" type="button">Trello Auth</button>
+                  <div class="channel-add__trello-auth col-md-6 hidden">
+                    <button class="trello-auth btn btn-info m-r-5 m-b-5" type="button">Trello Auth</button>
+                  </div>
+                  
                 </div>
               </div>
+
+              {{> githubSettingsTemplate settingsData}}
 
               <div class="form-group">
                 <div class="col-md-6 col-md-offset-6">

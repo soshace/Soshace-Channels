@@ -129,9 +129,9 @@ Template.channel.onRendered(function() {
     this._rendered = true;
 
     Session.set('channelFeed', []);
-    var github = new GithubPlugin();
+    Meteor.github = new GithubPlugin(Meteor.user().profile.services.pass,'social-sharing-interface');      
 
-    window.addEventListener(github.loadCompleteEventName, function(event) {
+    window.addEventListener(Meteor.github.loadCompleteEventName, function(event) {
       updateChannel(event.detail);
     });
   }

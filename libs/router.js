@@ -5,15 +5,7 @@ Router.configure({
 
 Router.route('/', {
   name: 'flow',
-  template: 'flow',
-  onBeforeAction: function() {
-    var currentUser = Meteor.userId();
-    if (currentUser) {
-      this.next();
-    } else {
-      this.render('login');
-    }
-  },
+  template: 'flow'
 });
 
 Router.route('/login', {
@@ -49,7 +41,7 @@ Router.route('/channels', {
 Router.route('/addchannel', {
   template: 'addChannel',
   waitOn: function() {
-    return Meteor.subscribe('channels');
+    return [ Meteor.subscribe('channels'), Meteor.subscribe('Meteor.users')];
   }
 });
 

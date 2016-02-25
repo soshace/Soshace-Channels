@@ -1,7 +1,7 @@
 // Methods working with 'Channels' collection
 
 Meteor.methods({
-  'createNewChannel': function(channelName, channelType) {
+  'createNewChannel': function(channelName, channelType, resourceId) {
     var currentUser = this.userId;
     //check(channelName, String);
     //check(channelType, String);
@@ -15,13 +15,14 @@ Meteor.methods({
       createdBy: currentUser,
       createdAt: new Date(),
       members: [],
-      serviceType: channelType
+      serviceType: channelType,
+      serviceResource: resourceId
     };
 
     if (!currentUser) {
       throw new Meteor.Error('not-logged-in', 'You are not logged-in.');
     }
-
+    console.log(data);
     return Channels.insert(data);
   },
 

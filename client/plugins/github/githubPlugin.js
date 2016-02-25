@@ -1,11 +1,16 @@
 (function() {
 	let _data = [],
-		_loadCompleteEventName = 'githubLoadComplete';
+		_loadCompleteEventName = 'githubLoadComplete',
+		_token,
+		_resourceId;
 
 	// Constructor
-	this.GithubPlugin = function() {
+	this.GithubPlugin = function(token,resourceId) {
 		this.showRepos = null;
 		this.userName = null;
+		this.settingsTemplateName = 'githubSettingsTemplate';
+		_token = token;
+		_resourceId = resourceId;
 
 		this.loadCompleteEventName = _loadCompleteEventName;
 
@@ -18,13 +23,11 @@
 			this.options = extendDefaults(defaults, arguments[0]);
 		}
 
-		// $.getJSON('https://api.github.com/applications/40ca9788c56b7ce7307f/tokens/e70a5408e00713cf9483f7340fecdb3232b12787', {
-		$.getJSON('https://api.github.com/repos/soshace/social-sharing-interface/commits', {
-		// $.getJSON('https://api.github.com/repos/vitaliizhukov/bookshelf/commits', {
-			access_token: localStorage.getItem('githubToken')
+		let request = 'https://api.github.com/repos/soshace/'+_resourceId+'/commits'
+		$.getJSON(request, {
+			access_token: _token
 		}, function(data) {
 			_data = data;
-			console.log(_data);
 			runTemplating();
 			let loadCompleteEvent = new CustomEvent(_loadCompleteEventName, {
 				'detail': _data
@@ -34,7 +37,12 @@
 	}
 
 	// Public methods
-	GithubPlugin.prototype.getData = function() {}
+	GithubPlugin.prototype.getUserRepos = function(func) {
+		$.getJSON('https://api.github.com/user/repos', {
+			access_token: _token,
+			visibility: 'private'
+		},func);
+	}
 
 	//Private methods
 	function extendDefaults(source, properties) { // Utility method to extend defaults with user options

@@ -54,5 +54,21 @@ Meteor.methods({
           console.log(results);
         }
     });
+  },
+
+  'addToken': function(serviceName,token) {
+    let currentUser = this.userId;
+    console.log(token);
+    Meteor.users.update(currentUser, {
+      $set: {
+        'profile.services.name': serviceName,
+        'profile.services.pass': token,
+      }}, function(error, results) {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log(results);
+        }
+    });
   }
 });
