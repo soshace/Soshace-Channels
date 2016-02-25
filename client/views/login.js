@@ -42,7 +42,7 @@ Template.login.onRendered(function(){
           } else {
             var currentRoute = Router.current().route.getName();
             if (currentRoute == 'login') {
-              Router.go('flow');
+              Router.go('channels');
             }
           }
         });

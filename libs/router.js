@@ -5,7 +5,15 @@ Router.configure({
 
 Router.route('/', {
   name: 'flow',
-  template: 'flow'
+  template: 'flow',
+  onBeforeAction: function() {
+    var currentUser = Meteor.userId();
+    if (currentUser) {
+      this.next();
+    } else {
+      this.render('login');
+    }
+  },
 });
 
 Router.route('/login', {

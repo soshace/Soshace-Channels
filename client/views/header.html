@@ -1,10 +1,92 @@
 <template name="header">
 
-  <header class="sidebar">
+  <header class="header navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
 
-    <h1 class="active">Soshace Channels</h1>
-    {{> navigation}}
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/">
+          <span class="navbar-logo"></span>
+          Soshace Channels
+        </a>
+      </div>
 
+      <ul class="nav navbar-nav pull-right">
+        {{#if currentUser}}
+          <li>
+            <a href="{{pathFor route='services'}}">Profile</a>
+          </li>
+          <li>
+            <a class="logout" href="#">Logout</a>
+          </li>
+        {{else}}
+          <li>
+            <a href="{{pathFor route='register'}}">Register</a>
+          </li>
+
+          <li>
+            <a href="{{pathFor route='login'}}">Login</a>
+          </li>
+        {{/if}}
+      </ul>
+
+    </div>
   </header>
+
+  {{#if currentUser}}
+    <div class="sidebar">
+
+      <ul class="nav">
+        <li class="nav-profile">
+
+          <div class="image">
+            <a href="{{pathFor route='services'}}">
+              <img src="http://placehold.it/80x80" alt="User avatar">
+            </a>
+          </div>
+
+          <div class="info">
+            {{#if currentUser.profile.firstName}}
+              {{currentUser.profile.firstName}}
+            {{/if}}
+            {{#if currentUser.profile.lastName}}
+              {{currentUser.profile.lastName}}
+            {{/if}}
+            <small>{{currentUser.username}}</small>
+          </div>
+
+        </li>
+      </ul>
+
+      <ul class="nav">
+
+        <li>
+          <a href="{{pathFor route='contacts'}}">Contacts</a>
+        </li>
+
+        <li class="has-sub active">
+          <a href="{{pathFor route='channels'}}">
+            <span>Channels</span>
+          </a>
+          <ul class="sub-menu">
+
+            {{#each channels}}
+              <li>
+                <a href="{{pathFor route='channel'}}">{{name}}</a>
+              </li>
+            {{/each}}
+
+            {{#each guestchannels}}
+              <li>
+                <a href="{{pathFor route='channel'}}">{{name}}</a>
+              </li>
+            {{/each}}
+
+          </ul>
+        </li>
+
+      </ul>
+
+    </div>
+  {{/if}}
 
 </template>
