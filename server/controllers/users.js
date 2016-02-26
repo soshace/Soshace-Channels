@@ -17,7 +17,7 @@ Accounts.onCreateUser(function(options, user) {
 
 
 Meteor.methods({
-  'saveUserName': function(firstName, lastName) {
+  'saveUserData': function(firstName, lastName, serviceName, servicePass) {
     var currentUser = this.userId;
 
     // TODO: сделать более точное сравнение
@@ -25,12 +25,13 @@ Meteor.methods({
     // if (!currentUser) {
     //   throw new Meteor.Error('not-logged-in', 'You are not logged-in.');
     // }
-    console.log(firstName);
 
     Meteor.users.update(currentUser, {
       $set: {
         'profile.firstName': firstName,
-        'profile.lastName': lastName
+        'profile.lastName': lastName,
+        'profile.services.name': serviceName,
+        'profile.services.pass': servicePass
       }
     });
   },
@@ -77,6 +78,14 @@ Meteor.methods({
 
     if (userId) {
       return Accounts.sendVerificationEmail( userId );
+    }
+  },
+
+  'deleteAccount': function() {
+    var userId = this.userId;
+
+    if (userId) {
+      Meteor.users.remove(userId);
     }
   }
 });

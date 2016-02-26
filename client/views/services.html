@@ -1,8 +1,11 @@
 <template name="services">
 
-  <h1 class="page-header">Profile (Services)</h1>
+  <h1 class="page-header">
+    Profile (Services)
+    <a href="#" class="delete-user btn btn-danger pull-right">Delete account</a>
+  </h1>
 
-  {{#if currentUser}}
+
     <div class="row">
 
       <div class="col-md-6">
@@ -11,13 +14,26 @@
             <h4 class="panel-title">Your local info</h4>
           </div>
           <div class="panel-body">
-            <p><strong>Email:</strong> {{currentUser.emails.[0].address}}</p>
+            <p>
+              <strong>Email:</strong> {{currentUser.emails.[0].address}}
+              {{#unless currentUser.emails.[0].verified}}
+                <span class="label label-danger">You need to verify email</span><a class="resend-verification-link m-l-5" href="#">Resend verification link</a>
+              {{else}}
+                <span class="label label-success">Verified</span>
+              {{/unless}}
+            </p>
             <p><strong>ID:</strong> {{currentUser.username}}</p>
             {{#if currentUser.profile.firstName}}
               <p><strong>First Name:</strong> {{currentUser.profile.firstName}}</p>
             {{/if}}
             {{#if currentUser.profile.lastName}}
               <p><strong>Last Name:</strong> {{currentUser.profile.lastName}}</p>
+            {{/if}}
+            {{#if currentUser.profile.services.name}}
+              <p><strong>Service:</strong> {{currentUser.profile.services.name}}</p>
+            {{/if}}
+            {{#if currentUser.profile.services.pass}}
+              <p><strong>Pass for service:</strong> {{currentUser.profile.services.pass}}</p>
             {{/if}}
           </div>
         </div>
@@ -35,6 +51,12 @@
               </div>
               <div class="form-group">
                 <input class="form-control" type="text" name="last-name" placeholder="Enter last name">
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="service-name" placeholder="Enter service name (for now ONLY 'github')">
+              </div>
+              <div class="form-group">
+                <input class="form-control" type="text" name="service-pass" placeholder="Enter service pass code">
               </div>
 
               <input class="btn btn-sm btn-primary" type="submit" value="Save">
@@ -76,10 +98,5 @@
         </div>
       </div>
     </div>
-  {{else}}
-
-    <p>You need to login.</p>
-
-  {{/if}}
 
 </template>

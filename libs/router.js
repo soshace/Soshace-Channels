@@ -57,12 +57,30 @@ Router.route('/channel/:_id', {
     var currentUser = Meteor.userId();
     if (currentUser) {
       this.next();
-      Template.channel.updateData(this.params._id);
     } else {
       this.render('login');
     }
   },
   waitOn: function() {
     return [ Meteor.subscribe('channels'), Meteor.subscribe('Meteor.users')];
+  }
+});
+
+Router.route('/verify-email/:token', {
+  name: 'verify-email',
+  onBeforeAction: function() {
+    var token = this.params.token;
+
+    Accounts.verifyEmail(token, function(error) {
+      if (error) {
+        Router.go('services');
+        // bert alert
+        console.log(error.reason);
+      } else {
+        Router.go('services');
+        // bert alert
+        console.log('verified');
+      }
+    });
   }
 });

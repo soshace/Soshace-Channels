@@ -5,10 +5,11 @@ Template.services.events({
     // get data
     var form = $('.user-info'),
         firstName = $('[name=first-name]').val(),
-        lastName = $('[name=last-name]').val();
+        lastName = $('[name=last-name]').val(),
+        serviceName = $('[name=service-name]').val(),
+        servicePass = $('[name=service-pass]').val();
 
-    console.log(lastName);
-    Meteor.call('saveUserName', firstName, lastName, function(error, results) {
+    Meteor.call('saveUserData', firstName, lastName, serviceName, servicePass, function(error, results) {
       if (error) {
         console.log(error);
       } else {
@@ -33,6 +34,37 @@ Template.services.events({
       expiration: 'never',
       success: authenticationSuccess,
       error: authenticationFailure
+    });
+  },
+
+  'click .resend-verification-link': function(event) {
+    event.preventDefault();
+
+    // add bert's alerts
+    Meteor.call('sendVerificationLink', function(error, response) {
+      if (error) {
+        // add bert alert
+        console.log(error);
+      } else {
+        var email = Meteor.user().emails[0].address;
+        // add bert alert
+        console.log('link send to ' + email);
+      }
+    });
+  },
+
+  'click .delete-user': function(event) {
+    event.preventDefault();
+
+    Meteor.call('deleteAccount', function(error, response) {
+      if (error) {
+        // bert alert
+        console.log(error.reason);
+      } else {
+        Router.go('register');
+        // bert alert
+        console.log(response);
+      }
     });
   }
 });

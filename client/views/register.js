@@ -52,19 +52,13 @@ Template.register.onRendered(function(){
                 username: 'Please, enter correct username.'
               });
             }
-
           } else {
-            console.log('create user arguments:');
-            console.log(arguments);
-            // need to check if method calls
             Meteor.call('sendVerificationLink', function(error, response) {
               if (error) {
                 console.log(error);
-              } else {
-                Router.go('channels');
               }
             });
-            //Router.go('channels');
+            Router.go('channels');
           }
         });
       }
