@@ -73,12 +73,10 @@ Meteor.methods({
   },
 
   'sendVerificationLink': function() {
-    var userId = this.usedId;
+    var userId = this.userId;
 
-    console.log(userId);
-
-    // if ( userId ) {
-    //   return Accounts.sendVerificationEmail( userId );
-    // }
+    if (userId) {
+      return Accounts.sendVerificationEmail( userId );
+    }
   }
 });

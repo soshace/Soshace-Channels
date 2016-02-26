@@ -1,42 +1,48 @@
 <template name="register">
 
-  <div class="panel">
-    <div class="panel-body">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-10">
+        <div class="panel">
+          <div class="panel-body">
 
-      <form class="form-horizontal">
-        <fieldset>
-          <legend>Register</legend>
+            <form class="form-horizontal">
+              <fieldset>
+                <legend>Register</legend>
 
-          <div class="form-group">
-            <label class="col-md-2 control-label" for="email-field">Your Email:</label>
-            <div class="col-md-4">
-              <input class="form-control" type="email" name="email" id="email-field" required>
-            </div>
+                <div class="form-group">
+                  <label class="col-md-4 control-label" for="email-field">Your Email:</label>
+                  <div class="col-md-4">
+                    <input class="form-control" type="email" name="email" id="email-field" required>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-md-4 control-label" for="username-field">Your Username:</label>
+                  <div class="col-md-4">
+                    <input class="form-control" type="text" name="username" id="username-field" required>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-md-4 control-label" for="password-field">Your Password:</label>
+                  <div class="col-md-4">
+                    <input class="form-control" type="password" name="password" id="password-field" required>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <div class="col-md-4 col-md-offset-4">
+                    <input class="btn btn-sm btn-primary" type="submit" value="Register">
+                  </div>
+                </div>
+
+              </fieldset>
+            </form>
+
           </div>
-
-          <div class="form-group">
-            <label class="col-md-2 control-label" for="username-field">Your Username:</label>
-            <div class="col-md-4">
-              <input class="form-control" type="text" name="username" id="username-field" required>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="col-md-2 control-label" for="password-field">Your Password:</label>
-            <div class="col-md-4">
-              <input class="form-control" type="password" name="password" id="password-field" required>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <div class="col-md-2 col-md-offset-2">
-              <input class="btn btn-sm btn-primary" type="submit" value="Register">
-            </div>
-          </div>
-
-        </fieldset>
-      </form>
-
+        </div>
+      </div>
     </div>
   </div>
 
