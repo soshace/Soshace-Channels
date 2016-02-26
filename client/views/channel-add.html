@@ -14,20 +14,6 @@
             <fieldset>
               <legend>Creation:</legend>
 
-<!--               <div class="service-selector">
-                <input id="github" type="radio" name="github" value="github" />
-                <label class="service-label github" for="github"></label>
-                <input id="trello" type="radio" name="trello" value="trello" />
-                <label class="service-label trello" for="trello"></label>
-              </div>
- -->
-              <div class="form-group">
-                <label class="col-md-6 control-label" for="name-field">Enter name for channel:</label>
-                <div class="col-md-6">
-                  <input class="form-control" type="text" name="name" id="name-field" required>
-                </div>
-              </div>
-
               <div class="form-group">
                 <label class="col-md-6 control-label" for="type-field">Select type:</label>
                 <div class="col-md-6">
@@ -35,6 +21,24 @@
                       <option value="github">Github</option>
                       <option value="trello">Trello</option>
                   </select>
+                </div>
+              </div>
+
+              <div class="service-selector">
+                <div class="col-md-6">
+                  <input id="github" type="radio" name="service" value="github">
+                  <label class="service-label github" for="github"></label>
+                </div>
+                <div class="col-md-6">
+                  <input id="trello" type="radio" name="service" value="trello">
+                  <label class="service-label trello" for="trello"></label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-md-6 control-label" for="name-field">Enter name for channel:</label>
+                <div class="col-md-6">
+                  <input class="form-control" type="text" name="name" id="name-field" required>
                 </div>
               </div>
 
@@ -51,7 +55,7 @@
                   <div class="channel-add__trello-auth col-md-6 hidden">
                     <button class="trello-auth btn btn-info m-r-5 m-b-5" type="button">Trello Auth</button>
                   </div>
-                  
+
                 </div>
               </div>
 

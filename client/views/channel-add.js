@@ -1,4 +1,4 @@
-var _deps = new Deps.Dependency;
+var _deps = new Deps.Dependency();
 var _settingsTemplate = 'githubSettingsTemplate';
 
 Template.addChannel.helpers({
@@ -22,7 +22,7 @@ Template.addChannel.events({
     // Get type from select
     var channelType = Template.addChannel.typeSelector.value;
     // Get resource id. TODO: this selector is taken from github plugin. Should make it universal.
-    let resourceId = document.querySelector('[name=resource-id]').value;
+    var resourceId = document.querySelector('[name=resource-id]').value;
 
     Meteor.call('createNewChannel', channelName, channelType, resourceId, function(error, results) {
       if (error) {
@@ -41,11 +41,25 @@ Template.addChannel.events({
     switch (Template.addChannel.typeSelector.value) {
       case 'github':
         selectService('github');
-        break
+        break;
       case 'trello':
         selectService('trello');
-        break
+        break;
     }
+  },
+
+  'change [type=radio][name=service]': function(event) {
+    var radio = document.querySelector('[name=service]:checked');
+
+    console.log(radio.value);
+    // switch (Template.addChannel.typeSelector.value) {
+    //   case 'github':
+    //     selectService('github');
+    //     break;
+    //   case 'trello':
+    //     selectService('trello');
+    //     break;
+    // }
   },
 
   'keyup #name-field': function(event) {
@@ -59,7 +73,7 @@ Template.addChannel.onRendered(function() {
   Template.addChannel.authDiv = document.querySelector('.auth-service');
   Template.addChannel.githubButton = document.querySelector('.channel-add__github-auth');
   Template.addChannel.trelloButton = document.querySelector('.channel-add__trello-auth');
-  Template.addChannel.typeSelector = document.querySelector('[name=type]')
+  Template.addChannel.typeSelector = document.querySelector('[name=type]');
 
   Template.addChannel.newName.value = localStorage.getItem('newChannelName') || '';
 
@@ -67,13 +81,13 @@ Template.addChannel.onRendered(function() {
   selectService('github');
 
   if (Template.addChannel.serviceType === 'github') {
-    let code = window.location.search.replace('?code=', '');
+    var code = window.location.search.replace('?code=', '');
     // If we have code parameter in the url it means that github redirected to this page to start authentication process. Then post request sent to github to confirm authorization.
     if (code) {
       Meteor.call('postGithub', code, function(error, results) {
-        let success = results.content.split('&')[0].split('=')[0] !== 'error';
+        var success = results.content.split('&')[0].split('=')[0] !== 'error';
         if (success) {
-          let token = results.content.split('&')[0].split('=')[1];
+          var token = results.content.split('&')[0].split('=')[1];
           console.log(token);
           Meteor.call('addToken', 'github', token, function(error, results) {
             if (!error) {
@@ -81,7 +95,7 @@ Template.addChannel.onRendered(function() {
             }
           });
         }
-      })
+      });
     }
   }
 });
@@ -94,7 +108,7 @@ function displayAuthButton(display) {
   }
 }
 
-// This function is passed as ajax request callback to plugin 
+// This function is passed as ajax request callback to plugin
 function getDataforSettingsCallback(data) {
   Session.set('settingsData', {
     settingsData: data
@@ -103,7 +117,7 @@ function getDataforSettingsCallback(data) {
 }
 
 function selectService(service) {
-  let userAuthenticated;
+  var userAuthenticated;
 
   Template.addChannel.serviceType = service;
   switch (service) {
@@ -120,13 +134,13 @@ function selectService(service) {
       }
       Template.addChannel.githubButton.classList.remove('hidden');
       Template.addChannel.trelloButton.classList.add('hidden');
-      break
+      break;
     case 'trello':
       userAuthenticated = false;
       _settingsTemplate = 'trelloSettingsTemplate';
       Template.addChannel.trelloButton.classList.remove('hidden');
       Template.addChannel.githubButton.classList.add('hidden');
-      break
+      break;
   }
   displayAuthButton(userAuthenticated);
   _deps.changed();
