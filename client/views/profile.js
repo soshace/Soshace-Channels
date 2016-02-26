@@ -1,4 +1,4 @@
-Template.services.events({
+Template.profile.events({
   'submit .user-info': function(event) {
     event.preventDefault();
 
@@ -69,7 +69,7 @@ Template.services.events({
   }
 });
 
-Template.services.onRendered(function() {
+Template.profile.onRendered(function() {
   let code = window.location.search.replace('?code=', '');
   Meteor.call('postGithub',code,function(error,results){
     let success = results.content.split('&')[0].split('=')[0]!=='error';

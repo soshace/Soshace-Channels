@@ -16,8 +16,8 @@ Router.route('/register', {
   template: 'register',
 });
 
-Router.route('/services', {
-  template: 'services',
+Router.route('/profile', {
+  template: 'profile',
   waitOn: function() {
     return [ Meteor.subscribe('channels'), Meteor.subscribe('Meteor.users')];
   }
@@ -73,11 +73,11 @@ Router.route('/verify-email/:token', {
 
     Accounts.verifyEmail(token, function(error) {
       if (error) {
-        Router.go('services');
+        Router.go('profile');
         // bert alert
         console.log(error.reason);
       } else {
-        Router.go('services');
+        Router.go('profile');
         // bert alert
         console.log('verified');
       }
