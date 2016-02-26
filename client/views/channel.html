@@ -92,6 +92,23 @@
             </div>
 
             <div class="col-md-6">
+              <div class="panel panel-inverse border-panel">
+                <div class="panel-heading">
+                  <h4 class="panel-title">Associated e-mails</h4>
+                </div>
+                <div class="panel-body">
+                  <ul>
+                  {{#each associatedEmails}}
+                  <li>
+                    {{login}}: {{email}}
+                  </li>
+                  {{/each}}
+                </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
               <div class="panel panel-inverse">
                   <form class="channel__add-member">
                     <fieldset>

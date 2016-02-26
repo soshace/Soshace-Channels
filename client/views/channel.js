@@ -1,3 +1,7 @@
+var _channelIsGuest = true,
+    _deps = new Deps.Dependency(),
+    _associatedEmails = [];
+
 Template.channel.events({
   'click .channel__delete': function(event) {
     event.preventDefault();
@@ -119,49 +123,51 @@ Template.channel.helpers({
     return Session.get('channelFeed');
   },
 
+  associatedEmails: function(){
+    _deps.depend();
+    return _associatedEmails;   
+  },
+
   template: function() {
     return Template['githubTemplate'];
   }
 });
 
-Template.channel.onCreated(function() {
+Template.channel.onRendered(function() {
   if (!this._rendered) {
     this._rendered = true;
   }
 });
 
-Template.channel.updateData = function(channelId){
-  // Session.set('channelFeed', []);
-
-  let resourceId = Channels.findOne({
+Template.channel.updateData = function(channelId) {
+  let channel = Channels.findOne({
     _id: channelId
-  }).serviceResource;
+  });
 
-  console.log(resourceId);
-  Meteor.github = new GithubPlugin(Meteor.user().profile.services.pass, resourceId);
+  let resourceId = channel.serviceResource;
+  _channelIsGuest = channel.createdBy !== Meteor.userId(); // Determine if current user is guest on this channel
+
+  let token = Meteor.user().profile.services ? Meteor.user().profile.services.pass : '';
+  if (_channelIsGuest) {
+    let hostUser = Meteor.users.findOne({
+      _id: channel.createdBy
+    });
+    token = hostUser.profile.services.pass;
+  }
+
+  Meteor.github = new GithubPlugin(token, resourceId, _channelIsGuest);
   Meteor.github.getRepoCommits();
+  Meteor.github.getRepoContributors();
 
   window.addEventListener(Meteor.github.loadCompleteEventName, function(event) {
-    updateChannel(event.detail);
+    console.log(event.detail);
+    if (event.detail.emails){
+      _associatedEmails = event.detail.emails;
+      console.log(_associatedEmails);
+      _deps.changed();
+    }
+    else{
+      Session.set('channelFeed', event.detail);      
+    }
   });
 }
-
-function updateChannel(data) {
-  let currentFeed = Session.get('channelFeed');
-  currentFeed = (currentFeed) ? currentFeed.concat(data) : data;
-  Session.set('channelFeed', currentFeed);
-}
-
-// Template.channel.helpers({
-//   resources: function() {
-//     var currentUser = Meteor.userId(),
-//         channel = Channels.findOne({ _id: this._id }),
-//         resourcesIds = channel.resources;
-//
-//     var selector = {
-//       _id: { $in: resourcesIds}
-//     };
-//
-//     return Resources.find(selector);
-//   }
-// });

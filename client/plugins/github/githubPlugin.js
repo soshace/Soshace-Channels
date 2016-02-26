@@ -2,15 +2,17 @@
 	let _data = [],
 		_loadCompleteEventName = 'githubLoadComplete',
 		_token,
-		_resourceId;
+		_resourceId,
+		_isGuest;
 
 	// Constructor
-	this.GithubPlugin = function(token,resourceId) {
+	this.GithubPlugin = function(token, resourceId, isGuest) {
 		this.showRepos = null;
 		this.userName = null;
 		this.settingsTemplateName = 'githubSettingsTemplate';
 		_token = token;
 		_resourceId = resourceId;
+		_isGuest = isGuest;
 
 		this.loadCompleteEventName = _loadCompleteEventName;
 
@@ -22,31 +24,66 @@
 		if (arguments[0] && typeof arguments[0] === 'object') {
 			this.options = extendDefaults(defaults, arguments[0]);
 		}
-
-		Session.set('settingsData',[]);
-		Session.set('channelFeed',[]);
-
 	}
 
 	// Public methods
 	GithubPlugin.prototype.getUserRepos = function(func) {
+		Session.set('settingsData', []);
 		$.getJSON('https://api.github.com/user/repos', {
 			access_token: _token,
 			visibility: 'private'
-		},func);
+		}, func);
 	}
 
 	GithubPlugin.prototype.getRepoCommits = function() {
-		let request = 'https://api.github.com/repos/'+_resourceId+'/commits'
-		$.getJSON(request, {
+		if (!_isGuest) {
+			let request = 'https://api.github.com/repos/' + _resourceId + '/commits';
+			$.getJSON(request, {
+				access_token: _token
+			}, function(data) {
+				_data = data;
+				runTemplating();
+				let loadCompleteEvent = new CustomEvent(_loadCompleteEventName, {
+					'detail': _data
+				});
+				window.dispatchEvent(loadCompleteEvent);
+			});
+		} else {
+			let request = 'https://api.github.com/repos/' + _resourceId + '/commits?access_token=' + _token;
+			Meteor.call('getGithub', request, function(error, results) {
+				_data = results.data;
+				console.log('Loading through server finished');
+				runTemplating();
+				let loadCompleteEvent = new CustomEvent(_loadCompleteEventName, {
+					'detail': _data
+				});
+				window.dispatchEvent(loadCompleteEvent);
+			});
+		}
+	}
+
+	GithubPlugin.prototype.getRepoContributors = function() {
+		$.getJSON('https://api.github.com/repos/' + _resourceId + '/contributors', {
 			access_token: _token
 		}, function(data) {
-			_data = data;
-			runTemplating();
-			let loadCompleteEvent = new CustomEvent(_loadCompleteEventName, {
-				'detail': _data
-			});
-			window.dispatchEvent(loadCompleteEvent);
+			var contributors = data;
+			var counter = contributors.length;
+			for (var contributor of contributors) {
+				(function(contributor) {
+					$.getJSON('https://api.github.com/users/' + contributor.login, function(data) {
+						counter--; // This counter is used to determine if we took checked contributors for email.
+						contributor.email = data.email || 'private';
+						if (counter === 0) {
+							let loadCompleteEvent = new CustomEvent(_loadCompleteEventName, {
+								'detail': {
+									emails: contributors
+								}
+							});
+							window.dispatchEvent(loadCompleteEvent);
+						}
+					});
+				})(contributor);
+			}
 		});
 	}
 
