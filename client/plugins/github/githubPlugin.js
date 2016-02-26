@@ -23,17 +23,9 @@
 			this.options = extendDefaults(defaults, arguments[0]);
 		}
 
-		// let request = 'https://api.github.com/repos/'+_resourceId+'/commits'
-		// $.getJSON(request, {
-		// 	access_token: _token
-		// }, function(data) {
-		// 	_data = data;
-		// 	runTemplating();
-		// 	let loadCompleteEvent = new CustomEvent(_loadCompleteEventName, {
-		// 		'detail': _data
-		// 	});
-		// 	window.dispatchEvent(loadCompleteEvent);
-		// });
+		Session.set('settingsData',[]);
+		Session.set('channelFeed',[]);
+
 	}
 
 	// Public methods

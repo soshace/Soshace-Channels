@@ -1,18 +1,27 @@
+var _deps = new Deps.Dependency;
+var _settingsTemplate = 'githubSettingsTemplate';
+
 Template.addChannel.helpers({
   settingsData: function() {
     return Session.get('settingsData');
+  },
+
+  settingsTemplate: function() {
+    _deps.depend();
+    return Template[_settingsTemplate];
   }
 });
 
 Template.addChannel.events({
   'submit form': function(event) {
     event.preventDefault();
+    localStorage.setItem('newChannelName', '');
 
     // Get name from input
-    var channelName = document.querySelector('[name=name]').value;
+    var channelName = Template.addChannel.newName.value;
     // Get type from select
-    var channelType = document.querySelector('[name=type]').value;
-    // Get resource id
+    var channelType = Template.addChannel.typeSelector.value;
+    // Get resource id. TODO: this selector is taken from github plugin. Should make it universal.
     let resourceId = document.querySelector('[name=resource-id]').value;
 
     Meteor.call('createNewChannel', channelName, channelType, resourceId, function(error, results) {
@@ -29,25 +38,31 @@ Template.addChannel.events({
   'change .channel-add__type': function(event) {
     event.preventDefault();
 
-    var githubButton = document.querySelector('.channel-add__github-auth'),
-      trelloButton = document.querySelector('.channel-add__trello-auth');
-
-    switch (document.querySelector('[name=type]').value) {
+    switch (Template.addChannel.typeSelector.value) {
       case 'github':
         selectService('github');
-        githubButton.classList.remove('hidden');
-        trelloButton.classList.add('hidden');
         break
       case 'trello':
         selectService('trello');
-        trelloButton.classList.remove('hidden');
-        githubButton.classList.add('hidden');
         break
     }
+  },
+
+  'keyup #name-field': function(event) {
+    event.preventDefault();
+    localStorage.setItem('newChannelName', event.target.value); // Set channel name to session before sending request for further restoring.
   }
 });
 
 Template.addChannel.onRendered(function() {
+  Template.addChannel.newName = document.querySelector('[name=name]');
+  Template.addChannel.authDiv = document.querySelector('.auth-service');
+  Template.addChannel.githubButton = document.querySelector('.channel-add__github-auth');
+  Template.addChannel.trelloButton = document.querySelector('.channel-add__trello-auth');
+  Template.addChannel.typeSelector = document.querySelector('[name=type]')
+
+  Template.addChannel.newName.value = localStorage.getItem('newChannelName') || '';
+
   // Default service is github
   selectService('github');
 
@@ -60,7 +75,11 @@ Template.addChannel.onRendered(function() {
         if (success) {
           let token = results.content.split('&')[0].split('=')[1];
           console.log(token);
-          Meteor.call('addToken', 'github', token);
+          Meteor.call('addToken', 'github', token, function(error, results) {
+            if (!error) {
+              selectService('github');
+            }
+          });
         }
       })
     }
@@ -69,11 +88,9 @@ Template.addChannel.onRendered(function() {
 
 function displayAuthButton(display) {
   if (display) {
-    document.querySelector('.auth-message').innerHtml = 'You have been successfully authorized on selected service.';
-    document.querySelector('.auth-service').classList.add('hidden');
+    Template.addChannel.authDiv.classList.add('hidden');
   } else {
-    document.querySelector('.auth-service').classList.remove('hidden');
-    document.querySelector('.auth-message').innerHtml = 'You need to login service:';
+    Template.addChannel.authDiv.classList.remove('hidden');
   }
 }
 
@@ -87,19 +104,30 @@ function getDataforSettingsCallback(data) {
 
 function selectService(service) {
   let userAuthenticated;
+
   Template.addChannel.serviceType = service;
   switch (service) {
     case 'github':
       // TODO: to check if user have pair github-token in data base. At the moment token is saved to services field.
       userAuthenticated = Meteor.user().profile.services ? Meteor.user().profile.services.pass : false;
+      _settingsTemplate = 'githubSettingsTemplate';
       if (userAuthenticated) {
         Meteor.github = new GithubPlugin(userAuthenticated);
         Meteor.github.getUserRepos(getDataforSettingsCallback);
       }
+      else{
+        Session.set('settingsData',[]);
+      }
+      Template.addChannel.githubButton.classList.remove('hidden');
+      Template.addChannel.trelloButton.classList.add('hidden');
       break
     case 'trello':
-      userAuthenticated = true;
+      userAuthenticated = false;
+      _settingsTemplate = 'trelloSettingsTemplate';
+      Template.addChannel.trelloButton.classList.remove('hidden');
+      Template.addChannel.githubButton.classList.add('hidden');
       break
   }
   displayAuthButton(userAuthenticated);
+  _deps.changed();
 }

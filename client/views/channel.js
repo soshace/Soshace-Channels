@@ -124,25 +124,27 @@ Template.channel.helpers({
   }
 });
 
-Template.channel.onRendered(function() {
+Template.channel.onCreated(function() {
   if (!this._rendered) {
     this._rendered = true;
-
-    Session.set('channelFeed', []);
-
-    let resourceId = Channels.findOne({
-      _id: this.data._id
-    }).serviceResource;
-
-    console.log(resourceId);
-    Meteor.github = new GithubPlugin(Meteor.user().profile.services.pass, resourceId);
-    Meteor.github.getRepoCommits();
-
-    window.addEventListener(Meteor.github.loadCompleteEventName, function(event) {
-      updateChannel(event.detail);
-    });
   }
 });
+
+Template.channel.updateData = function(channelId){
+  // Session.set('channelFeed', []);
+
+  let resourceId = Channels.findOne({
+    _id: channelId
+  }).serviceResource;
+
+  console.log(resourceId);
+  Meteor.github = new GithubPlugin(Meteor.user().profile.services.pass, resourceId);
+  Meteor.github.getRepoCommits();
+
+  window.addEventListener(Meteor.github.loadCompleteEventName, function(event) {
+    updateChannel(event.detail);
+  });
+}
 
 function updateChannel(data) {
   let currentFeed = Session.get('channelFeed');

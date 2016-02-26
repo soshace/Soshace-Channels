@@ -57,6 +57,7 @@ Router.route('/channel/:_id', {
     var currentUser = Meteor.userId();
     if (currentUser) {
       this.next();
+      Template.channel.updateData(this.params._id);
     } else {
       this.render('login');
     }
