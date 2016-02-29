@@ -9,7 +9,7 @@ Template.profile.events({
         serviceName = $('[name=service-name]').val(),
         servicePass = $('[name=service-pass]').val();
 
-    Meteor.call('saveUserData', firstName, lastName, serviceName, servicePass, function(error, results) {
+    Meteor.call('saveUserData', firstName, lastName, servicePass, function(error, results) {
       if (error) {
         console.log(error);
       } else {
