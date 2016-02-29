@@ -19,23 +19,23 @@ Template.profile.events({
     });
   },
 
-  'click .trello-auth': function(event) {
-    event.preventDefault();
-
-    var authenticationSuccess = function() { console.log('Successful authentication'); },
-        authenticationFailure = function() { console.log('Failed authentication'); };
-
-    Trello.authorize({
-      type: 'popup',
-      name: 'SSI App',
-      scope: {
-        read: true,
-        write: true },
-      expiration: 'never',
-      success: authenticationSuccess,
-      error: authenticationFailure
-    });
-  },
+  // 'click .trello-auth': function(event) {
+  //   event.preventDefault();
+  //
+  //   var authenticationSuccess = function() { console.log('Successful authentication'); },
+  //       authenticationFailure = function() { console.log('Failed authentication'); };
+  //
+  //   Trello.authorize({
+  //     type: 'popup',
+  //     name: 'SSI App',
+  //     scope: {
+  //       read: true,
+  //       write: true },
+  //     expiration: 'never',
+  //     success: authenticationSuccess,
+  //     error: authenticationFailure
+  //   });
+  // },
 
   'click .resend-verification-link': function(event) {
     event.preventDefault();

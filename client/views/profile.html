@@ -10,56 +10,85 @@
 
       <div class="col-md-6">
         <div class="panel panel-inverse">
+
           <div class="panel-heading">
-            <h4 class="panel-title">Your local info</h4>
+            <h4 class="panel-title">Base info</h4>
           </div>
-          <div class="panel-body">
-            <p>
-              <strong>Email:</strong> {{currentUser.emails.[0].address}}
+
+          <div class="panel-body f-s-14">
+            <p class="row m-b-10">
+              <div class="col-sm-4 col-md-4 text-right f-w-600">ID:</div>
+              <div class="col-sm-8 col-md-8">{{currentUser.username}}</div>
+            </p>
+
+            <p class="row m-t-20 m-b-20">
+              <div class="col-sm-4 col-md-4 text-right f-w-600">E-mail: </div>
+              <div class="col-sm-8 col-md-8">{{currentUser.emails.[0].address}}</div>
               {{#unless currentUser.emails.[0].verified}}
-                <span class="label label-danger">You need to verify email</span><a class="resend-verification-link m-l-5" href="#">Resend verification link</a>
+                <div class="col-sm-offset-4 col-sm-8 col-md-offset-4 col-md-8">
+                  <span class="label label-warning">Need to verify</span>
+                </div>
+                <div class="col-sm-offset-4 col-sm-8 col-md-offset-4 col-md-8">
+                  <a class="resend-verification-link btn btn-link f-s-12" href="#">Resend verification link</a>
+                </div>
               {{else}}
-                <span class="label label-success">Verified</span>
+                <div class="col-md-offset-4 col-md-8">
+                  <span class="label label-success">Verified</span>
+                </div>
               {{/unless}}
             </p>
-            <p><strong>ID:</strong> {{currentUser.username}}</p>
-            {{#if currentUser.profile.firstName}}
-              <p><strong>First Name:</strong> {{currentUser.profile.firstName}}</p>
-            {{/if}}
-            {{#if currentUser.profile.lastName}}
-              <p><strong>Last Name:</strong> {{currentUser.profile.lastName}}</p>
-            {{/if}}
-            {{#if currentUser.profile.services.name}}
-              <p><strong>Service:</strong> {{currentUser.profile.services.name}}</p>
-            {{/if}}
-            {{#if currentUser.profile.services.pass}}
-              <p><strong>Pass for service:</strong> {{currentUser.profile.services.pass}}</p>
-            {{/if}}
           </div>
+
         </div>
       </div>
 
       <div class="col-md-6">
         <div class="panel panel-inverse">
           <div class="panel-heading">
-            <h4 class="panel-title">Change info</h4>
+            <h4 class="panel-title">Additional info (click to edit)</h4>
           </div>
           <div class="panel-body">
-            <form class="user-info">
+
+            <form class="user-info form-horizontal f-s-14">
               <div class="form-group">
-                <input class="form-control" type="text" name="first-name" placeholder="Enter first name">
-              </div>
-              <div class="form-group">
-                <input class="form-control" type="text" name="last-name" placeholder="Enter last name">
-              </div>
-              <div class="form-group">
-                <input class="form-control" type="text" name="service-name" placeholder="Enter service name (for now ONLY 'github')">
-              </div>
-              <div class="form-group">
-                <input class="form-control" type="text" name="service-pass" placeholder="Enter service pass code">
+                <label class="col-md-4 control-label f-w-600" for="first-name-field">
+                  First Name:
+                </label>
+                <div class="col-md-8">
+                  <input class="form-control f-s-14" type="text" name="first-name" id="first-name-field" value="{{currentUser.profile.firstName}}" placeholder="Enter First Name">
+                </div>
               </div>
 
-              <input class="btn btn-sm btn-primary" type="submit" value="Save">
+              <div class="form-group">
+                <label class="col-md-4 control-label f-w-600" for="last-name-field">
+                  Last Name:
+                </label>
+                <div class="col-md-8">
+                  <input class="form-control f-s-14" type="text" name="last-name" id="last-name-field" value="{{currentUser.profile.lastName}}" placeholder="Enter Last Name">
+                </div>
+              </div>
+
+              {{#if currentUser.profile.services.name}}
+                <div class="form-group">
+                  <label class="col-md-4 control-label f-w-600" for="service-name-field">Service:</label>
+                  <div class="col-md-8">
+                    <input class="form-control f-s-14" type="text" name="service-name" id="service-name-field" value="{{currentUser.profile.services.name}}" placeholder="Enter Service Name (for now ONLY 'github')" disabled>
+                  </div>
+                </div>
+              {{/if}}
+
+              {{#if currentUser.profile.services.pass}}
+                <div class="form-group">
+                  <label class="col-md-4 control-label f-w-600" for="service-pass-field">Service Pass:</label>
+                  <div class="col-md-8">
+                    <input class="form-control f-s-14" type="text" name="service-pass" id="service-pass-field" value="{{currentUser.profile.services.pass}}" placeholder="Enter Service Pass Code">
+                  </div>
+                </div>
+              {{/if}}
+
+              <div class="col-md-offset-4 col-md-4">
+                <input class="btn btn-sm btn-primary" type="submit" value="Save">
+              </div>
             </form>
           </div>
         </div>
@@ -67,7 +96,7 @@
 
     </div>
 
-    <div class="row">
+    <!-- <div class="row">
       <div class="col-md-4">
         <div class="panel panel-inverse">
 
@@ -80,20 +109,36 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
+
+    <h4>Services</h4>
 
     <div class="row">
-      <div class="col-md-4">
+      <div class="col-md-6">
         <div class="panel panel-inverse">
 
           <div class="panel-heading">
-            <h4 class="panel-title">Github Auth</h4>
+            <h4 class="panel-title">Github</h4>
           </div>
 
           <div class="panel-body">
-            <a href="https://github.com/login/oauth/authorize?client_id=40ca9788c56b7ce7307f&scope=repo">
+            <!-- <a href="https://github.com/login/oauth/authorize?client_id=40ca9788c56b7ce7307f&scope=repo">
               <button class="github-auth btn btn-info m-r-5 m-b-5" type="button">Go Auth</button>
-            </a>
+            </a> -->
+
+            {{#if currentUser.profile.services.pass}}
+              <div class="alert alert-success fade in">
+                Connected. If you want to disconnect service – erase
+                <span class="f-w-600">'Service Pass'</span> field above
+                and press <span class="f-w-600">'Save'</span>.
+                Your channels will also lost connection with service.
+               </div>
+            {{else}}
+              <div class="alert alert-info fade in">
+                You can connect service while
+                <a href="{{pathFor route='addchannel'}}">creating Channel</a>.
+              </div>
+            {{/if}}
           </div>
         </div>
       </div>
