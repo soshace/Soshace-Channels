@@ -1,12 +1,19 @@
 <template name="githubSettingsTemplate">
-<div class="form-group">
-	<label class="col-md-6 control-label" for="type-field">Select available repository:</label>
-	<div class="col-md-6">
-		<select class="form-control" name="resource-id" id="type-field">
-			{{#each settingsData}}
-			<option value="{{full_name}}">{{full_name}}</option>
-			{{/each}}
-		</select>
+
+	<div class="m-b-40">
+
+		<div class="row text-center lead m-b-10">
+			<span>Select available repository:</span>
+		</div>
+
+		<div class="row p-l-40 p-r-40">
+			<select class="form-control input-lg m-auto" name="resource-id" id="type-field">
+				{{#each settingsData}}
+				<option value="{{full_name}}">{{full_name}}</option>
+				{{/each}}
+			</select>
+		</div>
+
 	</div>
-</div>
+
 </template>
