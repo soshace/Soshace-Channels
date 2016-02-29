@@ -16,7 +16,8 @@ Meteor.methods({
       createdAt: new Date(),
       members: [],
       serviceType: channelType,
-      serviceResource: resourceId
+      serviceResource: resourceId,
+      messages: []
     };
 
     if (!currentUser) {
@@ -58,7 +59,9 @@ Meteor.methods({
 
     // add resource to channel field 'resources'
     // '$addToSet' - adds elements to an array only if they do not already exist in the set.
-    Channels.update( { _id: channelId }, {
+    Channels.update({
+      _id: channelId
+    }, {
       $addToSet: {
         resources: resourceToAdd
       }
@@ -72,7 +75,9 @@ Meteor.methods({
 
     // check userId???
 
-    Channels.update( { _id: channelId }, {
+    Channels.update({
+      _id: channelId
+    }, {
       $addToSet: {
         members: userId
       }
@@ -83,21 +88,41 @@ Meteor.methods({
 
     // some checks?
 
-    Channels.update( { _id: channelId }, {
+    Channels.update({
+      _id: channelId
+    }, {
       $pull: {
         members: userId
+      }
+    });
+  },
+
+  'addComment': function(body, channelId, resourceBlockId, authorId, dateTime) {
+    Channels.update({
+      _id: channelId
+    }, {
+      $addToSet: {
+        'messages': {
+          body: body,
+          dateTime: new Date(),
+          author: authorId,
+          resourceBlockId: resourceBlockId
+        }
       }
     });
   }
 });
 
 function defaultName(currentUser) {
-    var nextLetter = 'A';
-    var nextName = 'Channel ' + nextLetter;
+  var nextLetter = 'A';
+  var nextName = 'Channel ' + nextLetter;
 
-    while (Channels.findOne({ name: nextName, createdBy: currentUser })) {
-        nextLetter = String.fromCharCode(nextLetter.charCodeAt(0) + 1);
-        nextName = 'Channel ' + nextLetter;
-    }
-    return nextName;
+  while (Channels.findOne({
+      name: nextName,
+      createdBy: currentUser
+    })) {
+    nextLetter = String.fromCharCode(nextLetter.charCodeAt(0) + 1);
+    nextName = 'Channel ' + nextLetter;
+  }
+  return nextName;
 }

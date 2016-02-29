@@ -1,6 +1,7 @@
 var _channelIsGuest = true,
-    _deps = new Deps.Dependency(),
-    _associatedEmails = [];
+  _deps = new Deps.Dependency(),
+  _associatedEmails = [],
+  _self;
 
 Template.channel.events({
   'click .channel__delete': function(event) {
@@ -52,6 +53,23 @@ Template.channel.events({
     Meteor.call('removeMember', channelId, userId, function(error, results) {
       if (error) {
         console.log(error.reason);
+      } else {
+        console.log(results);
+      }
+    });
+  },
+
+  'click .channel__add-comment': function(event) {
+    event.preventDefault();
+
+    var channelId = _self.data._id,
+      resourceBlockId = event.target.id,
+      userId = Meteor.userId(),
+      message = document.querySelector('.' + resourceBlockId).value;
+
+    Meteor.call('addComment', message, channelId, resourceBlockId, userId, function(error, results) {
+      if (error) {
+        console.log(error);
       } else {
         console.log(results);
       }
@@ -123,9 +141,9 @@ Template.channel.helpers({
     return Session.get('channelFeed');
   },
 
-  associatedEmails: function(){
+  associatedEmails: function() {
     _deps.depend();
-    return _associatedEmails;   
+    return _associatedEmails;
   },
 
   template: function() {
@@ -137,6 +155,7 @@ Template.channel.onRendered(function() {
   if (!this._rendered) {
     this._rendered = true;
   }
+  _self = this;
 });
 
 Template.channel.updateData = function(channelId) {
@@ -160,14 +179,37 @@ Template.channel.updateData = function(channelId) {
   Meteor.github.getRepoContributors();
 
   window.addEventListener(Meteor.github.loadCompleteEventName, function(event) {
-    console.log(event.detail);
-    if (event.detail.emails){
+    if (event.detail.emails) { // If there are emails property in detail it menas that emails loaded event was initiated.
       _associatedEmails = event.detail.emails;
-      console.log(_associatedEmails);
       _deps.changed();
-    }
-    else{
-      Session.set('channelFeed', event.detail);      
+    } else {
+      var data = event.detail;
+      loadComments(data, channelId);
+      Session.set('channelFeed', event.detail);
     }
   });
+}
+
+var loadComments = function(data, channelId) {
+  console.log('load comments');
+  var messages = Channels.findOne({_id: channelId}).messages;
+  for (var j = data.length - 1; j >= 0; j--) {
+    data[j].messages = [];
+    for (var i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].resourceBlockId === data[j].sha) {
+        messages[i].dateTime = formatDateTime(messages[i].dateTime);
+        messages[i].author = getAuthor(messages[i].author);
+        data[j].messages.push(messages[i]);
+      }
+    };
+  };
+}
+
+function formatDateTime(dt) {
+  let date = new Date(dt);
+  return `${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}  ${date.getHours()}:${date.getMinutes()}`;
+};
+
+function getAuthor(userId){
+  return Meteor.user({_id: userId}).username;
 }

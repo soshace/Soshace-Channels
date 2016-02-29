@@ -35,8 +35,10 @@ Template.addChannel.events({
     });
   },
 
-  'change .channel-add__type': function(event) {
+  'change [type=radio][name=service]': function(event) {
     event.preventDefault();
+
+    Template.addChannel.typeSelector = document.querySelector('[name=service]:checked');
 
     switch (Template.addChannel.typeSelector.value) {
       case 'github':
@@ -46,20 +48,6 @@ Template.addChannel.events({
         selectService('trello');
         break;
     }
-  },
-
-  'change [type=radio][name=service]': function(event) {
-    var radio = document.querySelector('[name=service]:checked');
-
-    console.log(radio.value);
-    // switch (Template.addChannel.typeSelector.value) {
-    //   case 'github':
-    //     selectService('github');
-    //     break;
-    //   case 'trello':
-    //     selectService('trello');
-    //     break;
-    // }
   },
 
   'keyup #name-field': function(event) {
@@ -73,7 +61,7 @@ Template.addChannel.onRendered(function() {
   Template.addChannel.authDiv = document.querySelector('.auth-service');
   Template.addChannel.githubButton = document.querySelector('.channel-add__github-auth');
   Template.addChannel.trelloButton = document.querySelector('.channel-add__trello-auth');
-  Template.addChannel.typeSelector = document.querySelector('[name=type]');
+  Template.addChannel.typeSelector = document.querySelector('[name=service]:checked');
 
   Template.addChannel.newName.value = localStorage.getItem('newChannelName') || '';
 
@@ -82,7 +70,9 @@ Template.addChannel.onRendered(function() {
 
   if (Template.addChannel.serviceType === 'github') {
     var code = window.location.search.replace('?code=', '');
-    // If we have code parameter in the url it means that github redirected to this page to start authentication process. Then post request sent to github to confirm authorization.
+    // If we have code parameter in the url it means that github
+    // redirected to this page to start authentication process.
+    // Then post request sent to github to confirm authorization.
     if (code) {
       Meteor.call('postGithub', code, function(error, results) {
         var success = results.content.split('&')[0].split('=')[0] !== 'error';
@@ -122,7 +112,8 @@ function selectService(service) {
   Template.addChannel.serviceType = service;
   switch (service) {
     case 'github':
-      // TODO: to check if user have pair github-token in data base. At the moment token is saved to services field.
+      // TODO: to check if user have pair github-token in data base.
+      // At the moment token is saved to services field.
       userAuthenticated = Meteor.user().profile.services ? Meteor.user().profile.services.pass : false;
       _settingsTemplate = 'githubSettingsTemplate';
       if (userAuthenticated) {

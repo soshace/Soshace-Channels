@@ -4,14 +4,17 @@ Channels = new Mongo.Collection('channels');
 
 var Schemas = {};
 
-Schemas.ChannelMessages = new SimpleSchema({
+Schemas.ChannelMessage = new SimpleSchema({
   body: {
     type: String
   },
-  date: {
+  dateTime: {
     type: Date
   },
   author: {
+    type: String
+  },
+  resourceBlockId:{  // Id of the block this message connected with
     type: String
   }
 });
@@ -40,8 +43,7 @@ Schemas.Channel = new SimpleSchema({
     type: String
   },
   messages: {
-    type: Schemas.ChannelMessages,
-    optional: true
+    type: [Schemas.ChannelMessage]
   }
 });
 
