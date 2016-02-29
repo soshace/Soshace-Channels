@@ -64,14 +64,15 @@ Template.channel.events({
 
     var channelId = _self.data._id,
       resourceBlockId = event.target.id,
-      userId = Meteor.userId(),
-      message = document.querySelector('.' + resourceBlockId).value;
+      var userId = Meteor.userId(),
+      // message = document.querySelector('.' + resourceBlockId).value;
+      message = document.getElementsByClassName(resourceBlockId)[0].value;
 
     Meteor.call('addComment', message, channelId, resourceBlockId, userId, function(error, results) {
       if (error) {
         console.log(error);
       } else {
-        console.log(results);
+        console.log('Message added');
       }
     });
   }
@@ -203,6 +204,7 @@ var loadComments = function(data, channelId) {
       }
     };
   };
+  console.log(data);
 }
 
 function formatDateTime(dt) {
