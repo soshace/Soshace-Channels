@@ -26,93 +26,71 @@
           </ul>
         </div>
         <div class="tab-pane fade" id="members">
-          <div class="row">
+          <div class="row m-b-40">
             <div class="col-md-6">
               <div class="panel">
                 <ul class="registered-users-list clearfix">
+
                   {{#each members}}
-                  <li class="channel__member">
-                    <img src="http://placehold.it/70x70" alt="User avatar">
-                    <h4 class="username text-ellipsis">
-                    {{profile.firstName}} {{profile.lastName}}
-                    <small>({{username}})</small>
-                    </h4>
-                    <a class="channel__remove-member btn btn-danger" href="#" data-userid={{_id}}>x</a>
-                  </li>
+                    <li class="channel__member">
+                      <img src="http://placehold.it/70x70" alt="User avatar">
+                      <h4 class="username text-ellipsis">
+                        {{profile.firstName}} {{profile.lastName}}
+                        <small>({{username}})</small>
+                      </h4>
+                      <a class="channel__remove-member btn btn-danger" href="#" data-userid={{_id}}>x</a>
+                    </li>
                   {{/each}}
+
                 </ul>
               </div>
             </div>
+
             <div class="col-md-6">
-              <div class="panel panel-inverse border-panel">
-                <div class="panel-heading">
-                  <h4 class="panel-title">Roles</h4>
-                </div>
-                <div class="panel-body">
-                  <table class="table">
-                    <thead>
-                      <tr>
-                        <th>Role</th>
-                        <th>User</th>
-                        <th>Email</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Creator</td>
-                        <td>Quo</td>
-                        <td>q@qq.ru</td>
-                      </tr>
-                      <tr>
-                        <td>Admin</td>
-                        <td>Quo</td>
-                        <td>q@qq.ru</td>
-                      </tr>
-                      <tr>
-                        <td>Admin</td>
-                        <td>Quo</td>
-                        <td>q@qq.ru</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <a href="#" class="btn btn-sm btn-success">Manage</a>
-                </div>
+              <div class="panel panel-inverse">
+                  <form class="channel__add-member">
+                    <fieldset>
+
+                      <legend>Add users to channel:</legend>
+
+                      <div class="form-group">
+                        <select class="form-control" name="user-to-channel" >
+                          {{#each contacts}}
+                            <option value="{{_id}}">{{profile.firstName}} {{profile.lastName}} ({{username}})</option>
+                          {{/each}}
+                        </select>
+                      </div>
+
+                      <div class="form-group">
+                        <input class="btn btn-sm btn-success" type="submit" value="Add">
+                      </div>
+                    </fieldset>
+                  </form>
               </div>
             </div>
+
+          </div>
+
+          {{> channelInvites}}
+
+          <div class="row">
             <div class="col-md-6">
+
               <div class="panel panel-inverse border-panel">
                 <div class="panel-heading">
                   <h4 class="panel-title">Associated e-mails</h4>
                 </div>
                 <div class="panel-body">
                   <ul>
-                    {{#each associatedEmails}}
-                    <li>
-                      {{login}}: {{email}}
-                    </li>
-                    {{/each}}
-                  </ul>
+                  {{#each associatedEmails}}
+                  <li>
+                    {{login}}: {{email}}
+                  </li>
+                  {{/each}}
+                </ul>
                 </div>
               </div>
-            </div>
-            <div class="col-md-6">
-              <div class="panel panel-inverse">
-                <form class="channel__add-member">
-                  <fieldset>
-                    <legend>Add users to channel:</legend>
-                    <div class="form-group">
-                      <select class="form-control" name="user-to-channel" >
-                        {{#each contacts}}
-                        <option value="{{_id}}">{{profile.firstName}} {{profile.lastName}} ({{username}})</option>
-                        {{/each}}
-                      </select>
-                    </div>
-                    <div class="form-group">
-                      <input class="btn btn-sm btn-success" type="submit" value="Add">
-                    </div>
-                  </fieldset>
-                </form>
-              </div>
+
             </div>
           </div>
         </div>

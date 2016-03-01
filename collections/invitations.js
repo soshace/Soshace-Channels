@@ -17,19 +17,27 @@ var Schemas = {};
 Schemas.Invitation = new SimpleSchema({
   email: {
     type: String,
-    label: "Email to send invitation to."
+    label: 'Email to send invitation to.'
   },
+
   token: {
     type: String,
-    label: "Invitation token."
+    label: 'Invitation token.'
   },
-  role: {
+
+  channelId: {
     type: String,
-    label: "Role to apply to the user."
+    label: 'Channel ID from which invite was sent.'
   },
+
+  channelCreatorId: {
+    type: String,
+    label: 'ID of user who was sending invite.' 
+  },
+
   date: {
     type: String,
-    label: "Invitation Date"
+    label: 'Invitation Date'
   }
 });
 
