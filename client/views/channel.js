@@ -1,7 +1,12 @@
 var _channelIsGuest = true,
   _deps = new Deps.Dependency(),
   _associatedEmails = [],
-  _self;
+  _self,
+  _selectedIndex = -1, // This is an index of a block that user choose to show detail information with comments 
+  _data, // Array of loaded blocks
+  _channelView, // Cached DOM elements
+  _detailView, // Cached DOM elements
+  _commentTextArea; // Cached DOM elements
 
 Template.channel.events({
   'click .channel__delete': function(event) {
@@ -59,22 +64,39 @@ Template.channel.events({
     });
   },
 
-  'click .channel__add-comment': function(event) {
+  'click .channel-block__add-comment-button': function(event) {
+    event.preventDefault();
+    addComment(); 
+  },
+
+  'keyup .channel-block__add-comment-area': function(event) {
     event.preventDefault();
 
-    var channelId = _self.data._id,
-      resourceBlockId = event.target.id,
-      userId = Meteor.userId(),
-      message = document.getElementsByClassName(resourceBlockId)[0].value;
+    if ((event.keyCode === 13) && (event.ctrlKey)) {
+      addComment();
+    }
+  },
 
-    Meteor.call('addComment', message, channelId, resourceBlockId, userId, function(error, results) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log('Message added');
+  'click .channel__show-details': function(event) {
+    event.preventDefault();
+    for (var i = _data.length - 1; i >= 0; i--) {
+      if (_data[i].sha === event.target.id) { //Find index of data array element that will be shown detailed
+        _selectedIndex = i;
+        _deps.changed();
       }
-    });
+    };
+    _channelView.classList.add('hidden');
+    _detailsView.classList.remove('hidden');
+  },
+
+  'click .channel__return': function(event) {
+    event.preventDefault();
+    _channelView.classList.remove('hidden');
+    _detailsView.classList.add('hidden');
+    _selectedIndex = -1;
+    _deps.changed();
   }
+
 });
 
 Template.channel.helpers({
@@ -138,7 +160,8 @@ Template.channel.helpers({
   },
 
   channelFeed: function() {
-    return Session.get('channelFeed');
+    _deps.depend();
+    return _data;
   },
 
   associatedEmails: function() {
@@ -146,16 +169,29 @@ Template.channel.helpers({
     return _associatedEmails;
   },
 
-  template: function() {
-    return Template['githubTemplate'];
+  previewTemplate: function() {
+    return Template['githubPreviewTemplate'];
+  },
+
+  detailsTemplate: function() {
+    return Template['githubDetailsTemplate'];
+  },
+
+  selectedBlock: function() {
+    _deps.depend();
+    return _selectedIndex === -1 ? {} : _data[_selectedIndex];
   }
 });
 
 Template.channel.onRendered(function() {
   _self = this;
+  _channelView = document.getElementsByClassName('channel__wrapper')[0];
+  _detailsView = document.getElementsByClassName('channel__block-wrapper')[0];
+  _commentTextArea = document.getElementsByClassName('channel-block__add-comment-area')[0];
 });
 
 Template.channel.updateData = function(channelId) {
+  // _selectedIndex = -1;
   let channel = Channels.findOne({
     _id: channelId
   });
@@ -164,7 +200,7 @@ Template.channel.updateData = function(channelId) {
   _channelIsGuest = channel.createdBy !== Meteor.userId(); // Determine if current user is guest on this channel
 
   let token = Meteor.user().profile.services ? Meteor.user().profile.services.pass : '';
-  if (_channelIsGuest) {
+  if (_channelIsGuest) { // if this channel is guest then we take hosts token for requests
     let hostUser = Meteor.users.findOne({
       _id: channel.createdBy
     });
@@ -180,28 +216,31 @@ Template.channel.updateData = function(channelId) {
       _associatedEmails = event.detail.emails;
       _deps.changed();
     } else {
-      var data = event.detail;
-      loadComments(data, channelId);
-      Session.set('channelFeed', data);
-      console.log(data);
+      _data = event.detail;
+      loadComments(_data, channelId);
     }
   });
 }
 
-var loadComments = function(data, channelId) {
-  var messages = Channels.findOne({_id: channelId}).messages;
+function loadComments(data, channelId) {
+  var messages = Channels.findOne({
+    _id: channelId
+  }).messages;
+
   for (var j = data.length - 1; j >= 0; j--) {
     data[j].messages = [];
     data[j].blockIndex = j;
     for (var i = messages.length - 1; i >= 0; i--) {
       if (messages[i].resourceBlockId === data[j].sha) {
         messages[i].dateTime = formatDateTime(messages[i].dateTime);
-        messages[i].author = getAuthor(messages[i].author);
+        messages[i].author = Meteor.users.findOne({
+          _id: messages[i].author
+        }).username;
         data[j].messages.push(messages[i]);
       }
     };
   };
-  console.log(data);
+  _deps.changed();
 }
 
 function formatDateTime(dt) {
@@ -209,6 +248,20 @@ function formatDateTime(dt) {
   return `${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}  ${date.getHours()}:${date.getMinutes()}`;
 };
 
-function getAuthor(userId){ // Get user name by ID for output in comments
-  return Meteor.user({_id: userId}).username;
+function addComment(resourceBlockId) {
+  var channelId = _self.data._id,
+    userId = Meteor.userId(),
+    message = _commentTextArea.value,
+    resourceBlockId = _data[_selectedIndex].sha;
+
+  if (message) {
+    Meteor.call('addComment', message, channelId, resourceBlockId, userId, function(error, results) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Message added');
+        _commentTextArea.value = '';
+      }
+    });
+  }
 }

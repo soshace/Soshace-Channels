@@ -28,7 +28,6 @@
 
 	// Public methods
 	GithubPlugin.prototype.getUserRepos = function(func) {
-		Session.set('settingsData', []);
 		$.getJSON('https://api.github.com/user/repos', {
 			access_token: _token,
 			visibility: 'private'

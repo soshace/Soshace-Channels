@@ -1,0 +1,30 @@
+<template name="githubDetailsTemplate">
+<div class="panel">
+	<div class="panel-heading">
+		<h3>{{commit.message}}</h3>
+		<h4>Committed by <span class="semi-bold">{{name}}</span> on {{date}}</h4>
+		<a href="{{html_url}}" target="_blank">View at github</a>
+		<button class="channel__return btn btn-sm btn-white">
+		Back to channel
+		</button>
+	</div>
+	<div class="panel-body">
+		<div class="channel__comments-block">
+			{{#each messages}}
+			<div class="channel-block__comment-wrapper">
+				<em>{{author}} wrote on {{dateTime}}</em>
+				<div class="channel-block__comment-body semi-bold">
+					{{body}}
+				</div>
+			</div>
+			{{/each}}
+			<div class="channel-block__new-comment">
+				<textarea class="form-control channel-block__add-comment-area" placeholder="New comment..." rows="5" id="{{this.sha}}"></textarea>
+				<button class="btn btn-white btn-sm channel-block__add-comment-button" id="{{this.sha}}">
+				Go
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+</template>

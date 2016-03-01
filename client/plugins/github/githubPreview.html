@@ -1,0 +1,13 @@
+<template name="githubPreviewTemplate">
+<div>
+	<span class="pull-left">
+		<img class="channel__resource-avatar" src="{{avatar}}" alt="@{{name}}" height="36" width="36">
+	</span>
+	<div class="">
+		<p class="channel__show-details" id="{{sha}}">
+			{{commit.message}}
+		</p>
+		<em>committed by {{name}} on {{date}}</em>
+	</div>
+</div>
+</template>

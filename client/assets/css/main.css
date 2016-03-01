@@ -89,10 +89,21 @@ p{margin-bottom:.3em;}
 }
 
 .channel__resource-block {
-  border: Solid 2px Lavender;
+  border: Solid 1px Lavender;
   padding: 10px;
 }
 
-.channel__comments-block{
-  
+.channel__resource-avatar{
+}
+
+.channel__show-details{
+  cursor: pointer;
+}
+
+.channel__show-details:hover{
+  color: Black;
+}
+
+.channel-block__comment-wrapper{
+  margin-bottom:20px;
 }
