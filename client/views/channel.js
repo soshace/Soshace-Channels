@@ -65,7 +65,6 @@ Template.channel.events({
     var channelId = _self.data._id,
       resourceBlockId = event.target.id,
       userId = Meteor.userId(),
-      // message = document.querySelector('.' + resourceBlockId).value;
       message = document.getElementsByClassName(resourceBlockId)[0].value;
 
     Meteor.call('addComment', message, channelId, resourceBlockId, userId, function(error, results) {
@@ -153,9 +152,6 @@ Template.channel.helpers({
 });
 
 Template.channel.onRendered(function() {
-  if (!this._rendered) {
-    this._rendered = true;
-  }
   _self = this;
 });
 
@@ -186,16 +182,17 @@ Template.channel.updateData = function(channelId) {
     } else {
       var data = event.detail;
       loadComments(data, channelId);
-      Session.set('channelFeed', event.detail);
+      Session.set('channelFeed', data);
+      console.log(data);
     }
   });
 }
 
 var loadComments = function(data, channelId) {
-  console.log('load comments');
   var messages = Channels.findOne({_id: channelId}).messages;
   for (var j = data.length - 1; j >= 0; j--) {
     data[j].messages = [];
+    data[j].blockIndex = j;
     for (var i = messages.length - 1; i >= 0; i--) {
       if (messages[i].resourceBlockId === data[j].sha) {
         messages[i].dateTime = formatDateTime(messages[i].dateTime);
@@ -212,6 +209,6 @@ function formatDateTime(dt) {
   return `${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}  ${date.getHours()}:${date.getMinutes()}`;
 };
 
-function getAuthor(userId){
+function getAuthor(userId){ // Get user name by ID for output in comments
   return Meteor.user({_id: userId}).username;
 }

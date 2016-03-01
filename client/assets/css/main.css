@@ -87,3 +87,12 @@ p{margin-bottom:.3em;}
 .sidebar-addchannel:hover {
   color: red;
 }
+
+.channel__resource-block {
+  border: Solid 2px Lavender;
+  padding: 10px;
+}
+
+.channel__comments-block{
+  
+}
