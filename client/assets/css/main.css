@@ -111,3 +111,7 @@ p{margin-bottom:.3em;}
 .line-break{
   white-space:pre-wrap;
 }
+
+.channel-block__accordion{
+    background-color: #d9e0e7;
+}

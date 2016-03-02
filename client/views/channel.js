@@ -81,7 +81,7 @@ Template.channel.events({
     event.preventDefault();
     for (var i = _data.length - 1; i >= 0; i--) {
       if (_data[i].sha === event.target.id) { //Find index of data array element that will be shown detailed
-        _github.getSingleCommit(getSingleCommitCallback, _data[i].sha);
+        _github.getSingleCommit(getSingleBlockCallback, _data[i].sha);
       }
     };
     _channelView.classList.add('hidden');
@@ -220,14 +220,14 @@ Template.channel.updateData = function(channelId, reset) {
     _github = new GithubPlugin();
   }
   _github.setParameters(token, channel.serviceResource, channelIsGuest, channelId);
-  _github.getRepoCommits(getCommitsCallback, getEmailsCallback);
+  _github.getRepoCommits(getBlocksCallback, getEmailsCallback);
 
   if (_singleBlock){
-    _github.getSingleCommit(getSingleCommitCallback, _singleBlock.sha);
+    _github.getSingleCommit(getSingleBlockCallback, _singleBlock.sha);
   }
 };
 
-function getCommitsCallback(data, resourceId) {
+function getBlocksCallback(data, resourceId) {
   _data = data;
   _deps.changed();
 };
@@ -237,11 +237,11 @@ function getEmailsCallback(data) {
   _deps.changed();
 };
 
-function getSingleCommitCallback(data) {
+function getSingleBlockCallback(data) {
   _singleBlock = data;
   loadComments();
   _deps.changed();
-}
+};
 
 function loadComments() {
   var messages = Channels.findOne({
@@ -251,18 +251,12 @@ function loadComments() {
   _singleBlock.messages = [];
   for (var i = messages.length - 1; i >= 0; i--) {
     if (messages[i].resourceBlockId === _singleBlock.sha) {
-      messages[i].dateTime = formatDateTime(messages[i].dateTime);
       messages[i].author = Meteor.users.findOne({
         _id: messages[i].author
       }).username;
       _singleBlock.messages.push(messages[i]);
     }
   };
-};
-
-function formatDateTime(dt) {
-  let date = new Date(dt);
-  return `${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}  ${date.getHours()}:${date.getMinutes()}`;
 };
 
 function addComment(resourceBlockId) {
@@ -273,3 +267,8 @@ function addComment(resourceBlockId) {
     _commentTextArea.value = '';
   }
 };
+
+Template.registerHelper('formatDateTime', function(dt) {
+  let date = new Date(dt);
+  return `${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}  ${date.getHours()}:${date.getMinutes()}`;
+});
