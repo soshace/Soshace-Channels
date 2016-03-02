@@ -1,9 +1,19 @@
-var _deps = new Deps.Dependency();
-var _settingsTemplate = 'githubSettingsTemplate';
+var _deps = new Deps.Dependency(),
+  _settingsTemplate = 'githubSettingsTemplate',
+  _settingsData,
+  _newName,
+  _authDiv,
+  _githubButton,
+  _trelloButton,
+  _typeSelector;
+
 
 Template.addChannel.helpers({
   settingsData: function() {
-    return Session.get('settingsData');
+    _deps.depend();
+    return {
+      settingsData: _settingsData
+    };
   },
 
   settingsTemplate: function() {
@@ -18,9 +28,9 @@ Template.addChannel.events({
     localStorage.setItem('newChannelName', '');
 
     // Get name from input
-    var channelName = Template.addChannel.newName.value;
+    var channelName = _newName.value;
     // Get type from select
-    var channelType = Template.addChannel.typeSelector.value;
+    var channelType = _typeSelector.value;
     // Get resource id. TODO: this selector is taken from github plugin. Should make it universal.
     var resourceId = document.querySelector('[name=resource-id]').value;
 
@@ -52,18 +62,18 @@ Template.addChannel.events({
 
   'keyup #name-field': function(event) {
     event.preventDefault();
-    localStorage.setItem('newChannelName', event.target.value); // Set channel name to session before sending request for further restoring.
+    localStorage.setItem('newChannelName', event.target.value); // Set channel name to local storage before sending request for further restoring.
   }
 });
 
 Template.addChannel.onRendered(function() {
-  Template.addChannel.newName = document.querySelector('[name=name]');
-  Template.addChannel.authDiv = document.querySelector('.auth-service');
-  Template.addChannel.githubButton = document.querySelector('.channel-add__github-auth');
-  Template.addChannel.trelloButton = document.querySelector('.channel-add__trello-auth');
-  Template.addChannel.typeSelector = document.querySelector('[name=service]:checked');
+  _newName = document.querySelector('[name=name]');
+  _authDiv = document.querySelector('.auth-service');
+  _githubButton = document.querySelector('.channel-add__github-auth');
+  _trelloButton = document.querySelector('.channel-add__trello-auth');
+  _typeSelector = document.querySelector('[name=service]:checked');
 
-  Template.addChannel.newName.value = localStorage.getItem('newChannelName') || '';
+  _newName.value = localStorage.getItem('newChannelName') || '';
 
   // Default service is github
   selectService('github');
@@ -92,17 +102,16 @@ Template.addChannel.onRendered(function() {
 
 function displayAuthButton(display) {
   if (display) {
-    Template.addChannel.authDiv.classList.add('hidden');
+    _authDiv.classList.add('hidden');
   } else {
-    Template.addChannel.authDiv.classList.remove('hidden');
+    _authDiv.classList.remove('hidden');
   }
 }
 
 // This function is passed as ajax request callback to plugin
 function getDataforSettingsCallback(data) {
-  Session.set('settingsData', {
-    settingsData: data
-  });
+  _settingsData = data;
+  _deps.changed();
 }
 
 function selectService(service) {
@@ -120,17 +129,14 @@ function selectService(service) {
         github.setParameters(userAuthenticated);
         github.getUserRepos(getDataforSettingsCallback);
       }
-      // else{
-      //   Session.set('settingsData',[]);
-      // }
-      Template.addChannel.githubButton.classList.remove('hidden');
-      Template.addChannel.trelloButton.classList.add('hidden');
+      _githubButton.classList.remove('hidden');
+      _trelloButton.classList.add('hidden');
       break;
     case 'trello':
       userAuthenticated = false;
       _settingsTemplate = 'trelloSettingsTemplate';
-      Template.addChannel.trelloButton.classList.remove('hidden');
-      Template.addChannel.githubButton.classList.add('hidden');
+      _trelloButton.classList.remove('hidden');
+      _githubButton.classList.add('hidden');
       break;
   }
   displayAuthButton(userAuthenticated);

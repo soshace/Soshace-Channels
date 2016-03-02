@@ -107,3 +107,7 @@ p{margin-bottom:.3em;}
 .channel-block__comment-wrapper{
   margin-bottom:20px;
 }
+
+.line-break{
+  white-space:pre-wrap;
+}

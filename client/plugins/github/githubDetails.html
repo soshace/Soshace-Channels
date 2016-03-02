@@ -1,14 +1,28 @@
 <template name="githubDetailsTemplate">
 <div class="panel">
+
 	<div class="panel-heading">
 		<h3>{{commit.message}}</h3>
-		<h4>Committed by <span class="semi-bold">{{name}}</span> on {{date}}</h4>
+		<h4>Committed by <span class="semi-bold">{{committer.login}}</span> on {{commit.committer.date}}</h4>
+		<p>Sha: {{sha}}</p>
+		<h4>Total statistics: {{stats.additions}} additions, {{stats.deletions}} delitions</h4>
+		<h4>Files:</h4>
+		{{#each files}}
+			<p>File {{filename}} was modified</p>
+			<p>Additions: {{additions}}</p>
+			<p>Changes: {{changes}}</p>
+			<p>Deletions: {{deletions}}</p>
+			<div class="line-break">{{patch}}</div>
+		{{/each}}
 		<a href="{{html_url}}" target="_blank">View at github</a>
+
 		<button class="channel__return btn btn-sm btn-white">
 		Back to channel
 		</button>
 	</div>
+
 	<div class="panel-body">
+		<h4>Comments</h4>
 		<div class="channel__comments-block">
 			{{#each messages}}
 			<div class="channel-block__comment-wrapper">
@@ -26,5 +40,6 @@
 			</div>
 		</div>
 	</div>
+
 </div>
 </template>

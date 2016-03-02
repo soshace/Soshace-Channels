@@ -50,12 +50,26 @@
 				_data = results.data;
 				console.log('Loading through server finished');
 				runTemplating();
-				if (_loading){
-					getCommits(_data, _channelId);					
+				if (_loading) {
+					getCommits(_data, _channelId);
 				}
 			});
 		}
-	}
+	};
+
+	GithubPlugin.prototype.getSingleCommit = function(getCommitCallback, sha) {
+		if (!_isGuest) {
+			var request = 'https://api.github.com/repos/' + _resourceId + '/commits/' + sha;
+			$.getJSON(request, {
+				access_token: _token
+			}, getCommitCallback);
+		} else {
+			var request = 'https://api.github.com/repos/' + _resourceId + '/commits/' + sha + '?access_token=' + _token;
+			Meteor.call('getGithub', request, function(error, results) {
+				getCommitCallback(results.data);
+			});
+		}
+	};
 
 	//Private methods
 	function getRepoContributors(getEmails) {

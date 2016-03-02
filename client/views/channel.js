@@ -1,13 +1,12 @@
-var _channelIsGuest = true,
-  _deps = new Deps.Dependency(),
+var _deps = new Deps.Dependency(),
   _associatedEmails = [],
   _channelId, // This channel identificator
-  _selectedIndex = -1, // This is an index of a block that user choose to show detail information with comments 
   _data, // Array of loaded blocks
   _channelView, // Cached DOM elements
   _detailView, // Cached DOM elements
   _commentTextArea, // Cached DOM elements
-  _github;
+  _github,
+  _singleBlock = null; // This object contains data about resource unit (commit, board etc)
 
 Template.channel.events({
   'click .channel__delete': function(event) {
@@ -82,8 +81,7 @@ Template.channel.events({
     event.preventDefault();
     for (var i = _data.length - 1; i >= 0; i--) {
       if (_data[i].sha === event.target.id) { //Find index of data array element that will be shown detailed
-        _selectedIndex = i;
-        _deps.changed();
+        _github.getSingleCommit(getSingleCommitCallback, _data[i].sha);
       }
     };
     _channelView.classList.add('hidden');
@@ -94,7 +92,7 @@ Template.channel.events({
     event.preventDefault();
     _channelView.classList.remove('hidden');
     _detailsView.classList.add('hidden');
-    _selectedIndex = -1;
+    _singleBlock = null;
     _deps.changed();
   }
 });
@@ -164,7 +162,6 @@ Template.channel.helpers({
     return _data;
   },
 
-  // TODO: Provide loading emeils simultaneously with commits
   associatedEmails: function() {
     _deps.depend();
     return _associatedEmails;
@@ -180,7 +177,7 @@ Template.channel.helpers({
 
   selectedBlock: function() {
     _deps.depend();
-    return _selectedIndex === -1 ? {} : _data[_selectedIndex];
+    return _singleBlock;
   }
 });
 
@@ -191,26 +188,29 @@ Template.channel.onRendered(function() {
 });
 
 Template.channel.updateData = function(channelId, reset) {
-  if (reset) { // This if block used to reset channel view to initial if user changed channel manually. Have to use it cause Meteor.call method changes router.
-    _selectedIndex = -1;
+  if (reset) { // This if block used to reset channel view to initial if user had changed channel manually. Have to use it cause Meteor.call method changes router.
+    _singleBlock = null;
     if (_channelView && _detailsView) {
       _channelView.classList.remove('hidden');
       _detailsView.classList.add('hidden');
     }
-  }
+  };
 
   _channelId = channelId;
 
-  let channel = Channels.findOne({
+  var channel = Channels.findOne({
     _id: channelId
   });
 
-  let resourceId = channel.serviceResource;
-  _channelIsGuest = channel.createdBy !== Meteor.userId(); // Determine if current user is guest on this channel
+  if (!channel) { // This fix is for avoiding removed channel updating
+    return;
+  }
 
-  let token = Meteor.user().profile.services ? Meteor.user().profile.services.pass : '';
-  if (_channelIsGuest) { // if this channel is guest then we take hosts token for requests
-    let hostUser = Meteor.users.findOne({
+  var channelIsGuest = channel.createdBy !== Meteor.userId(); // Determine if current user is guest on this channel
+
+  var token = Meteor.user().profile.services ? Meteor.user().profile.services.pass : '';
+  if (channelIsGuest) { // if this channel is guest then we take hosts token for requests
+    var hostUser = Meteor.users.findOne({
       _id: channel.createdBy
     });
     token = hostUser.profile.services.pass;
@@ -219,39 +219,45 @@ Template.channel.updateData = function(channelId, reset) {
   if (!_github) {
     _github = new GithubPlugin();
   }
-  _github.setParameters(token, resourceId, _channelIsGuest, channelId);
-  _github.getRepoCommits(getCommits, getEmails);
+  _github.setParameters(token, channel.serviceResource, channelIsGuest, channelId);
+  _github.getRepoCommits(getCommitsCallback, getEmailsCallback);
+
+  if (_singleBlock){
+    _github.getSingleCommit(getSingleCommitCallback, _singleBlock.sha);
+  }
 };
 
-function getCommits(data, resourceId) {
+function getCommitsCallback(data, resourceId) {
   _data = data;
-  loadComments(_data, _channelId);
+  _deps.changed();
 };
 
-function getEmails(data) {
+function getEmailsCallback(data) {
   _associatedEmails = data;
   _deps.changed();
 };
 
-function loadComments(data, channelId) {
+function getSingleCommitCallback(data) {
+  _singleBlock = data;
+  loadComments();
+  _deps.changed();
+}
+
+function loadComments() {
   var messages = Channels.findOne({
-    _id: channelId
+    _id: _channelId
   }).messages;
 
-  for (var j = data.length - 1; j >= 0; j--) {
-    data[j].messages = [];
-    // data[j].blockIndex = j;
-    for (var i = messages.length - 1; i >= 0; i--) {
-      if (messages[i].resourceBlockId === data[j].sha) {
-        messages[i].dateTime = formatDateTime(messages[i].dateTime);
-        messages[i].author = Meteor.users.findOne({
-          _id: messages[i].author
-        }).username;
-        data[j].messages.push(messages[i]);
-      }
-    };
+  _singleBlock.messages = [];
+  for (var i = messages.length - 1; i >= 0; i--) {
+    if (messages[i].resourceBlockId === _singleBlock.sha) {
+      messages[i].dateTime = formatDateTime(messages[i].dateTime);
+      messages[i].author = Meteor.users.findOne({
+        _id: messages[i].author
+      }).username;
+      _singleBlock.messages.push(messages[i]);
+    }
   };
-  _deps.changed();
 };
 
 function formatDateTime(dt) {
@@ -260,13 +266,10 @@ function formatDateTime(dt) {
 };
 
 function addComment(resourceBlockId) {
-  var channelId = _channelId,
-    userId = Meteor.userId(),
-    message = _commentTextArea.value,
-    resourceBlockId = _data[_selectedIndex].sha;
+  var message = _commentTextArea.value;
 
   if (message) {
-    Meteor.call('addComment', message, channelId, resourceBlockId, userId);
+    Meteor.call('addComment', message, _channelId, _singleBlock.sha, Meteor.userId());
     _commentTextArea.value = '';
   }
 };
