@@ -1,11 +1,14 @@
+Meteor.subscribe('invites');
+
 Template.channelInvites.helpers({
   hasInvitations: function() {
     var invitations = Invitations.find().count();
     return invitations < 1 ? false : true;
   },
 
-  invitations: function() {
-    var invitations = Invitations.find();
+  invitation: function() {
+    var channelId = this._id,
+        invitations = Invitations.find({ channelId: channelId });
 
     if ( invitations ) {
       return invitations;
@@ -40,6 +43,7 @@ Template.channelInvites.events({
       Bert.alert('Please, set an email', 'warning');
     }
   },
+  // TODO:
   // fore REVOKE invite
   //   'click .revoke-invite': function( event, template ) {
   //     if ( confirm( "Are you sure? This is permanent." ) ) {

@@ -12,27 +12,19 @@
           <table class="table">
             <thead>
               <tr>
-                <th>Role</th>
-                <th>User</th>
                 <th>Email</th>
+                <th>Token</th>
+                <th>Channel ID</th>
               </tr>
             </thead>
             <tbody>
+              {{#each invitation}}
               <tr>
-                <td>Creator</td>
-                <td>Quo</td>
-                <td>q@qq.ru</td>
+                <td>{{email}}</td>
+                <td>{{token}}</td>
+                <td>{{channelId}}</td>
               </tr>
-              <tr>
-                <td>Admin</td>
-                <td>Quo</td>
-                <td>q@qq.ru</td>
-              </tr>
-              <tr>
-                <td>Admin</td>
-                <td>Quo</td>
-                <td>q@qq.ru</td>
-              </tr>
+              {{/each}}
             </tbody>
           </table>
 

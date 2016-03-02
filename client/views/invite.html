@@ -2,7 +2,7 @@
 
   <div class="row">
 
-    <!-- {{#with invitation}} -->
+    {{#with invitation}}
 
     <div class="col-xs-12 col-sm-6 col-md-4">
 
@@ -10,12 +10,16 @@
 
       <form id="accept-invitation">
         <div class="form-group">
-          <label for="emailAddress">Email Address</label>
-          <input disabled type="email" name="emailAddress" class="form-control" placeholder="Email Address" value="{{email}}">
+          <label for="email-field">Email Address:</label>
+          <input disabled type="email" name="email" class="form-control" placeholder="Email Address" value="{{email}}" id="email-field">
         </div>
         <div class="form-group">
-          <label for="password"><span class="pull-left">Password</span></label>
-          <input type="password" name="password" class="form-control" placeholder="Password">
+          <label for="username-field">Username</label>
+          <input type="text" name="username" class="form-control" placeholder="Enter your username here" id="username-field">
+        </div>
+        <div class="form-group">
+          <label for="password-field"><span class="pull-left">Password</span></label>
+          <input type="password" name="password" class="form-control" placeholder="Enter your password here" id="password-field">
         </div>
         <div class="form-group">
           <input type="submit" class="btn btn-success" value="Create Account">
@@ -24,13 +28,13 @@
 
     </div>
 
-    <!-- {{else}} -->
+    {{else}}
 
       <div class="col-xs-12">
         <p class="alert alert-warning">Sorry, doesn't look like this invite is valid cowpoke.</p>
       </div>
 
-    <!-- {{/with}} -->
+    {{/with}}
   </div>
 
 </template>

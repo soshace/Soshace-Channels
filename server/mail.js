@@ -1,6 +1,6 @@
 Meteor.startup(function() {
   // ''%40' = encoded '@'
-  // need to hide auth data
+  // TODO: need to hide auth data (settings.json?)
   process.env.MAIL_URL = 'smtp://testov.testin%40yandex.ru:123123123123@smtp.yandex.ru:465/';
 });
 
@@ -22,20 +22,18 @@ Accounts.emailTemplates.verifyEmail = {
 };
 
 Meteor.methods({
-  sendEmail: function (to, subject, text, from) {
-    //check([to, from, subject, text], [String]);
+  sendEmail: function (options) {
+    //TODO: check([to, from, subject, text], [String]);
 
     // Let other method calls from the same client start running,
     // without waiting for the email sending to complete.
     this.unblock();
-    //???
-    //from = 'NoReply <testov.testin@yandex.ru>';
 
     Email.send({
-      to: to,
-      from: from,
-      subject: subject,
-      text: text
+      to: options.to,
+      from: options.from || 'NoReply <testov.testin@yandex.ru>',
+      subject: options.subject,
+      text: options.text
     });
   }
 });

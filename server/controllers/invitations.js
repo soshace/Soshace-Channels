@@ -4,6 +4,7 @@ Meteor.methods({
    *
    */
   sendInvitation: function(invitation) {
+
     check(invitation, {
       email: String,
       channelId: String,
@@ -12,39 +13,47 @@ Meteor.methods({
 
     try {
 
-      var options= {
+      var token = Random.hexString( 16 );
+
+      // TODO: !!!
+      // check if email is already registered
+      // then -> another logic
+
+      // Making new invitation for collection
+      var newInvite = {
         email: invitation.email,
-        token: Random.hexString( 16 ),
+        token: token,
         channelId: invitation.channelId,
         channelCreatorId: invitation.channelCreatorId,
         date: ( new Date() ).toISOString()
       };
 
-       // Insert new invitation
-       Invitations.insert( options );
+       // Insert new invitation to collection
+       Invitations.insert( newInvite );
 
-       // prepare email
+       // Prepare email options
        // TODO: add SSR.compileTemplate for email template
+       var domain = 'localhost:3000', //TODO: taking domain from settings.json Meteor.settings.private.domain
+           url = 'http://' + domain + '/invite/' + token;
 
-       var domain = Meteor.settings.private.domain,
-           url = 'http://' + domain + '/invite/' + invitation.token,
-           subject = '[SoshaceChannels] Invite for you',
-           text = 'mail body',
-           // TODO: determine this in mail.js?
-           from = 'NoReply <testov.testin@yandex.ru>';
+       var emailOptions = {
+          to: invitation.email,
+          from: 'NoReply <testov.testin@yandex.ru>',
+          subject: '[SoshaceChannels] Invite for you',
+          text: 'Invite to Soshace Channels for ' + invitation.email + '. To accept invite and get your own account go to: \n\n' + url + '\n\nIf you do not accept this invite, please ignore this email. If you feel something is wrong, please contact our support team: ...'
+        };
+
        // Sending email
-       Meteor.call('sendEmail', invitation.email, subject, text, from, function(error, response) {
+       Meteor.call('sendEmail', emailOptions, function(error) {
          if (error) {
-           // ...
-         } else {
-           // ... 
+           return error.reason;
          }
        });
     } catch (exception) {
       return exception;
     }
   },
-
+  // TODO:
   /**
    * Revoke invite
    *
@@ -60,35 +69,3 @@ Meteor.methods({
   // }
 
 });
-
-
-// var invitation = function( options ) {
-//   _insertInvitation( options );
-//   var email = _prepareEmail( options.token );
-//   _sendInvitation( options.email, email );
-// };
-//
-// var _insertInvitation = function ( invite ) {
-//   Invitations.insert( invite );
-// };
-//
-// var _prepareEmail = function( token ) {
-//   var domain = Meteor.settings.private.domain;
-//   var url    = 'http://' + domain + '/invite/' + token;
-//
-//   SSR.compileTemplate( 'invitation', Assets.getText( 'email/templates/invitation.html' ) );
-//   var html = SSR.render( 'invitation', { url: url } );
-//
-//   return html;
-// };
-//
-// var _sendInvitation = function( email, content ) {
-//   Email.send({
-//     to: email,
-//     from: "Jan Bananasmith <jan@banana.co>",
-//     subject: "Invitation to Banana Co.",
-//     html: content
-//   });
-// };
-//
-// Modules.server.sendInvitation = invitation;

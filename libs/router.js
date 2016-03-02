@@ -69,7 +69,7 @@ Router.route('/channel/:_id', {
     }
   },
   waitOn: function() {
-    return [ Meteor.subscribe('channels'), Meteor.subscribe('Meteor.users')];
+    return [ Meteor.subscribe('channels'), Meteor.subscribe('Meteor.users'), Meteor.subscribe('invites')];
   }
 });
 
@@ -92,7 +92,7 @@ Router.route('/verify-email/:token', {
   }
 });
 
-Router.route('/invite', {
+Router.route('/invite/:token', {
   name: 'invite',
   template: 'invite'
   // ,
