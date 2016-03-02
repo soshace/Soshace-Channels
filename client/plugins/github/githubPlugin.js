@@ -14,7 +14,6 @@
 		if (arguments[0] && typeof arguments[0] === 'object') {
 			this.options = extendDefaults(defaults, arguments[0]);
 		}
-		console.log('github created');
 	}
 
 	// Public methods

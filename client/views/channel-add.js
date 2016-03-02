@@ -103,7 +103,6 @@ function getDataforSettingsCallback(data) {
   Session.set('settingsData', {
     settingsData: data
   });
-  console.log(data);
 }
 
 function selectService(service) {
@@ -117,12 +116,13 @@ function selectService(service) {
       userAuthenticated = Meteor.user().profile.services ? Meteor.user().profile.services.pass : false;
       _settingsTemplate = 'githubSettingsTemplate';
       if (userAuthenticated) {
-        Meteor.github = new GithubPlugin(userAuthenticated);
-        Meteor.github.getUserRepos(getDataforSettingsCallback);
+        var github = new GithubPlugin();
+        github.setParameters(userAuthenticated);
+        github.getUserRepos(getDataforSettingsCallback);
       }
-      else{
-        Session.set('settingsData',[]);
-      }
+      // else{
+      //   Session.set('settingsData',[]);
+      // }
       Template.addChannel.githubButton.classList.remove('hidden');
       Template.addChannel.trelloButton.classList.add('hidden');
       break;
