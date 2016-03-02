@@ -53,6 +53,16 @@ Meteor.methods({
       return exception;
     }
   },
+
+  /**
+   * Deleting invite
+   *
+   */
+  deleteInvitation: function(token) {
+    var invitation = Invitations.findOne({ 'token': token });
+
+    Invitations.remove({ '_id': invitation._id });
+  }
   // TODO:
   /**
    * Revoke invite
