@@ -1,29 +1,20 @@
 (function() {
 	let _data = [],
-		_loadCompleteEventName = 'githubLoadComplete',
 		_token,
-		_resourceId,
-		_isGuest;
+		_resourceId, // The name of repository
+		_isGuest,
+		_channelId, // The id of channel
+		_loading;
 
 	// Constructor
-	this.GithubPlugin = function(token, resourceId, isGuest) {
-		this.showRepos = null;
-		this.userName = null;
+	this.GithubPlugin = function() {
 		this.settingsTemplateName = 'githubSettingsTemplate';
-		_token = token;
-		_resourceId = resourceId;
-		_isGuest = isGuest;
 
-		this.loadCompleteEventName = _loadCompleteEventName;
-
-		let defaults = {
-			showRepos: true,
-			userName: 'soshace'
-		}
-
+		let defaults = {};
 		if (arguments[0] && typeof arguments[0] === 'object') {
 			this.options = extendDefaults(defaults, arguments[0]);
 		}
+		console.log('github created');
 	}
 
 	// Public methods
@@ -32,9 +23,17 @@
 			access_token: _token,
 			visibility: 'private'
 		}, func);
-	}
+	};
 
-	GithubPlugin.prototype.getRepoCommits = function() {
+	GithubPlugin.prototype.setParameters = function(token, resourceId, isGuest, channelId) {
+		_token = token;
+		_resourceId = resourceId;
+		_isGuest = isGuest;
+		_channelId = channelId;
+	};
+
+	GithubPlugin.prototype.getRepoCommits = function(getCommits, getEmails) {
+		_loading = false;
 		if (!_isGuest) {
 			let request = 'https://api.github.com/repos/' + _resourceId + '/commits';
 			$.getJSON(request, {
@@ -42,26 +41,25 @@
 			}, function(data) {
 				_data = data;
 				runTemplating();
-				let loadCompleteEvent = new CustomEvent(_loadCompleteEventName, {
-					'detail': _data
-				});
-				window.dispatchEvent(loadCompleteEvent);
+				getCommits(_data, _channelId);
+				getRepoContributors(getEmails); // Only for host users
 			});
 		} else {
+			_loading = true;
 			let request = 'https://api.github.com/repos/' + _resourceId + '/commits?access_token=' + _token;
 			Meteor.call('getGithub', request, function(error, results) {
 				_data = results.data;
 				console.log('Loading through server finished');
 				runTemplating();
-				let loadCompleteEvent = new CustomEvent(_loadCompleteEventName, {
-					'detail': _data
-				});
-				window.dispatchEvent(loadCompleteEvent);
+				if (_loading){
+					getCommits(_data, _channelId);					
+				}
 			});
 		}
 	}
 
-	GithubPlugin.prototype.getRepoContributors = function() {
+	//Private methods
+	function getRepoContributors(getEmails) {
 		$.getJSON('https://api.github.com/repos/' + _resourceId + '/contributors', {
 			access_token: _token
 		}, function(data) {
@@ -73,20 +71,14 @@
 						counter--; // This counter is used to determine if we took checked contributors for email.
 						contributor.email = data.email || 'private';
 						if (counter === 0) {
-							let loadCompleteEvent = new CustomEvent(_loadCompleteEventName, {
-								'detail': {
-									emails: contributors
-								}
-							});
-							window.dispatchEvent(loadCompleteEvent);
+							getEmails(contributors);
 						}
 					});
 				})(contributor);
 			}
 		});
-	}
+	};
 
-	//Private methods
 	function extendDefaults(source, properties) { // Utility method to extend defaults with user options
 		let property;
 		for (property in properties) {
@@ -95,7 +87,7 @@
 			}
 		}
 		return source;
-	}
+	};
 
 	function runTemplating() {
 		for (let item of _data) {
@@ -103,7 +95,7 @@
 			item.avatar = item.author ? item.author.avatar_url : 'http://placehold.it/30x30';
 			item.date = formatDateTime(item.commit.committer.date);
 		}
-	}
+	};
 
 	function formatDateTime(dt) {
 		let date = new Date(dt);

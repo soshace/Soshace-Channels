@@ -75,13 +75,13 @@
 
             {{#each channels}}
               <li>
-                <a href="{{pathFor route='channel'}}">{{name}}</a>
+                <a href="{{pathFor route='channel' query='type=handle'}}">{{name}}</a>
               </li>
             {{/each}}
 
             {{#each guestchannels}}
               <li>
-                <a href="{{pathFor route='channel'}}">{{name}}</a>
+                <a href="{{pathFor route='channel' query='type=handle'}}">{{name}}</a>
               </li>
             {{/each}}
 

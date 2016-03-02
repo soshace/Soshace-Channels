@@ -1,12 +1,13 @@
 var _channelIsGuest = true,
   _deps = new Deps.Dependency(),
   _associatedEmails = [],
-  _self,
+  _channelId, // This channel identificator
   _selectedIndex = -1, // This is an index of a block that user choose to show detail information with comments 
   _data, // Array of loaded blocks
   _channelView, // Cached DOM elements
   _detailView, // Cached DOM elements
-  _commentTextArea; // Cached DOM elements
+  _commentTextArea, // Cached DOM elements
+  _github;
 
 Template.channel.events({
   'click .channel__delete': function(event) {
@@ -66,7 +67,7 @@ Template.channel.events({
 
   'click .channel-block__add-comment-button': function(event) {
     event.preventDefault();
-    addComment(); 
+    addComment();
   },
 
   'keyup .channel-block__add-comment-area': function(event) {
@@ -96,7 +97,6 @@ Template.channel.events({
     _selectedIndex = -1;
     _deps.changed();
   }
-
 });
 
 Template.channel.helpers({
@@ -164,6 +164,7 @@ Template.channel.helpers({
     return _data;
   },
 
+  // TODO: Provide loading emeils simultaneously with commits
   associatedEmails: function() {
     _deps.depend();
     return _associatedEmails;
@@ -184,14 +185,22 @@ Template.channel.helpers({
 });
 
 Template.channel.onRendered(function() {
-  _self = this;
   _channelView = document.getElementsByClassName('channel__wrapper')[0];
   _detailsView = document.getElementsByClassName('channel__block-wrapper')[0];
   _commentTextArea = document.getElementsByClassName('channel-block__add-comment-area')[0];
 });
 
-Template.channel.updateData = function(channelId) {
-  // _selectedIndex = -1;
+Template.channel.updateData = function(channelId, reset) {
+  if (reset) { // This if block used to reset channel view to initial if user changed channel manually. Have to use it cause Meteor.call method changes router.
+    _selectedIndex = -1;
+    if (_channelView && _detailsView) {
+      _channelView.classList.remove('hidden');
+      _detailsView.classList.add('hidden');
+    }
+  }
+
+  _channelId = channelId;
+
   let channel = Channels.findOne({
     _id: channelId
   });
@@ -205,22 +214,24 @@ Template.channel.updateData = function(channelId) {
       _id: channel.createdBy
     });
     token = hostUser.profile.services.pass;
+  };
+
+  if (!_github) {
+    _github = new GithubPlugin();
   }
+  _github.setParameters(token, resourceId, _channelIsGuest, channelId);
+  _github.getRepoCommits(getCommits, getEmails);
+};
 
-  Meteor.github = new GithubPlugin(token, resourceId, _channelIsGuest);
-  Meteor.github.getRepoCommits();
-  Meteor.github.getRepoContributors();
+function getCommits(data, resourceId) {
+  _data = data;
+  loadComments(_data, _channelId);
+};
 
-  window.addEventListener(Meteor.github.loadCompleteEventName, function(event) {
-    if (event.detail.emails) { // If there are emails property in detail it menas that emails loaded event was initiated.
-      _associatedEmails = event.detail.emails;
-      _deps.changed();
-    } else {
-      _data = event.detail;
-      loadComments(_data, channelId);
-    }
-  });
-}
+function getEmails(data) {
+  _associatedEmails = data;
+  _deps.changed();
+};
 
 function loadComments(data, channelId) {
   var messages = Channels.findOne({
@@ -229,7 +240,7 @@ function loadComments(data, channelId) {
 
   for (var j = data.length - 1; j >= 0; j--) {
     data[j].messages = [];
-    data[j].blockIndex = j;
+    // data[j].blockIndex = j;
     for (var i = messages.length - 1; i >= 0; i--) {
       if (messages[i].resourceBlockId === data[j].sha) {
         messages[i].dateTime = formatDateTime(messages[i].dateTime);
@@ -241,7 +252,7 @@ function loadComments(data, channelId) {
     };
   };
   _deps.changed();
-}
+};
 
 function formatDateTime(dt) {
   let date = new Date(dt);
@@ -249,19 +260,13 @@ function formatDateTime(dt) {
 };
 
 function addComment(resourceBlockId) {
-  var channelId = _self.data._id,
+  var channelId = _channelId,
     userId = Meteor.userId(),
     message = _commentTextArea.value,
     resourceBlockId = _data[_selectedIndex].sha;
 
   if (message) {
-    Meteor.call('addComment', message, channelId, resourceBlockId, userId, function(error, results) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log('Message added');
-        _commentTextArea.value = '';
-      }
-    });
+    Meteor.call('addComment', message, channelId, resourceBlockId, userId);
+    _commentTextArea.value = '';
   }
-}
+};

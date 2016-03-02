@@ -50,14 +50,20 @@ Router.route('/channel/:_id', {
   template: 'channel',
   data: function() {
     var currentChannel = this.params._id;
-    var currentUser = Meteor.userId();
+    // var currentUser = Meteor.userId();
     return Channels.findOne({ _id: currentChannel });
   },
   onBeforeAction: function() {
     var currentUser = Meteor.userId();
     if (currentUser) {
+      if (this.params.query) {
+        this.params.query = '';
+        Template.channel.updateData(this.params._id,true);
+      }
+      else{
+        Template.channel.updateData(this.params._id,false);
+      }
       this.next();
-      Template.channel.updateData(this.params._id);
     } else {
       this.render('login');
     }
