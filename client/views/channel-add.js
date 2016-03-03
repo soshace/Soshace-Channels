@@ -28,6 +28,11 @@ Template.addChannel.helpers({
   selectedService: function() {
     _deps.depend();
     return _selectedService;
+  },
+
+  clientkey: function(){
+    console.log(Meteor.settings.public.github_client_id);
+    return Meteor.settings.public.github_client_id;
   }
 });
 

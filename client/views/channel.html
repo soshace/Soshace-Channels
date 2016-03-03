@@ -72,6 +72,7 @@
 
           {{> channelInvites}}
 
+          {{#if showEmails}}
           <div class="row">
             <div class="col-md-6">
 
@@ -80,18 +81,45 @@
                   <h4 class="panel-title">Associated e-mails</h4>
                 </div>
                 <div class="panel-body">
-                  <ul>
-                  {{#each associatedEmails}}
-                  <li>
-                    {{login}}: {{email}}
-                  </li>
-                  {{/each}}
-                </ul>
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Service login</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {{#each associatedEmails}}
+                      <tr>
+                        <td>{{login}}</td>
+                        <td>{{email}}</td>
+                        <td>{{outputType}}</td>
+                        <td>
+
+                          {{#if equals emailType 'member'}}
+                            <button class="btn btn-xs btn-primary channel__add-contact-to-channel" id="{{userId}}">Add to channel</button>
+                          {{/if}}
+
+                          {{#if equals emailType 'registered'}}
+                            <button class="btn btn-xs btn-primary channel__invite-registered" id="{{userId}}">Add to channel</button>
+                          {{/if}}                          
+
+                          {{#if equals emailType 'unregistered'}}
+                            <button class="btn btn-xs btn-primary channel__invite-unregistered" id="{{userId}}">Invite to service</button>
+                          {{/if}}
+                        </td>
+                      </tr>
+                      {{/each}}
+                    </tbody>
+                  </table>
                 </div>
               </div>
 
             </div>
           </div>
+          {{/if}}
         </div>
         <div class="tab-pane fade" id="settings">
           <a class="channel__delete btn btn-danger m-t-15 m-b-15" href="#">Delete Channel</a>

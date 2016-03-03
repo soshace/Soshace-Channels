@@ -115,3 +115,11 @@ p{margin-bottom:.3em;}
 .channel-block__accordion{
     background-color: #d9e0e7;
 }
+
+.channel__associated-emails{
+  list-style-type: none;
+}
+
+.channel__associated-emails-element{
+  padding:10px;
+}
