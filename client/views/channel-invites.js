@@ -35,8 +35,14 @@ Template.channelInvites.events({
         if (error) {
           Bert.alert(error.reason, 'warning');
         } else {
-          $('[name=email]').val('');
-          Bert.alert('Invitation send to ' + emailForInvite + '.', 'success');
+          if (response === 'User already registered.') {
+            Bert.alert('User with this email is already registered. He will recieve request for adding to your contacts and invite for current channel.', 'success');
+          } else if (response === 'Invite already exist.') {
+            Bert.alert('Invite to this email is already exist. You can revoke it and try again.', 'info');
+          } else {
+            $('[name=email]').val('');
+            Bert.alert('Invitation send to ' + emailForInvite + '.', 'success');
+          }
         }
       });
     } else {

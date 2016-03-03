@@ -12,12 +12,34 @@ Meteor.methods({
     });
 
     try {
+      var userToAdd = Accounts.findUserByEmail(invitation.email);
+      // Variable for response to client
+      var response;
 
-      var token = Random.hexString( 16 );
+      // Check if user with this email is already registered
+      if (userToAdd) {
+        Meteor.call('addContact', userToAdd.username);
+        Meteor.call('addMember', invitation.channelId, invitation.channelCreatorId);
+        response = 'User already registered.';
+        return response;
+      }
 
-      // TODO: !!!
-      // check if email is already registered
-      // then -> another logic
+      // If there is no user with that email...
+      // Check if there is same invite
+      var options = {
+        email: invitation.email,
+        channelId: invitation.channelId,
+        channelCreatorId: invitation.channelCreatorId
+      };
+
+      var inviteToFind = Invitations.findOne(options);
+      if (inviteToFind) {
+        response = 'Invite already exist.';
+        return response;
+      }
+
+      // If no such invite create new invitation
+      var token = Random.hexString(16);
 
       // Making new invitation for collection
       var newInvite = {
@@ -25,7 +47,7 @@ Meteor.methods({
         token: token,
         channelId: invitation.channelId,
         channelCreatorId: invitation.channelCreatorId,
-        date: ( new Date() ).toISOString()
+        date: (new Date()).toISOString()
       };
 
        // Insert new invitation to collection
@@ -44,11 +66,8 @@ Meteor.methods({
         };
 
        // Sending email
-       Meteor.call('sendEmail', emailOptions, function(error) {
-         if (error) {
-           return error.reason;
-         }
-       });
+       // TODO: check for errors?
+       Meteor.call('sendEmail', emailOptions);
     } catch (exception) {
       return exception;
     }

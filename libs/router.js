@@ -117,10 +117,4 @@ Router.route('/verify-email/:token', {
 Router.route('/invite/:token', {
   name: 'invite',
   template: 'invite'
-    // ,
-    // onBeforeAction: function() {
-    //   var token = this.params.token;
-    //
-    //
-    // }
 });

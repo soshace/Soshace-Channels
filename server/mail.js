@@ -29,6 +29,7 @@ Meteor.methods({
     // without waiting for the email sending to complete.
     this.unblock();
 
+    // TODO: check for errors?
     Email.send({
       to: options.to,
       from: options.from || 'NoReply <testov.testin@yandex.ru>',

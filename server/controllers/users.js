@@ -4,15 +4,26 @@
 // (which defined in client/views/register.js)
 // when user creates an account (registation)
 Accounts.onCreateUser(function(options, user) {
-   // Use provided profile in options, or create an empty object
-   user.profile = options.profile || {};
+  user._id = Random.id();
 
-   // Assigns 'contacts'/'channels'  to the newly created user object
-   user.profile.contacts = options.contacts;
-   user.profile.channels = options.channels;
+  // Use provided profile in options, or create an empty object
+  user.profile = options.profile || {};
 
-   // Returns the user object
-   return user;
+  // Assigns 'contacts'/'channels'  to the newly created user object
+  user.profile.contacts = options.contacts;
+  user.profile.channels = options.channels;
+
+  // Check if user come with invite and verify his email
+  if (options.invited) {
+    var verifiedEmail = {
+      address: options.email,
+      verified: true
+    };
+    user.emails[0] = verifiedEmail;
+  }
+
+  // Returns the user object
+  return user;
 });
 
 
