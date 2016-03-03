@@ -2,11 +2,7 @@ var _deps = new Deps.Dependency(),
   _associatedEmails = [],
   _channelId, // This channel identificator
   _blocks, // Array of loaded blocks (commits, boards etc)
-  _channelView, // Cached DOM elements
-  _detailView, // Cached DOM elements
-  _commentTextArea, // Cached DOM elements
-  _github,
-  _singleBlock = null; // This object contains data about resource unit (commit, board etc)
+  _github;
 
 Template.channel.events({
   'click .channel__delete': function(event) {
@@ -63,38 +59,6 @@ Template.channel.events({
       }
     });
   },
-
-  'click .channel-block__add-comment-button': function(event) {
-    event.preventDefault();
-    addComment();
-  },
-
-  'keyup .channel-block__add-comment-area': function(event) {
-    event.preventDefault();
-
-    if ((event.keyCode === 13) && (event.ctrlKey)) {
-      addComment();
-    }
-  },
-
-  'click .channel__show-details': function(event) {
-    event.preventDefault();
-    for (var i = _blocks.length - 1; i >= 0; i--) {
-      if (_blocks[i].sha === event.target.id) { //Find index of data array element that will be shown detailed
-        _github.getSingleCommit(getSingleBlockCallback, _blocks[i].sha);
-      }
-    };
-    _channelView.classList.add('hidden');
-    _detailsView.classList.remove('hidden');
-  },
-
-  'click .channel__return': function(event) {
-    event.preventDefault();
-    _channelView.classList.remove('hidden');
-    _detailsView.classList.add('hidden');
-    _singleBlock = null;
-    _deps.changed();
-  }
 });
 
 Template.channel.helpers({
@@ -169,33 +133,12 @@ Template.channel.helpers({
 
   previewTemplate: function() {
     return Template['githubPreviewTemplate'];
-  },
-
-  detailsTemplate: function() {
-    return Template['githubDetailsTemplate'];
-  },
-
-  selectedBlock: function() {
-    _deps.depend();
-    return _singleBlock;
   }
 });
 
-Template.channel.onRendered(function() {
-  _channelView = document.getElementsByClassName('channel__wrapper')[0];
-  _detailsView = document.getElementsByClassName('channel__block-wrapper')[0];
-  _commentTextArea = document.getElementsByClassName('channel-block__add-comment-area')[0];
-});
+Template.channel.onRendered(function() {});
 
 Template.channel.updateData = function(channelId, reset) {
-  if (reset) { // This if block used to reset channel view to initial if user had changed channel manually. Have to use it cause Meteor.call method changes router.
-    _singleBlock = null;
-    if (_channelView && _detailsView) {
-      _channelView.classList.remove('hidden');
-      _detailsView.classList.add('hidden');
-    }
-  };
-
   _channelId = channelId;
 
   var channel = Channels.findOne({
@@ -221,10 +164,6 @@ Template.channel.updateData = function(channelId, reset) {
   }
   _github.setParameters(token, channel.serviceResource, channelIsGuest, channelId);
   _github.getRepoCommits(getBlocksCallback, getEmailsCallback);
-
-  if (_singleBlock){
-    _github.getSingleCommit(getSingleBlockCallback, _singleBlock.sha);
-  }
 };
 
 function getBlocksCallback(data, resourceId) {
@@ -235,37 +174,6 @@ function getBlocksCallback(data, resourceId) {
 function getEmailsCallback(data) {
   _associatedEmails = data;
   _deps.changed();
-};
-
-function getSingleBlockCallback(data) {
-  _singleBlock = data;
-  loadComments();
-  _deps.changed();
-};
-
-function loadComments() {
-  var messages = Channels.findOne({
-    _id: _channelId
-  }).messages;
-
-  _singleBlock.messages = [];
-  for (var i = messages.length - 1; i >= 0; i--) {
-    if (messages[i].resourceBlockId === _singleBlock.sha) {
-      messages[i].author = Meteor.users.findOne({
-        _id: messages[i].author
-      }).username;
-      _singleBlock.messages.push(messages[i]);
-    }
-  };
-};
-
-function addComment(resourceBlockId) {
-  var message = _commentTextArea.value;
-
-  if (message) {
-    Meteor.call('addComment', message, _channelId, _singleBlock.sha, Meteor.userId());
-    _commentTextArea.value = '';
-  }
 };
 
 Template.registerHelper('formatDateTime', function(dt) {

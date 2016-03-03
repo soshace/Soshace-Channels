@@ -57,7 +57,7 @@
 		}
 	};
 
-	GithubPlugin.prototype.getSingleCommit = function(getCommitCallback, sha) {
+	GithubPlugin.prototype.getSingleBlock = function(getCommitCallback, sha) {
 		if (!_isGuest) {
 			var request = 'https://api.github.com/repos/' + _resourceId + '/commits/' + sha;
 			$.getJSON(request, {
@@ -66,7 +66,7 @@
 		} else {
 			var request = 'https://api.github.com/repos/' + _resourceId + '/commits/' + sha + '?access_token=' + _token;
 			Meteor.call('getGithub', request, function(error, results) {
-				getCommitCallback(results.data);
+				getCommitCallback(results ? results.data : {});
 			});
 		}
 	};
@@ -107,6 +107,7 @@
 			item.name = item.author ? item.author.login : item.commit.author.email;
 			item.avatar = item.author ? item.author.avatar_url : 'http://placehold.it/30x30';
 			item.date = formatDateTime(item.commit.committer.date);
+			item.channelId = _channelId;
 		}
 	};
 

@@ -20,7 +20,6 @@
             {{#each channelFeed}}
             <li class="media media-sm channel__resource-block">
               {{> previewTemplate}}
-              {{> commentsBlock sha}}
             </li>
             {{/each}}
           </ul>
@@ -100,8 +99,5 @@
       </div>
     </div>
   </div>
-</div>
-<div class="channel__block-wrapper hidden">
-  {{> detailsTemplate selectedBlock}}
 </div>
 </template>

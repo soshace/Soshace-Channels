@@ -1,2 +1,19 @@
 <template name="commentsBlock">
+	<h4>Comments</h4>
+	<div class="channel__comments-block">
+		{{#each messages}}
+		<div class="channel-block__comment-wrapper">
+			<em>{{author}} wrote on {{formatDateTime dateTime}}</em>
+			<div class="channel-block__comment-body semi-bold">
+				{{body}}
+			</div>
+		</div>
+		{{/each}}
+		<div class="channel-block__new-comment">
+			<textarea class="form-control channel-block__add-comment-area" placeholder="New comment..." rows="5" id="{{this.sha}}"></textarea>
+			<button class="btn btn-white btn-sm channel-block__add-comment-button" id="{{this.sha}}">
+			Go
+			</button>
+		</div>
+	</div>
 </template>

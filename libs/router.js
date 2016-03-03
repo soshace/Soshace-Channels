@@ -19,14 +19,14 @@ Router.route('/register', {
 Router.route('/profile', {
   template: 'profile',
   waitOn: function() {
-    return [ Meteor.subscribe('channels'), Meteor.subscribe('Meteor.users')];
+    return [Meteor.subscribe('channels'), Meteor.subscribe('Meteor.users')];
   }
 });
 
 Router.route('/contacts', {
   template: 'contacts',
   waitOn: function() {
-    return [ Meteor.subscribe('Meteor.users') ];
+    return [Meteor.subscribe('Meteor.users')];
   }
 });
 
@@ -41,7 +41,7 @@ Router.route('/channels', {
 Router.route('/addchannel', {
   template: 'addChannel',
   waitOn: function() {
-    return [ Meteor.subscribe('channels'), Meteor.subscribe('Meteor.users')];
+    return [Meteor.subscribe('channels'), Meteor.subscribe('Meteor.users')];
   }
 });
 
@@ -50,18 +50,18 @@ Router.route('/channel/:_id', {
   template: 'channel',
   data: function() {
     var currentChannel = this.params._id;
-    // var currentUser = Meteor.userId();
-    return Channels.findOne({ _id: currentChannel });
+    return Channels.findOne({
+      _id: currentChannel
+    });
   },
   onBeforeAction: function() {
     var currentUser = Meteor.userId();
     if (currentUser) {
       if (this.params.query) {
         this.params.query = '';
-        Template.channel.updateData(this.params._id,true);
-      }
-      else{
-        Template.channel.updateData(this.params._id,false);
+        Template.channel.updateData(this.params._id, true);
+      } else {
+        Template.channel.updateData(this.params._id, false);
       }
       this.next();
     } else {
@@ -69,7 +69,29 @@ Router.route('/channel/:_id', {
     }
   },
   waitOn: function() {
-    return [ Meteor.subscribe('channels'), Meteor.subscribe('Meteor.users'), Meteor.subscribe('invites')];
+    return [Meteor.subscribe('channels'), Meteor.subscribe('Meteor.users'), Meteor.subscribe('invites')];
+  }
+});
+
+Router.route('/channel/:_id/block/:_blockid', {
+  name: 'channelBlock',
+  template: 'channelBlock',
+  data: function() {
+    return Channels.findOne({
+      _id: this.params._id
+    });
+  },
+  onBeforeAction: function() {
+    var currentUser = Meteor.userId();
+    if (currentUser) {
+      Template.channelBlock.updateData(this.params._id, this.params._blockid);
+      this.next();
+    } else {
+      this.render('login');
+    }
+  },
+  waitOn: function() {
+    return [Meteor.subscribe('channels'), Meteor.subscribe('Meteor.users'), Meteor.subscribe('invites')];
   }
 });
 
@@ -95,10 +117,10 @@ Router.route('/verify-email/:token', {
 Router.route('/invite/:token', {
   name: 'invite',
   template: 'invite'
-  // ,
-  // onBeforeAction: function() {
-  //   var token = this.params.token;
-  //
-  //
-  // }
+    // ,
+    // onBeforeAction: function() {
+    //   var token = this.params.token;
+    //
+    //
+    // }
 });
