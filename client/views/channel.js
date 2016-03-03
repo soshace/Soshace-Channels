@@ -1,7 +1,7 @@
 var _deps = new Deps.Dependency(),
   _associatedEmails = [],
   _channelId, // This channel identificator
-  _data, // Array of loaded blocks
+  _blocks, // Array of loaded blocks (commits, boards etc)
   _channelView, // Cached DOM elements
   _detailView, // Cached DOM elements
   _commentTextArea, // Cached DOM elements
@@ -79,9 +79,9 @@ Template.channel.events({
 
   'click .channel__show-details': function(event) {
     event.preventDefault();
-    for (var i = _data.length - 1; i >= 0; i--) {
-      if (_data[i].sha === event.target.id) { //Find index of data array element that will be shown detailed
-        _github.getSingleCommit(getSingleBlockCallback, _data[i].sha);
+    for (var i = _blocks.length - 1; i >= 0; i--) {
+      if (_blocks[i].sha === event.target.id) { //Find index of data array element that will be shown detailed
+        _github.getSingleCommit(getSingleBlockCallback, _blocks[i].sha);
       }
     };
     _channelView.classList.add('hidden');
@@ -159,7 +159,7 @@ Template.channel.helpers({
 
   channelFeed: function() {
     _deps.depend();
-    return _data;
+    return _blocks;
   },
 
   associatedEmails: function() {
@@ -228,7 +228,7 @@ Template.channel.updateData = function(channelId, reset) {
 };
 
 function getBlocksCallback(data, resourceId) {
-  _data = data;
+  _blocks = data;
   _deps.changed();
 };
 

@@ -1,6 +1,6 @@
 <template name="addChannel">
 
-  <h1 class="page-header">Channels</h1>
+  <h1 class="page-header">Create new channel</h1>
 
   {{#if currentUser}}
 
@@ -9,61 +9,69 @@
       <div class="panel">
         <div class="panel-body">
 
-          <form class="">
+          <div class="channel-add__step-1">
             <fieldset>
-              <legend>Creation</legend>
-
+              <legend>Select service</legend>
               <div class="service-selector m-b-20">
-                <div class="row text-center lead m-b-10">Choose a service:</div>
                 <div class="row">
                   <div class="col-sm-6 col-md-6 text-center">
-                    <input id="github" type="radio" name="service" value="github" checked>
+                    <input id="github" type="radio" name="services" value="github">
                     <label class="service-label github" for="github"></label>
                   </div>
                   <div class="col-sm-6 col-md-6 text-center">
-                    <input id="trello" type="radio" name="service" value="trello">
+                    <input id="trello" type="radio" name="services" value="trello">
                     <label class="service-label trello" for="trello"></label>
                   </div>
                 </div>
+                <div class="m-b-30 p-l-30 p-r-30">
+                  <br/>
+                  <button class="btn btn-primary btn-lg channel-add__button-next width-full" disabled>Next</button>
+                </div>
               </div>
+            </fieldset>
+          </div>
 
-              <div class="auth-service m-b-30">
+          <div class="channel-add__step-2 hidden">
+            <fieldset>
+              <legend>Set {{selectedService}} parameters</legend>
+
+              <div class="channel-add__auth-service m-b-30">
                 <div class="row text-center lead m-b-15">
                   <span class="control-label">Log in service:</span>
                 </div>
 
                 <div class="row text-center">
-                  <div class="channel-add__github-auth">
-                    <a href="https://github.com/login/oauth/authorize?client_id=40ca9788c56b7ce7307f&scope=repo">
-                      <button class="github-auth btn btn-white btn-lg" type="button">Log in to Github</button>
-                    </a>
-                  </div>
-
-                  <div class="channel-add__trello-auth hidden">
-                    <button class="trello-auth btn btn-white btn-lg" type="button">Log in to Trello</button>
-                  </div>
-
+                  {{> authTemplate}}
                 </div>
               </div>
 
-              {{> settingsTemplate settingsData}}
+              <div class="channel-add__settings">
+                <div class="m-b-30">
+                  <div class="row text-center lead m-b-10">
+                    <span>Enter name for channel:</span>
+                  </div>
 
-              <div class="m-b-30">
-                <div class="row text-center lead m-b-10">
-                  <span>Enter name for channel:</span>
+                  <div class="row p-l-40 p-r-40">
+                    <input class="form-control input-lg m-auto channel-add__name-field" type="text">
+                  </div>
                 </div>
 
-                <div class="row p-l-40 p-r-40">
-                  <input class="form-control input-lg m-auto" type="text" name="name" id="name-field" required>
+                {{> settingsTemplate settingsData}}
+
+                <div class="m-b-30 p-l-30 p-r-30">
+                  <button class="btn btn-primary btn-lg channel-add__button-create width-full" disabled>Create</button>
                 </div>
+
               </div>
 
-              <div class="m-b-30 p-l-30 p-r-30">
-                <input class="btn btn-primary btn-lg width-full" type="submit" value="Create">
+              <div class="row text-center">
+                <div class="m-b-30 p-l-30 p-r-30">
+                  <button class="btn btn-white btn-lg channel-add__button-back">Back</button>
+                </div>
               </div>
 
             </fieldset>
-          </form>
+          </div>
 
         </div>
       </div>
