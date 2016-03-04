@@ -10,6 +10,16 @@ Schema.UserServices = new SimpleSchema({
     type: String,
     optional: true
   },
+});
+
+Schema.Contact = new SimpleSchema({
+  contactId: {
+    type: String
+  },
+  // Contact from list has 4 states: sendRequest, wasRequested, accepted, rejected
+  contactStatus:{
+    type: String
+  }
 
 });
 
@@ -25,7 +35,7 @@ Schema.UserProfile = new SimpleSchema({
         optional: true
     },
     contacts: {
-        type: [String],
+        type: [Schema.Contact],
         optional: true
     },
     channels: {
@@ -36,6 +46,7 @@ Schema.UserProfile = new SimpleSchema({
       type: Schema.UserServices,
       optional: true
     }
+
 });
 
 Schema.User = new SimpleSchema({

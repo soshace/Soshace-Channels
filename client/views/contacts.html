@@ -32,6 +32,8 @@
     </div>
   </div>
 
+
+  {{#if contacts.toShow}}
   <div class="row">
 
     <div class="col-md-12">
@@ -42,7 +44,7 @@
         </div>
 
         <ul class="registered-users-list clearfix">
-          {{#each contacts}}
+          {{#each contacts.data}}
             <li>
               <a href=""><img src="http://placehold.it/80x80" alt="User avatar"></a>
               <h4 class="username text-ellipsis">{{profile.firstName}} {{profile.lastName}} <small>({{username}})</small></h4>
@@ -58,6 +60,68 @@
     </div>
 
   </div>
+  {{/if}}
 
+
+  {{#if requestsFromUsers.toShow}}
+  <div class="row">
+
+    <div class="col-md-12">
+      <div class="panel panel-inverse">
+
+        <div class="panel-heading">
+          <h4 class="panel-title">Requests from users</h4>
+        </div>
+
+        <ul class="registered-users-list clearfix">
+          {{#each requestsFromUsers.data}}
+            <li>
+              <a href=""><img src="http://placehold.it/80x80" alt="User avatar"></a>
+              <h4 class="username text-ellipsis">{{profile.firstName}} {{profile.lastName}} <small>({{username}})</small></h4>
+              <button id="{{_id}}" class="btn btn-xs btn-primary contacts__accept-contact-request">Accept</button>
+              <button id="{{_id}}" class="btn btn-xs btn-primary contacts__reject-contact-request">Decline</button>
+            </li>
+          {{/each}}
+        </ul>
+
+        <div class="panel-footer">
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+  {{/if}}
+
+  {{#if requestsToUsers.toShow}}
+  <div class="row">
+
+    <div class="col-md-12">
+      <div class="panel panel-inverse">
+
+        <div class="panel-heading">
+          <h4 class="panel-title">Requests to users</h4>
+        </div>
+
+        <ul class="registered-users-list clearfix">
+          {{#each requestsToUsers.data}}
+            <li>
+              <a href=""><img src="http://placehold.it/80x80" alt="User avatar"></a>
+              <h4 class="username text-ellipsis">{{profile.firstName}} {{profile.lastName}} <small>({{username}})</small></h4>
+              <button id="{{_id}}" class="btn btn-xs btn-primary contacts__cancel-contact-request">Cancel</button>
+            </li>
+          {{/each}}
+        </ul>
+
+        <div class="panel-footer">
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+  {{/if}}
 
 </template>

@@ -79,12 +79,11 @@ Template.channel.helpers({
   contacts: function() {
 
     // Get current User contacts array
-    var contactsArray = Meteor.user().profile.contacts;
+    var allContacts = Meteor.user().profile.contacts;
+    var acceptedUsers = _.where(allContacts,{contactStatus:'accepted'});
 
     var selector = {
-      _id: {
-        $in: contactsArray
-      }
+      _id: { $in: _.pluck(acceptedUsers, 'contactId')}
     };
 
     var options = {

@@ -47,24 +47,81 @@ Meteor.methods({
     });
   },
 
-  'addContact': function(newContact) {
-    var currentUser = this.userId;
+  'requestContact': function(newContactName) {
+    var currentUserId = this.userId;
 
     var selector = {
-      username: newContact
+      username: newContactName
     };
 
-    var userToAdd = Meteor.users.findOne(selector);
+    var newContact = Meteor.users.findOne(selector);
 
-    Meteor.users.update(currentUser, {
+    Meteor.users.update({
+      _id: currentUserId
+    }, {
       $addToSet: {
-        'profile.contacts': userToAdd._id
-      }}, function(error, results) {
-        if (error) {
-          console.log(error);
-        } else {
-          console.log(results);
+        'profile.contacts': {
+          contactId: newContact._id,
+          contactStatus: 'wasRequested'
         }
+      }
+    }, function(error, results) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log(results);
+      }
+    });
+
+    Meteor.users.update({
+      _id: newContact._id
+    }, {
+      $addToSet: {
+        'profile.contacts': {
+          contactId: currentUserId,
+          contactStatus: 'sentRequest'
+        }
+      }
+    }, function(error, results) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log(results);
+      }
+    });
+  },
+
+  'acceptContact': function(contactId) {
+    var currentUserId = this.userId;
+
+    Meteor.users.update({
+      _id: currentUserId,
+      "profile.contacts.contactId":contactId
+    }, {
+      $set: {
+        "profile.contacts.$.contactStatus": 'accepted'
+      }
+    }, function(error, results) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log(results);
+      }
+    });
+
+    Meteor.users.update({
+      _id: contactId,
+      "profile.contacts.contactId":currentUserId
+    }, {
+      $set: {
+        "profile.contacts.$.contactStatus": 'accepted'
+      }
+    }, function(error, results) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log(results);
+      }
     });
   },
 
