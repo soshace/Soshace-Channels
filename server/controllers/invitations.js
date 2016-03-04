@@ -82,19 +82,4 @@ Meteor.methods({
 
     Invitations.remove({ '_id': invitation._id });
   }
-  // TODO:
-  /**
-   * Revoke invite
-   *
-   */
-  // revokeInvitation: function(inviteId) {
-  //   check( inviteId, String );
-  //
-  //   try {
-  //     Invitations.remove( inviteId );
-  //   } catch( exception ) {
-  //     return exception;
-  //   }
-  // }
-
 });

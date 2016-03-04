@@ -49,17 +49,15 @@ Template.channelInvites.events({
       Bert.alert('Please, set an email', 'warning');
     }
   },
-  // TODO:
-  // fore REVOKE invite
-  //   'click .revoke-invite': function( event, template ) {
-  //     if ( confirm( "Are you sure? This is permanent." ) ) {
-  //       Meteor.call( "revokeInvitation", this._id, function( error, response ) {
-  //         if ( error ) {
-  //           Bert.alert( error.reason, "warning" );
-  //         } else {
-  //           Bert.alert( "Invitation revoked!", "success" );
-  //         }
-  //       });
-  //     }
-  //   }
+  'click .revoke-invite': function(event, template) {
+    if (confirm('Are you sure? This is permanent.')) {
+      Meteor.call('deleteInvitation', this.token, function(error, response) {
+        if (error) {
+          Bert.alert(error.reason, 'warning');
+        } else {
+          Bert.alert('Invitation revoked!', 'success');
+        }
+      });
+    }
+  }
 });

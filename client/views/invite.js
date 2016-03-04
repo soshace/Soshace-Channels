@@ -26,8 +26,8 @@ Template.invite.events({
           invited: true,
           username: usernameVal,
           password: passwordVal,
-          contacts: [contactsVal],
-          channels: [channelVal]
+          contacts: [contactsVal], // TODO: fix for new collection
+          channels: [channelVal] // TODO: fix for new collection
         },
         token = Router.current().params.token;
 

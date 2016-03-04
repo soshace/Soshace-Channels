@@ -6,21 +6,23 @@
 Accounts.onCreateUser(function(options, user) {
   user._id = Random.id();
 
+  // Check if user come with invite and verify his email
+  if (options.invited) {
+    console.log(user.emails[0]);
+    // var verifiedEmail = {
+    //   address: options.email,
+    //   verified: true
+    // };
+    user.emails[0].verified = true;
+    console.log(typeof user.emails[0]);
+  }
+
   // Use provided profile in options, or create an empty object
   user.profile = options.profile || {};
 
   // Assigns 'contacts'/'channels'  to the newly created user object
   user.profile.contacts = options.contacts;
   user.profile.channels = options.channels;
-
-  // Check if user come with invite and verify his email
-  if (options.invited) {
-    var verifiedEmail = {
-      address: options.email,
-      verified: true
-    };
-    user.emails[0] = verifiedEmail;
-  }
 
   // Returns the user object
   return user;

@@ -13,16 +13,16 @@
             <thead>
               <tr>
                 <th>Email</th>
-                <th>Token</th>
-                <th>Channel ID</th>
+                <th>Revoke</th>
               </tr>
             </thead>
             <tbody>
               {{#each invitation}}
               <tr>
                 <td>{{email}}</td>
-                <td>{{token}}</td>
-                <td>{{channelId}}</td>
+                <td>
+                  <button class="btn btn-xs btn-warning revoke-invite">Revoke</button>
+                </td>
               </tr>
               {{/each}}
             </tbody>
