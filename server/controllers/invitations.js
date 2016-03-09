@@ -12,14 +12,26 @@ Meteor.methods({
     });
 
     try {
-      var userToAdd = Accounts.findUserByEmail(invitation.email);
+      var isUserExist = Accounts.findUserByEmail(invitation.email);
       // Variable for response to client
       var response;
 
       // Check if user with this email is already registered
-      if (userToAdd) {
-        Meteor.call('addContact', userToAdd.username);
-        Meteor.call('addMember', invitation.channelId, invitation.channelCreatorId);
+      if (isUserExist) {
+        var userToAdd = Meteor.users.findOne({
+          'emails.address': invitation.email
+        }, {
+          fields: {
+            _id: 1,
+            username: 1
+          }
+        });
+
+        // Request from inviter to user
+        Meteor.call('requestContact', userToAdd.username);
+        // Add user to channel
+        Meteor.call('addMember', invitation.channelId, userToAdd._id);
+
         response = 'User already registered.';
         return response;
       }
@@ -51,7 +63,7 @@ Meteor.methods({
       };
 
        // Insert new invitation to collection
-       Invitations.insert( newInvite );
+       Invitations.insert(newInvite);
 
        // Prepare email options
        // TODO: add SSR.compileTemplate for email template

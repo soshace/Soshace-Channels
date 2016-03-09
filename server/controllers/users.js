@@ -6,23 +6,37 @@
 Accounts.onCreateUser(function(options, user) {
   user._id = Random.id();
 
-  // Check if user come with invite and verify his email
-  if (options.invited) {
-    console.log(user.emails[0]);
-    // var verifiedEmail = {
-    //   address: options.email,
-    //   verified: true
-    // };
-    user.emails[0].verified = true;
-    console.log(typeof user.emails[0]);
-  }
-
   // Use provided profile in options, or create an empty object
   user.profile = options.profile || {};
 
   // Assigns 'contacts'/'channels'  to the newly created user object
-  user.profile.contacts = options.contacts;
-  user.profile.channels = options.channels;
+  user.profile.contacts = [];
+  user.profile.channels = [];
+
+  // Check if user come with invite
+  if (options.invited) {
+    // Verify email
+    user.emails[0].verified = true;
+
+    var inviterContact = {
+      contactId: options.contacts,
+      contactStatus: 'accepted'
+    };
+    // Add inviter to contact list
+    user.profile.contacts.push(inviterContact);
+
+    // Add new user to inviter contacts
+    Meteor.users.update({
+      _id: options.contacts
+    }, {
+      $addToSet: {
+        'profile.contacts': {
+          contactId: user._id,
+          contactStatus: 'accepted'
+        }
+      }
+    });
+  }
 
   // Returns the user object
   return user;
@@ -98,10 +112,10 @@ Meteor.methods({
 
     Meteor.users.update({
       _id: currentUserId,
-      "profile.contacts.contactId":contactId
+      'profile.contacts.contactId': contactId
     }, {
       $set: {
-        "profile.contacts.$.contactStatus": 'accepted'
+        'profile.contacts.$.contactStatus': 'accepted'
       }
     }, function(error, results) {
       if (error) {
@@ -113,10 +127,10 @@ Meteor.methods({
 
     Meteor.users.update({
       _id: contactId,
-      "profile.contacts.contactId":currentUserId
+      'profile.contacts.contactId':currentUserId
     }, {
       $set: {
-        "profile.contacts.$.contactStatus": 'accepted'
+        'profile.contacts.$.contactStatus': 'accepted'
       }
     }, function(error, results) {
       if (error) {
@@ -132,10 +146,10 @@ Meteor.methods({
 
     Meteor.users.update({
       _id: currentUserId,
-      "profile.contacts.contactId":contactId
+      'profile.contacts.contactId':contactId
     }, {
       $set: {
-        "profile.contacts.$.contactStatus": 'rejected'
+        'profile.contacts.$.contactStatus': 'rejected'
       }
     }, function(error, results) {
       if (error) {
@@ -147,10 +161,10 @@ Meteor.methods({
 
     Meteor.users.update({
       _id: contactId,
-      "profile.contacts.contactId":currentUserId
+      'profile.contacts.contactId':currentUserId
     }, {
       $set: {
-        "profile.contacts.$.contactStatus": 'rejected'
+        'profile.contacts.$.contactStatus': 'rejected'
       }
     }, function(error, results) {
       if (error) {

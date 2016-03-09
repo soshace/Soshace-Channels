@@ -19,15 +19,14 @@ Template.invite.events({
     var emailVal = $('[name=email]').val(),
         usernameVal = $('[name=username]').val(),
         passwordVal = $('[name=password]').val(),
-        contactsVal = $('[name=email]').data('channel'),
-        channelVal = $('[name=email]').data('inviter'),
+        contactsVal = $('[name=email]').data('inviter'),
+        channelVal = $('[name=email]').data('channel'),
         options = {
           email: emailVal,
           invited: true,
           username: usernameVal,
           password: passwordVal,
-          contacts: [contactsVal], // TODO: fix for new collection
-          channels: [channelVal] // TODO: fix for new collection
+          contacts: contactsVal
         },
         token = Router.current().params.token;
 
@@ -35,7 +34,7 @@ Template.invite.events({
       if (error) {
         Bert.alert(error.reason);
       } else {
-        // TODO: check adding to contacta & to channels
+        Meteor.call('addMember', channelVal, Meteor.userId());
         Meteor.call('deleteInvitation', token);
         Router.go('profile');
       }
