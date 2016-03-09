@@ -31,26 +31,24 @@ Template.addChannel.helpers({
   },
 
   clientkey: function(){
-    console.log(Meteor.settings.public.github_client_id);
     return Meteor.settings.public.github_client_id;
   }
 });
 
 Template.addChannel.events({
-  'change [type=radio][name=services]': function(event) {
+  'click .github': function(event){
     event.preventDefault();
-    selectService(document.querySelector('[name=services]:checked').value);
-    document.getElementsByClassName('channel-add__button-next')[0].disabled = false;
+    selectService('github');
+  },
+
+  'click .trello': function(event){
+    event.preventDefault();
+    selectService('trello');
   },
 
   'keyup .channel-add__name-field': function(event) {
     event.preventDefault();
     document.getElementsByClassName('channel-add__button-create')[0].disabled = (event.target.value === '');
-  },
-
-  'click .channel-add__button-next': function(event) {
-    document.getElementsByClassName('channel-add__step-1')[0].classList.add('hidden');
-    document.getElementsByClassName('channel-add__step-2')[0].classList.remove('hidden');
   },
 
   'click .channel-add__button-back': function(event) {
@@ -77,9 +75,9 @@ Template.addChannel.events({
 });
 
 Template.addChannel.onRendered(function() {
-  _newName = document.getElementsByClassName('channel-add__name-field')[0];
-  _authDiv = document.getElementsByClassName('channel-add__auth-service')[0];
-  _settingsDiv = document.getElementsByClassName('channel-add__settings')[0];
+  _newName = $('.channel-add__name-field');
+  _authDiv = $('.channel-add__auth-service');
+  _settingsDiv = $('.channel-add__settings');
 
   var code = window.location.search.replace('?code=', '');
   // If we have code parameter in the url it means that github
@@ -91,7 +89,6 @@ Template.addChannel.onRendered(function() {
       var success = results.content.split('&')[0].split('=')[0] !== 'error';
       if (success) {
         var token = results.content.split('&')[0].split('=')[1];
-        console.log(token);
         Meteor.call('addToken', 'github', token, function(error, results) {
           if (!error) {
             selectService('github');
@@ -104,11 +101,11 @@ Template.addChannel.onRendered(function() {
 
 function displayAuthButton(display) {
   if (display) {
-    _authDiv.classList.add('hidden');
-    _settingsDiv.classList.remove('hidden');
+    _authDiv.addClass('hidden');
+    _settingsDiv.removeClass('hidden');
   } else {
-    _authDiv.classList.remove('hidden');
-    _settingsDiv.classList.add('hidden');
+    _authDiv.removeClass('hidden');
+    _settingsDiv.addClass('hidden');
   }
 };
 
@@ -142,5 +139,7 @@ function selectService(service) {
       break;
   }
   displayAuthButton(userAuthenticated);
+  $('.channel-add__step-1').addClass('hidden');
+  $('.channel-add__step-2').removeClass('hidden');
   _deps.changed();
 };

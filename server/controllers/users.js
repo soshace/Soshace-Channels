@@ -191,5 +191,5 @@ Meteor.methods({
     if (userId) {
       Meteor.users.remove(userId);
     }
-  }
+  },
 });

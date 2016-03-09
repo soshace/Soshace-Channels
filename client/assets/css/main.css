@@ -30,27 +30,17 @@
   border: 1px solid #242a30;
 }
 
-/* CSS for radio buttons on Creation Channel Page */
+/* CSS for buttons on Creation Channel Page */
 
-.service-selector input{
-    margin:0;padding:0;
-    -webkit-appearance:none;
-       -moz-appearance:none;
-            appearance:none;
-
-    display: none;
+.github{
+  background-image:url(/images/github.png);
 }
 
-.github{background-image:url(/images/github.png);}
-.trello{background-image:url(/images/trello.png);}
-
-.service-selector input:active +.service-label{opacity: .9;}
-.service-selector input:checked +.service-label{
-    -webkit-filter: none;
-       -moz-filter: none;
-            filter: none;
+.trello{
+  background-image:url(/images/trello.png);
 }
-.service-label{
+
+.service-link{
     cursor:pointer;
     background-size:contain;
     background-repeat:no-repeat;
@@ -63,19 +53,11 @@
        -moz-filter: brightness(1.8) grayscale(1) opacity(.7);
             filter: brightness(1.8) grayscale(1) opacity(.7);
 }
-.service-label:hover{
+.service-link:hover{
     -webkit-filter: brightness(1.2) grayscale(.5) opacity(.9);
        -moz-filter: brightness(1.2) grayscale(.5) opacity(.9);
             filter: brightness(1.2) grayscale(.5) opacity(.9);
 }
-
-/* Extras */
-a:visited{color:#888}
-a{color:#444;text-decoration:none;}
-p{margin-bottom:.3em;}
-
-
-
 
 
 /* CSS for Profile page form */
@@ -135,3 +117,10 @@ p{margin-bottom:.3em;}
 .commit__red-line{
   background-color: #ffecec;;
 }
+
+/* Extras */
+a:visited{color:#888}
+a{color:#444;text-decoration:none;}
+p{margin-bottom:.3em;}
+
+.radio-inline{font-weight: 300;}

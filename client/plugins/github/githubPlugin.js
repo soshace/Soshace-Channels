@@ -1,26 +1,49 @@
 (function() {
-	let _data = [],
+	var _data = [],
 		_token,
 		_resourceId, // The name of repository
 		_isGuest,
 		_channelId, // The id of channel
-		_loading;
+		_loading,
+		visibility,
+		getUserReposCallback;
 
 	// Constructor
 	this.GithubPlugin = function() {
 		this.settingsTemplateName = 'githubSettingsTemplate';
+		visibility = 'all';
 
 		let defaults = {};
 		if (arguments[0] && typeof arguments[0] === 'object') {
 			this.options = extendDefaults(defaults, arguments[0]);
 		}
-	}
+
+		$('input[name=repoVisibility]:radio').change(function() {
+			visibility = $('input[name=repoVisibility]:checked').val();
+			if (visibility === 'external'){
+				$('.github__external-name').removeClass('hidden');
+				$('.github__repo-list').addClass('hidden');
+			}else{
+				$('.github__external-name').addClass('hidden');
+				$('.github__repo-list').removeClass('hidden');
+				$.getJSON('https://api.github.com/user/repos', {
+					access_token: _token,
+					visibility: visibility,
+					per_page: 50
+				}, getUserReposCallback);
+			}
+		});
+	};
 
 	// Public methods
 	GithubPlugin.prototype.getUserRepos = function(func) {
+		if (!getUserReposCallback) {
+			getUserReposCallback = func;
+		}
 		$.getJSON('https://api.github.com/user/repos', {
 			access_token: _token,
-			visibility: 'private'
+			visibility: visibility,
+			per_page: 50
 		}, func);
 	};
 
@@ -106,7 +129,6 @@
 	};
 
 	function runTemplating() {
-		console.log(_data);
 		for (let item of _data) {
 			item.name = item.author ? item.author.login : item.commit.author.email;
 			item.avatar = item.author ? item.author.avatar_url : 'http://placehold.it/30x30';
