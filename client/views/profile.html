@@ -68,23 +68,7 @@
                 </div>
               </div>
 
-              {{#if currentUser.profile.services.name}}
-                <div class="form-group">
-                  <label class="col-md-4 control-label f-w-600" for="service-name-field">Service:</label>
-                  <div class="col-md-8">
-                    <input class="form-control f-s-14" type="text" name="service-name" id="service-name-field" value="{{currentUser.profile.services.name}}" placeholder="Enter Service Name (for now ONLY 'github')" disabled>
-                  </div>
-                </div>
-              {{/if}}
 
-              {{#if currentUser.profile.services.pass}}
-                <div class="form-group">
-                  <label class="col-md-4 control-label f-w-600" for="service-pass-field">Service Pass:</label>
-                  <div class="col-md-8">
-                    <input class="form-control f-s-14" type="text" name="service-pass" id="service-pass-field" value="{{currentUser.profile.services.pass}}" placeholder="Enter Service Pass Code">
-                  </div>
-                </div>
-              {{/if}}
 
               <div class="col-md-offset-4 col-md-4">
                 <input class="btn btn-sm btn-primary" type="submit" value="Save">
@@ -95,21 +79,6 @@
       </div>
 
     </div>
-
-    <!-- <div class="row">
-      <div class="col-md-4">
-        <div class="panel panel-inverse">
-
-          <div class="panel-heading">
-            <h4 class="panel-title">Trello Auth</h4>
-          </div>
-
-          <div class="panel-body">
-            <button class="trello-auth btn btn-info m-r-5 m-b-5" type="button">Go Auth</button>
-          </div>
-        </div>
-      </div>
-    </div> -->
 
     <h4>Services</h4>
 
@@ -125,19 +94,15 @@
             <!-- <a href="https://github.com/login/oauth/authorize?client_id=40ca9788c56b7ce7307f&scope=repo">
               <button class="github-auth btn btn-info m-r-5 m-b-5" type="button">Go Auth</button>
             </a> -->
-
             {{#if currentUser.profile.services.pass}}
-              <div class="alert alert-success fade in">
-                Connected. If you want to disconnect service – erase
-                <span class="f-w-600">'Service Pass'</span> field above
-                and press <span class="f-w-600">'Save'</span>.
-                Your channels will also lost connection with service.
-               </div>
+                <div class="alert alert-success fade in">
+                  <span class="f-w-600">ON</span>
+                 </div>
             {{else}}
-              <div class="alert alert-info fade in">
-                You can connect service while
-                <a href="{{pathFor route='addchannel'}}">creating Channel</a>.
-              </div>
+                <div class="alert alert-info fade in">
+                  OFF (You can connect service while
+                  <a href="{{pathFor route='addchannel'}}">creating Channel</a>.)
+                </div>
             {{/if}}
           </div>
         </div>

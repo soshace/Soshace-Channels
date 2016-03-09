@@ -44,7 +44,7 @@ Accounts.onCreateUser(function(options, user) {
 
 
 Meteor.methods({
-  'saveUserData': function(firstName, lastName, servicePass) {
+  'saveUserName': function(firstName, lastName) {
     var currentUser = this.userId;
 
     // TODO: сделать более точное сравнение
@@ -56,9 +56,7 @@ Meteor.methods({
     Meteor.users.update(currentUser, {
       $set: {
         'profile.firstName': firstName,
-        'profile.lastName': lastName,
-        // 'profile.services.name': serviceName,
-        'profile.services.pass': servicePass
+        'profile.lastName': lastName
       }
     });
   },

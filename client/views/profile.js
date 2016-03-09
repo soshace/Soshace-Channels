@@ -2,53 +2,29 @@ Template.profile.events({
   'submit .user-info': function(event) {
     event.preventDefault();
 
-    // get data
+    // Get data
     var form = $('.user-info'),
         firstName = $('[name=first-name]').val(),
-        lastName = $('[name=last-name]').val(),
-        serviceName = $('[name=service-name]').val(),
-        servicePass = $('[name=service-pass]').val();
+        lastName = $('[name=last-name]').val();
 
-    Meteor.call('saveUserData', firstName, lastName, servicePass, function(error, results) {
+    Meteor.call('saveUserName', firstName, lastName, function(error, results) {
       if (error) {
-        console.log(error);
+        Bert.alert(error.reason, 'warning');
       } else {
-        console.log('ok');
-        console.log(results);
+        Bert.alert('Successfully changed.', 'success');
       }
     });
   },
 
-  // 'click .trello-auth': function(event) {
-  //   event.preventDefault();
-  //
-  //   var authenticationSuccess = function() { console.log('Successful authentication'); },
-  //       authenticationFailure = function() { console.log('Failed authentication'); };
-  //
-  //   Trello.authorize({
-  //     type: 'popup',
-  //     name: 'SSI App',
-  //     scope: {
-  //       read: true,
-  //       write: true },
-  //     expiration: 'never',
-  //     success: authenticationSuccess,
-  //     error: authenticationFailure
-  //   });
-  // },
-
   'click .resend-verification-link': function(event) {
     event.preventDefault();
 
-    // add bert's alerts
     Meteor.call('sendVerificationLink', function(error, response) {
       if (error) {
-        // add bert alert
-        console.log(error);
+        Bert.alert(error.reason, 'warning');
       } else {
         var email = Meteor.user().emails[0].address;
-        // add bert alert
-        console.log('link send to ' + email);
+        Bert.alert('Link send to ' + email, 'success');
       }
     });
   },
