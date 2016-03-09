@@ -49,6 +49,7 @@ Template.channelInvites.events({
       Bert.alert('Please, set an email', 'warning');
     }
   },
+  
   'click .revoke-invite': function(event, template) {
     if (confirm('Are you sure? This is permanent.')) {
       Meteor.call('deleteInvitation', this.token, function(error, response) {
