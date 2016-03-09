@@ -62,7 +62,10 @@
 			var request = 'https://api.github.com/repos/' + _resourceId + '/commits/' + sha;
 			$.getJSON(request, {
 				access_token: _token
-			}, getCommitCallback);
+			}, function(data){
+				parseCommitPatches(data);
+				getCommitCallback(data);
+			});
 		} else {
 			var request = 'https://api.github.com/repos/' + _resourceId + '/commits/' + sha + '?access_token=' + _token;
 			Meteor.call('getGithub', request, function(error, results) {
@@ -103,17 +106,32 @@
 	};
 
 	function runTemplating() {
+		console.log(_data);
 		for (let item of _data) {
 			item.name = item.author ? item.author.login : item.commit.author.email;
 			item.avatar = item.author ? item.author.avatar_url : 'http://placehold.it/30x30';
-			item.date = formatDateTime(item.commit.committer.date);
+			item.date = item.commit.committer.date;
 			item.channelId = _channelId;
 		}
 	};
 
-	function formatDateTime(dt) {
-		let date = new Date(dt);
-		return `${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}  ${date.getHours()}:${date.getMinutes()}`;
+	function parseCommitPatches(data) {
+		_.each(data.files, function(file) {
+			file.patch = file.patch.split('\n');
+			file.lines = _.map(file.patch, function(line) {
+				var bgStyle = '';
+				if (line[0] === '+') {
+					bgStyle = 'commit__green-line';
+				}
+				if (line[0] === '-') {
+					bgStyle = 'commit__red-line';
+				};
+				return {
+					value: line,
+					bgStyle: bgStyle
+				}
+			});
+		});
 	};
 
-})()
+})();

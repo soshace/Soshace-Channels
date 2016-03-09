@@ -14,7 +14,7 @@
 		<div class="panel-group" id="accordion">
 			{{#each files}}
 			<div class="panel overflow-hidden channel-block__accordion">
-				<div class="panel-heading">
+				<div class="panel-heading  channel-block__accordion-header">
 					<h3 class="panel-title">
 					<a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion" href="#{{sha}}" aria-expanded="false">
 						<i class="fa fa-plus-circle pull-right"></i>
@@ -25,7 +25,9 @@
 				</div>
 				<div id="{{sha}}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
 					<div class="panel-body">
-						<div class="line-break">{{patch}}</div>
+						{{#each lines}}
+						<div class="{{bgStyle}}">{{value}}</div>
+						{{/each}}
 					</div>
 				</div>
 				

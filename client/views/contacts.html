@@ -48,6 +48,7 @@
             <li>
               <a href=""><img src="http://placehold.it/80x80" alt="User avatar"></a>
               <h4 class="username text-ellipsis">{{profile.firstName}} {{profile.lastName}} <small>({{username}})</small></h4>
+              <button id="{{_id}}" class="btn btn-xs btn-primary contacts__remove-contact">Remove</button>
             </li>
           {{/each}}
         </ul>
@@ -110,6 +111,35 @@
               <a href=""><img src="http://placehold.it/80x80" alt="User avatar"></a>
               <h4 class="username text-ellipsis">{{profile.firstName}} {{profile.lastName}} <small>({{username}})</small></h4>
               <button id="{{_id}}" class="btn btn-xs btn-primary contacts__cancel-contact-request">Cancel</button>
+            </li>
+          {{/each}}
+        </ul>
+
+        <div class="panel-footer">
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+  {{/if}}
+
+  {{#if rejectedUsers.toShow}}
+  <div class="row">
+
+    <div class="col-md-12">
+      <div class="panel panel-inverse">
+
+        <div class="panel-heading">
+          <h4 class="panel-title">Rejected requests</h4>
+        </div>
+
+        <ul class="registered-users-list clearfix">
+          {{#each rejectedUsers.data}}
+            <li>
+              <a href=""><img src="http://placehold.it/80x80" alt="User avatar"></a>
+              <h4 class="username text-ellipsis">{{profile.firstName}} {{profile.lastName}} <small>({{username}})</small></h4>
             </li>
           {{/each}}
         </ul>

@@ -1,3 +1,12 @@
+var options = {
+  fields: {
+    username: 1,
+    _id: 1,
+    'profile.firstName': 1,
+    'profile.lastName': 1
+  }
+};
+
 Template.contacts.events({
   'submit form': function(event) {
     event.preventDefault();
@@ -17,7 +26,22 @@ Template.contacts.events({
   'click .contacts__accept-contact-request': function(event){
     event.preventDefault();
     acceptContact(event.target.id);
-  }
+  },
+
+  'click .contacts__reject-contact-request': function(event){
+    event.preventDefault();
+    rejectContact(event.target.id);
+  },
+
+  'click .contacts__remove-contact': function(event){
+    event.preventDefault();
+    rejectContact(event.target.id);
+  },
+
+  'click .contacts__cancel-contact-request': function(event) {
+    event.preventDefault();
+    rejectContact(event.target.id);
+  },
 });
 
 Template.contacts.helpers({
@@ -27,15 +51,6 @@ Template.contacts.helpers({
 
     var selector = {
       _id: { $in: _.pluck(acceptedUsers, 'contactId')}
-    };
-
-    var options = {
-      fields: {
-        username: 1,
-        _id: 1,
-        'profile.firstName': 1,
-        'profile.lastName': 1
-      }
     };
 
     return {
@@ -52,15 +67,6 @@ Template.contacts.helpers({
       _id: { $in: _.pluck(requestsFromUsers, 'contactId')}
     };
 
-    var options = {
-      fields: {
-        username: 1,
-        _id: 1,
-        'profile.firstName': 1,
-        'profile.lastName': 1
-      }
-    };
-
     return {
       toShow: requestsFromUsers,
       data: Meteor.users.find(selector, options)
@@ -75,20 +81,26 @@ Template.contacts.helpers({
       _id: { $in: _.pluck(requestsToUsers, 'contactId')}
     };
 
-    var options = {
-      fields: {
-        username: 1,
-        _id: 1,
-        'profile.firstName': 1,
-        'profile.lastName': 1
-      }
-    };
-
     return {
       toShow: requestsToUsers,
       data: Meteor.users.find(selector, options)
     }
+  },
+
+  rejectedUsers: function() {
+    var allContacts = Meteor.user().profile.contacts;
+    var rejectedUsers = _.where(allContacts,{contactStatus:'rejected'});
+
+    var selector = {
+      _id: { $in: _.pluck(rejectedUsers, 'contactId')}
+    };
+
+    return {
+      toShow: rejectedUsers,
+      data: Meteor.users.find(selector, options)
+    }
   }
+
 });
 
 function acceptContact(contactId){
@@ -98,5 +110,16 @@ function acceptContact(contactId){
     } else {
       console.log(results);
     }
-  });  
-}
+  });
+};
+
+function rejectContact(contactId){
+  Meteor.call('rejectContact', contactId, function(error, results) {
+    if (error) {
+      console.log(error.reason);
+    } else {
+      console.log(results);
+    }
+  });
+  // TODO: Remove user also from channels automatically
+};

@@ -113,6 +113,10 @@ p{margin-bottom:.3em;}
 }
 
 .channel-block__accordion{
+  border: solid 1px #d9e0e7;
+}
+
+.channel-block__accordion-header{
     background-color: #d9e0e7;
 }
 
@@ -122,4 +126,12 @@ p{margin-bottom:.3em;}
 
 .channel__associated-emails-element{
   padding:10px;
+}
+
+.commit__green-line{
+  background-color: #eaffea;
+}
+
+.commit__red-line{
+  background-color: #ffecec;;
 }

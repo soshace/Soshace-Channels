@@ -127,6 +127,40 @@ Meteor.methods({
     });
   },
 
+  'rejectContact': function(contactId) {
+    var currentUserId = this.userId;
+
+    Meteor.users.update({
+      _id: currentUserId,
+      "profile.contacts.contactId":contactId
+    }, {
+      $set: {
+        "profile.contacts.$.contactStatus": 'rejected'
+      }
+    }, function(error, results) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log(results);
+      }
+    });
+
+    Meteor.users.update({
+      _id: contactId,
+      "profile.contacts.contactId":currentUserId
+    }, {
+      $set: {
+        "profile.contacts.$.contactStatus": 'rejected'
+      }
+    }, function(error, results) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log(results);
+      }
+    });
+  },
+
   'addToken': function(serviceName,token) {
     let currentUser = this.userId;
     console.log(token);
