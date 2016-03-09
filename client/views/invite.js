@@ -30,9 +30,9 @@ Template.invite.events({
         },
         token = Router.current().params.token;
 
-    Accounts.createUser(options, function(error, response) {
+    Accounts.createUser(options, function(error) {
       if (error) {
-        Bert.alert(error.reason);
+        Bert.alert(error.reason, 'warning');
       } else {
         Meteor.call('addMember', channelVal, Meteor.userId());
         Meteor.call('deleteInvitation', token);
