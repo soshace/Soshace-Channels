@@ -1,33 +1,34 @@
-var _deps = new Deps.Dependency(),
-  _settingsTemplate = 'githubSettingsTemplate',
-  _authTemplate = 'githubAuthTemplate',
-  _settingsData,
-  _newName,
-  _authDiv,
-  _settingsDiv,
-  _selectedService = '';
+var deps = new Deps.Dependency(),
+  settingsTemplate = 'githubSettingsTemplate',
+  authTemplate = 'githubAuthTemplate',
+  settingsData,
+  newChannelName,
+  authDiv,
+  settingsDiv,
+  selectedService = '',
+  defaultChannelName = true;
 
 Template.addChannel.helpers({
   settingsData: function() {
-    _deps.depend();
+    deps.depend();
     return {
-      settingsData: _settingsData
+      settingsData: settingsData
     };
   },
 
   settingsTemplate: function() {
-    _deps.depend();
-    return Template[_settingsTemplate];
+    deps.depend();
+    return Template[settingsTemplate];
   },
 
   authTemplate: function() {
-    _deps.depend();
-    return Template[_authTemplate];
+    deps.depend();
+    return Template[authTemplate];
   },
 
   selectedService: function() {
-    _deps.depend();
-    return _selectedService;
+    deps.depend();
+    return selectedService;
   },
 
   clientkey: function(){
@@ -48,6 +49,7 @@ Template.addChannel.events({
 
   'keyup .channel-add__name-field': function(event) {
     event.preventDefault();
+    defaultChannelName = false;
     document.getElementsByClassName('channel-add__button-create')[0].disabled = (event.target.value === '');
   },
 
@@ -59,10 +61,10 @@ Template.addChannel.events({
   'click .channel-add__button-create': function(event) {
     event.preventDefault();
 
-    var channelName = _newName.value,
+    var channelName = newChannelName.value,
       resourceId = document.querySelector('[name=resource-id]').value; // Get resource id. TODO: this selector is taken from github plugin. Should make it universal.
 
-    Meteor.call('createNewChannel', channelName, _selectedService, resourceId, function(error, results) {
+    Meteor.call('createNewChannel', channelName, selectedService, resourceId, function(error, results) {
       if (error) {
         console.log(error.reason);
       } else {
@@ -75,9 +77,9 @@ Template.addChannel.events({
 });
 
 Template.addChannel.onRendered(function() {
-  _newName = $('.channel-add__name-field');
-  _authDiv = $('.channel-add__auth-service');
-  _settingsDiv = $('.channel-add__settings');
+  newChannelName = $('.channel-add__name-field');
+  authDiv = $('.channel-add__auth-service');
+  settingsDiv = $('.channel-add__settings');
 
   var code = window.location.search.replace('?code=', '');
   // If we have code parameter in the url it means that github
@@ -101,45 +103,55 @@ Template.addChannel.onRendered(function() {
 
 function displayAuthButton(display) {
   if (display) {
-    _authDiv.addClass('hidden');
-    _settingsDiv.removeClass('hidden');
+    authDiv.addClass('hidden');
+    settingsDiv.removeClass('hidden');
   } else {
-    _authDiv.removeClass('hidden');
-    _settingsDiv.addClass('hidden');
+    authDiv.removeClass('hidden');
+    settingsDiv.addClass('hidden');
   }
 };
 
 // This function is passed as ajax request callback to plugin
 function getDataforSettingsCallback(data) {
-  _settingsData = data;
-  _deps.changed();
+  settingsData = data;
+  deps.changed();
 };
 
 function selectService(service) {
   var userAuthenticated;
 
-  _selectedService = service;
+  selectedService = service;
+  newChannelName.val(service);
   switch (service) {
     case 'github':
       // TODO: to check if user have pair github-token in data base.
       // At the moment token is saved to services field.
       userAuthenticated = Meteor.user().profile.services ? Meteor.user().profile.services.pass : false;
-      _settingsTemplate = 'githubSettingsTemplate';
-      _authTemplate = 'githubAuthTemplate';
+      settingsTemplate = 'githubSettingsTemplate';
+      authTemplate = 'githubAuthTemplate';
       if (userAuthenticated) {
         var github = new GithubPlugin();
         github.setParameters(userAuthenticated);
         github.getUserRepos(getDataforSettingsCallback);
+        github.setDefaultName = setDefaultName;
       }
       break;
     case 'trello':
       userAuthenticated = false;
-      _settingsTemplate = 'trelloSettingsTemplate';
-      _authTemplate = 'trelloAuthTemplate';
+      settingsTemplate = 'trelloSettingsTemplate';
+      authTemplate = 'trelloAuthTemplate';
       break;
   }
   displayAuthButton(userAuthenticated);
   $('.channel-add__step-1').addClass('hidden');
   $('.channel-add__step-2').removeClass('hidden');
-  _deps.changed();
+  deps.changed();
 };
+
+function setDefaultName(val){
+  var current;
+  if (defaultChannelName){
+    current = newChannelName.val();
+    newChannelName.val(current+'_'+val);
+  }
+}

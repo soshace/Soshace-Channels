@@ -33,6 +33,12 @@
 				}, getUserReposCallback);
 			}
 		});
+
+		$('select[name=resource-id]').change(function(){
+			console.log($(this).val());
+			// TODO: Provide set default name
+			setDefaultName($(this).val());
+		})
 	};
 
 	// Public methods
