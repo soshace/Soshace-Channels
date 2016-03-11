@@ -10,11 +10,11 @@ Meteor.methods({
 	},
 
 	'getGithub': function(url) {
-		let options = {
+		var options = {
 			headers: {
 				'User-Agent':'node.js'
 			}
-		}
+		};
 		return Meteor.http.get(url, options);
 	}
 });

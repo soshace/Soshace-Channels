@@ -61,6 +61,16 @@ Meteor.methods({
     });
   },
 
+  'signOutGithub': function() {
+    var currentUser = this.userId;
+
+    Meteor.users.update(currentUser, {
+      $set: {
+        'profile.services.pass': ''
+      }
+    });
+  },
+
   'requestContact': function(newContactName) {
     var currentUserId = this.userId;
 

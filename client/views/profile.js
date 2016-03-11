@@ -7,7 +7,7 @@ Template.profile.events({
         firstName = $('[name=first-name]').val(),
         lastName = $('[name=last-name]').val();
 
-    Meteor.call('saveUserName', firstName, lastName, function(error, results) {
+    Meteor.call('saveUserName', firstName, lastName, function(error) {
       if (error) {
         Bert.alert(error.reason, 'warning');
       } else {
@@ -19,7 +19,7 @@ Template.profile.events({
   'click .resend-verification-link': function(event) {
     event.preventDefault();
 
-    Meteor.call('sendVerificationLink', function(error, response) {
+    Meteor.call('sendVerificationLink', function(error) {
       if (error) {
         Bert.alert(error.reason, 'warning');
       } else {
@@ -32,27 +32,25 @@ Template.profile.events({
   'click .delete-user': function(event) {
     event.preventDefault();
 
-    Meteor.call('deleteAccount', function(error, response) {
+    Meteor.call('deleteAccount', function(error) {
       if (error) {
-        // bert alert
-        console.log(error.reason);
+        Bert.alert(error.reason, 'warning');
       } else {
         Router.go('register');
-        // bert alert
-        console.log(response);
+        Bert.alert('Your account was deleted.', 'success');
+      }
+    });
+  },
+
+  'click .sign-out-github': function(event) {
+    event.preventDefault();
+
+    Meteor.call('signOutGithub', function(error) {
+      if (error) {
+        Bert.alert(error.reason, 'warning');
+      } else {
+        Bert.alert('Github token was deleted.', 'success');
       }
     });
   }
-});
-
-Template.profile.onRendered(function() {
-  let code = window.location.search.replace('?code=', '');
-  Meteor.call('postGithub',code,function(error,results){
-    let success = results.content.split('&')[0].split('=')[0]!=='error';
-    if (success){
-      let token = results.content.split('&')[0].split('=')[1];
-      localStorage.setItem('githubToken',token);
-      console.log(token);
-    }
-  })
 });

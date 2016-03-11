@@ -94,16 +94,30 @@
             <!-- <a href="https://github.com/login/oauth/authorize?client_id=40ca9788c56b7ce7307f&scope=repo">
               <button class="github-auth btn btn-info m-r-5 m-b-5" type="button">Go Auth</button>
             </a> -->
-            {{#if currentUser.profile.services.pass}}
-                <div class="alert alert-success fade in">
-                  <span class="f-w-600">ON</span>
-                 </div>
-            {{else}}
+            <div class="row">
+              {{#if currentUser.profile.services.pass}}
+                  <div class="col-xs-6">
+                    <div class="alert alert-success fade in">
+                      <span class="f-w-600">ON</span>
+                     </div>
+                  </div>
+                   <div class="col-xs-6 p-t-5">
+                     <button type="button" class="sign-out-github btn btn-white">
+                       Disconnect
+                     </button>
+                   </div>
+              {{else}}
+              <div class="col-xs-6">
                 <div class="alert alert-info fade in">
-                  OFF (You can connect service while
-                  <a href="{{pathFor route='addchannel'}}">creating Channel</a>.)
+                  <span class="f-w-600">OFF</span>
                 </div>
-            {{/if}}
+              </div>
+              <div class="col-xs-6 p-t-5">
+                <a class="btn btn-white" href="{{pathFor route='addchannel'}}">Connect service and create new channel</a>
+              </div>
+
+              {{/if}}
+            </div>
           </div>
         </div>
       </div>
