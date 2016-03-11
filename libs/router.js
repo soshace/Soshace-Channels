@@ -18,6 +18,14 @@ Router.route('/register', {
 
 Router.route('/profile', {
   template: 'profile',
+  onBeforeAction: function() {
+    var currentUser = Meteor.userId();
+    if (currentUser) {
+      this.next();
+    } else {
+      this.render('login');
+    }
+  },
   waitOn: function() {
     return [Meteor.subscribe('channels'), Meteor.subscribe('Meteor.users')];
   }
@@ -25,6 +33,14 @@ Router.route('/profile', {
 
 Router.route('/contacts', {
   template: 'contacts',
+  onBeforeAction: function() {
+    var currentUser = Meteor.userId();
+    if (currentUser) {
+      this.next();
+    } else {
+      this.render('login');
+    }
+  },
   waitOn: function() {
     return [Meteor.subscribe('Meteor.users')];
   }
@@ -33,6 +49,14 @@ Router.route('/contacts', {
 Router.route('/channels', {
   name: 'channels',
   template: 'channelList',
+  onBeforeAction: function() {
+    var currentUser = Meteor.userId();
+    if (currentUser) {
+      this.next();
+    } else {
+      this.render('login');
+    }
+  },
   waitOn: function() {
     return Meteor.subscribe('channels');
   }
@@ -40,6 +64,14 @@ Router.route('/channels', {
 
 Router.route('/addchannel', {
   template: 'addChannel',
+  onBeforeAction: function() {
+    var currentUser = Meteor.userId();
+    if (currentUser) {
+      this.next();
+    } else {
+      this.render('login');
+    }
+  },
   waitOn: function() {
     return [Meteor.subscribe('channels'), Meteor.subscribe('Meteor.users')];
   }
@@ -98,12 +130,10 @@ Router.route('/verify-email/:token', {
     Accounts.verifyEmail(token, function(error) {
       if (error) {
         Router.go('profile');
-        // bert alert
-        console.log(error.reason);
+        Bert.alert(error.reason, 'warning');
       } else {
         Router.go('profile');
-        // bert alert
-        console.log('verified');
+        Bert.alert('Your email was successfully verified!');
       }
     });
   }
