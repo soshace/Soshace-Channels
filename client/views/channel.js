@@ -64,28 +64,45 @@ Template.channel.events({
   'click .channel__invite-unregistered': function(event, template) {
     var emailForInvite = this.email,
         channelId = template.data._id,
-        channelCreatorId = Meteor.userId();
+        channelCreatorId = Meteor.userId(),
+        invitation = {
+          email: emailForInvite,
+          channelId: channelId,
+          channelCreatorId: channelCreatorId
+        };
 
-    // TODO: check with different function response
-    // Meteor.call('sendInvitation', invitation, function(error, response) {
-    //   if (error) {
-    //     Bert.alert(error.reason, 'warning');
-    //   } else {
-    //     if (response === 'User already registered.') {
-    //       Bert.alert('User with this email is already registered. He will recieve request for adding to your contacts and invite for current channel.', 'success');
-    //     } else if (response === 'Invite already exist.') {
-    //       Bert.alert('Invite to this email is already exist. You can revoke it and try again.', 'info');
-    //     } else {
-    //       // TODO: remove email from associated email list?
-    //       Bert.alert('Invitation send to ' + emailForInvite + '.', 'success');
-    //     }
-    //   }
-    // });
+    Meteor.call('sendInvitation', invitation, function(error, response) {
+      if (error) {
+        Bert.alert(error.reason, 'warning');
+      } else {
+        if (response === 'Invite already exist.') {
+          Bert.alert('Invite to this email is already exist. You can revoke it and try again.', 'info');
+        } else {
+          // TODO: remove email from associated email list?
+          Bert.alert('Invitation send to ' + emailForInvite + '.', 'success');
+        }
+      }
+    });
   },
 
   'click .channel__invite-registered': function(event, template) {
-    // TODO: Handle inviting of registered user to channel
-    console.log(event.target.id);
+    var userId = event.target.id,
+        channelId = template.data._id,
+        selector = {
+          _id: userId
+        },
+        options = {
+          fields: {
+            username: 1,
+          }
+        };
+
+    userToAdd = Meteor.users.findOne(selector, options);
+
+    // Request from inviter to user
+    Meteor.call('requestContact', userToAdd.username);
+    // Add user to channel
+    Meteor.call('addMember', channelId, userId);
   },
 
   'click .channel__add-contact-to-channel': function(event, template) {
