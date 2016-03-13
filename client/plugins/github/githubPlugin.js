@@ -1,10 +1,10 @@
 (function() {
-	var _data = [],
-		_token,
-		_resourceId, // The name of repository
-		_isGuest,
-		_channelId, // The id of channel
-		_loading,
+	var commits = [],
+		token,
+		resourceId, // The name of repository
+		isGuest,
+		channelId, // The id of channel
+		loading, // Boolean variable that triggers if loading through server wasn't finished yet
 		visibility,
 		getUserReposCallback;
 
@@ -13,31 +13,34 @@
 		this.settingsTemplateName = 'githubSettingsTemplate';
 		visibility = 'all';
 
-		let defaults = {};
+		var defaults = {};
 		if (arguments[0] && typeof arguments[0] === 'object') {
 			this.options = extendDefaults(defaults, arguments[0]);
 		}
 
 		$('input[name=repoVisibility]:radio').change(function() {
 			visibility = $('input[name=repoVisibility]:checked').val();
-			if (visibility === 'external'){
+			if (visibility === 'external') {
 				$('.github__external-name').removeClass('hidden');
 				$('.github__repo-list').addClass('hidden');
-			}else{
+			} else {
 				$('.github__external-name').addClass('hidden');
 				$('.github__repo-list').removeClass('hidden');
+
 				$.getJSON('https://api.github.com/user/repos', {
-					access_token: _token,
+					access_token: token,
 					visibility: visibility,
 					per_page: 50
 				}, getUserReposCallback);
 			}
 		});
 
-		$('select[name=resource-id]').change(function(){
-			console.log($(this).val());
-			// TODO: Provide set default name
-			setDefaultName($(this).val());
+		var self = this;
+		$('select[name=resource-id]').change(function() {
+			var selectedValue = $(this).val();
+			self.resourceId = selectedValue;
+			var repoName = selectedValue.split('/')[1];
+			setDefaultChannelName('github/'+repoName);
 		})
 	};
 
@@ -47,66 +50,70 @@
 			getUserReposCallback = func;
 		}
 		$.getJSON('https://api.github.com/user/repos', {
-			access_token: _token,
+			access_token: token,
 			visibility: visibility,
 			per_page: 50
 		}, func);
 	};
 
-	GithubPlugin.prototype.setParameters = function(token, resourceId, isGuest, channelId) {
-		_token = token;
-		_resourceId = resourceId;
-		_isGuest = isGuest;
-		_channelId = channelId;
+	GithubPlugin.prototype.setParameters = function(tkn, resId, isGst, cnlId) {
+		token = tkn;
+		resourceId = resId;
+		isGuest = isGst;
+		channelId = cnlId;
 	};
 
 	GithubPlugin.prototype.getRepoCommits = function(getCommits, getEmails) {
-		_loading = false;
-		if (!_isGuest) {
-			let request = 'https://api.github.com/repos/' + _resourceId + '/commits';
+		loading = false;
+		if (!isGuest) {
+			var request = 'https://api.github.com/repos/' + resourceId + '/commits';
 			$.getJSON(request, {
-				access_token: _token
+				access_token: token
 			}, function(data) {
-				_data = data;
+				commits = data;
 				runTemplating();
-				getCommits(_data, _channelId);
+				getCommits(commits, channelId);
 				getRepoContributors(getEmails); // Only for host users
 			});
 		} else {
-			_loading = true;
-			let request = 'https://api.github.com/repos/' + _resourceId + '/commits?access_token=' + _token;
+			loading = true;
+			var request = 'https://api.github.com/repos/' + resourceId + '/commits?access_token=' + token;
 			Meteor.call('getGithub', request, function(error, results) {
-				_data = results.data;
-				console.log('Loading through server finished');
+				commits = results.data;
 				runTemplating();
-				if (_loading) {
-					getCommits(_data, _channelId);
+				if (loading) {
+					getCommits(commits, channelId);
 				}
 			});
 		}
 	};
 
 	GithubPlugin.prototype.getSingleBlock = function(getCommitCallback, sha) {
-		if (!_isGuest) {
-			var request = 'https://api.github.com/repos/' + _resourceId + '/commits/' + sha;
+		if (!isGuest) {
+			var request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha;
 			$.getJSON(request, {
-				access_token: _token
-			}, function(data){
+				access_token: token
+			}, function(data) {
 				parseCommitPatches(data);
 				getCommitCallback(data);
 			});
 		} else {
-			var request = 'https://api.github.com/repos/' + _resourceId + '/commits/' + sha + '?access_token=' + _token;
+			var request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha + '?access_token=' + token;
 			Meteor.call('getGithub', request, function(error, results) {
+				parseCommitPatches(results ? results.data : {});
 				getCommitCallback(results ? results.data : {});
 			});
 		}
 	};
 
+	GithubPlugin.prototype.setDefaultChannelName = function(func) {
+		setDefaultChannelName = func;
+	};
+
 	//Private methods
 	function getRepoContributors(getEmails) {
-		$.getJSON('https://api.github.com/repos/' + _resourceId + '/contributors', {
-			access_token: _token
+		$.getJSON('https://api.github.com/repos/' + resourceId + '/contributors', {
+			access_token: token
 		}, function(data) {
 			var contributors = data;
 			var counter = contributors.length;
@@ -125,8 +132,7 @@
 	};
 
 	function extendDefaults(source, properties) { // Utility method to extend defaults with user options
-		let property;
-		for (property in properties) {
+		for (let property in properties) {
 			if (properties.hasOwnProperty(property)) {
 				source[property] = properties[property];
 			}
@@ -135,16 +141,19 @@
 	};
 
 	function runTemplating() {
-		for (let item of _data) {
+		for (let item of commits) {
 			item.name = item.author ? item.author.login : item.commit.author.email;
 			item.avatar = item.author ? item.author.avatar_url : 'http://placehold.it/30x30';
 			item.date = item.commit.committer.date;
-			item.channelId = _channelId;
+			item.channelId = channelId;
 		}
 	};
 
 	function parseCommitPatches(data) {
 		_.each(data.files, function(file) {
+			if (!file.patch){
+				return;
+			}
 			file.patch = file.patch.split('\n');
 			file.lines = _.map(file.patch, function(line) {
 				var bgStyle = '';

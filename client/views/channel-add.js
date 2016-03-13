@@ -6,7 +6,8 @@ var deps = new Deps.Dependency(),
   authDiv,
   settingsDiv,
   selectedService = '',
-  defaultChannelName = true;
+  defaultChannelName = true,
+  plugin;
 
 Template.addChannel.helpers({
   settingsData: function() {
@@ -50,6 +51,9 @@ Template.addChannel.events({
   'keyup .channel-add__name-field': function(event) {
     event.preventDefault();
     defaultChannelName = false;
+    if (event.target.value === ''){
+      defaultChannelName = true;
+    }
     document.getElementsByClassName('channel-add__button-create')[0].disabled = (event.target.value === '');
   },
 
@@ -62,7 +66,7 @@ Template.addChannel.events({
     event.preventDefault();
 
     var channelName = newChannelName.value,
-      resourceId = document.querySelector('[name=resource-id]').value; // Get resource id. TODO: this selector is taken from github plugin. Should make it universal.
+      resourceId = plugin.resourceId;
 
     Meteor.call('createNewChannel', channelName, selectedService, resourceId, function(error, results) {
       if (error) {
@@ -129,11 +133,12 @@ function selectService(service) {
       userAuthenticated = Meteor.user().profile.services ? Meteor.user().profile.services.pass : false;
       settingsTemplate = 'githubSettingsTemplate';
       authTemplate = 'githubAuthTemplate';
+
       if (userAuthenticated) {
-        var github = new GithubPlugin();
-        github.setParameters(userAuthenticated);
-        github.getUserRepos(getDataforSettingsCallback);
-        github.setDefaultName = setDefaultName;
+        plugin = new GithubPlugin();
+        plugin.setParameters(userAuthenticated);
+        plugin.getUserRepos(getDataforSettingsCallback);
+        plugin.setDefaultChannelName(setDefaultName);
       }
       break;
     case 'trello':
@@ -141,7 +146,7 @@ function selectService(service) {
       settingsTemplate = 'trelloSettingsTemplate';
       authTemplate = 'trelloAuthTemplate';
       break;
-  }
+  };
   displayAuthButton(userAuthenticated);
   $('.channel-add__step-1').addClass('hidden');
   $('.channel-add__step-2').removeClass('hidden');
@@ -149,9 +154,7 @@ function selectService(service) {
 };
 
 function setDefaultName(val){
-  var current;
   if (defaultChannelName){
-    current = newChannelName.val();
-    newChannelName.val(current+'_'+val);
+    newChannelName.val(val);
   }
-}
+};
