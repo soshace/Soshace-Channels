@@ -72,6 +72,7 @@ Meteor.methods({
   },
 
   'requestContact': function(newContactName) {
+    // TODO: check if request is already sent
     var currentUserId = this.userId;
 
     var selector = {

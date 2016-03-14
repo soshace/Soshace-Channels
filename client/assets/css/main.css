@@ -124,3 +124,25 @@ a{color:#444;text-decoration:none;}
 p{margin-bottom:.3em;}
 
 .radio-inline{font-weight: 300;}
+
+
+/* Contacts page */
+.registered-users-list > li {
+  position: relative;
+  width: 100px;
+  text-align: center;
+}
+
+.registered-users-list button {
+  margin-bottom: 5px;
+}
+
+.registered-users-list small {
+  margin-bottom: 5px;
+}
+
+.contacts__remove-contact {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
