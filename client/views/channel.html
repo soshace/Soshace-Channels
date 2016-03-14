@@ -1,8 +1,11 @@
 <template name="channel">
+
 <div class="channel__wrapper">
+
   <h1 class="page-header">Channel - {{name}}</h1>
+
   <div class="row">
-    <div class="col-md-12">
+
       <ul class="nav nav-tabs nav-tabs-inverse">
         <li class="active">
           <a href="#feed" data-toggle="tab" aria-expanded="true">Feed</a>
@@ -14,7 +17,9 @@
           <a href="#settings" data-toggle="tab" aria-expanded="false">Settings</a>
         </li>
       </ul>
+
       <div class="tab-content">
+
         <div class="tab-pane fade active in" id="feed">
           <ul class="media-list media-list-with-divider">
             {{#each channelFeed}}
@@ -24,108 +29,147 @@
             {{/each}}
           </ul>
         </div>
+
         <div class="tab-pane fade" id="members">
-          <div class="row m-b-40">
-            <div class="col-xs-12 col-sm-6">
-              <div class="panel">
-                <ul class="registered-users-list clearfix">
 
-                  {{#each members}}
-                    <li class="channel__member">
-                      <img src="http://placehold.it/70x70" alt="User avatar">
-                      <h4 class="username text-ellipsis">
-                        {{profile.firstName}} {{profile.lastName}}
-                        <small>({{username}})</small>
-                      </h4>
-                      <a class="channel__remove-member btn btn-danger" href="#" data-userid={{_id}}>x</a>
-                    </li>
-                  {{/each}}
+          <div class="row">
+            <div class="panel m-t-15">
+              <ul class="registered-users-list clearfix">
 
-                </ul>
-              </div>
+                {{#each members}}
+                  <li class="channel__member">
+                    <img src="../images/user.png" width="80" height="80" alt="User avatar">
+                    <h4 class="username text-ellipsis">
+                      {{profile.firstName}} {{profile.lastName}}
+                      <small>({{username}})</small>
+                    </h4>
+
+                    {{#if userIsChannelCreator ..}}
+                    <a data-userid={{_id}} class="channel__remove-member btn btn-danger btn-icon btn-circle" href="delete">
+                      <i class="fa fa-times"></i>
+                    </a>
+                    {{/if}}
+
+                  </li>
+                {{/each}}
+
+              </ul>
             </div>
-
-            <div class="col-xs-12 col-sm-6">
-              <div class="panel panel-inverse">
-                  <form class="channel__add-member">
-                    <fieldset>
-
-                      <legend>Add users to channel:</legend>
-
-                      <div class="form-group">
-                        <select class="form-control" name="user-to-channel" >
-                          {{#each contacts}}
-                            <option value="{{_id}}">{{profile.firstName}} {{profile.lastName}} ({{username}})</option>
-                          {{/each}}
-                        </select>
-                      </div>
-
-                      <div class="form-group">
-                        <input class="btn btn-sm btn-success" type="submit" value="Add">
-                      </div>
-                    </fieldset>
-                  </form>
-              </div>
-            </div>
-
           </div>
 
-          {{> channelInvites}}
+          {{#if userIsChannelCreator ..}}
+          <div class="row m-b-20">
+            <div class="col-sm-12 col-md-6">
+              <div class="panel panel-inverse">
 
-          {{#if showEmails}}
-          <div class="row">
-            <div class="col-xs-12 col-sm-12">
+                <form class="form-inline channel__add-member">
+                  <fieldset>
 
-              <div class="panel panel-inverse border-panel">
-                <div class="panel-heading">
-                  <h4 class="panel-title">Associated e-mails</h4>
-                </div>
-                <div class="panel-body">
-                  <table class="table">
-                    <thead>
-                      <tr>
-                        <th>Service login</th>
-                        <th>Email</th>
-                        <th>Status</th>
-                        <th></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {{#each associatedEmails}}
-                      <tr>
-                        <td>{{login}}</td>
-                        <td>{{email}}</td>
-                        <td>{{outputType}}</td>
-                        <td>
+                    <div class="checkbox m-r-10">
+                      <label for="contacts-list">Add users to channel:</label>
+                    </div>
 
-                          {{#if equals emailType 'member'}}
-                            <button class="btn btn-xs btn-primary channel__add-contact-to-channel" id="{{userId}}">Add to channel</button>
-                          {{/if}}
+                    <div class="form-group m-r-10">
+                      <select class="form-control p-l-10 p-r-10" id="contacts-list" name="user-to-channel">
+                        {{#each contacts}}
+                          <option value="{{_id}}">{{profile.firstName}} {{profile.lastName}} ({{username}})</option>
+                        {{/each}}
+                      </select>
+                    </div>
 
-                          {{#if equals emailType 'registered'}}
-                            <button class="btn btn-xs btn-primary channel__invite-registered" id="{{userId}}">Add to channel</button>
-                          {{/if}}
+                    <div class="form-group">
+                      <input class="btn btn-primary" type="submit" value="Add">
+                    </div>
 
-                          {{#if equals emailType 'unregistered'}}
-                            <button class="btn btn-xs btn-primary channel__invite-unregistered" id="{{userId}}">Invite to service</button>
-                          {{/if}}
-                        </td>
-                      </tr>
-                      {{/each}}
-                    </tbody>
-                  </table>
-                </div>
+                  </fieldset>
+                </form>
               </div>
-
             </div>
           </div>
           {{/if}}
+
+          {{#if userIsChannelCreator ..}}
+          <div class="panel-group" id="accordion">
+
+      			<div class="panel overflow-hidden channel-members__accordion">
+
+      				<div class="panel-heading channel-members__accordion-header">
+      					<h3 class="panel-title">
+        					<a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion" href="#invite" aria-expanded="false">
+                    <span class="f-s-15">Invites interface</span>
+                    <i class="fa fa-plus-circle pull-right"></i>
+                    <span class="pull-right">Click to open/close</span>
+        					</a>
+      					</h3>
+      				</div>
+
+      				<div id="invite" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+      					<div class="panel-body accordion-body">
+
+                  {{> channelInvites}}
+
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <div class="panel panel-inverse">
+
+                        <div class="panel-heading">
+                          <h4 class="panel-title">E-mails associated with your GitHub repository</h4>
+                        </div>
+
+                        <div class="panel-body">
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th>Service login</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {{#each associatedEmails}}
+                              <tr>
+                                <td>{{login}}</td>
+                                <td>{{email}}</td>
+                                <td>{{outputType}}</td>
+                                <td>
+
+                                  {{#if equals emailType 'member'}}
+                                    <button class="btn btn-xs btn-primary channel__add-contact-to-channel" id="{{userId}}">Add to channel</button>
+                                  {{/if}}
+
+                                  {{#if equals emailType 'registered'}}
+                                    <button class="btn btn-xs btn-primary channel__invite-registered" id="{{userId}}">Add to channel</button>
+                                  {{/if}}
+
+                                  {{#if equals emailType 'unregistered'}}
+                                    <button class="btn btn-xs btn-primary channel__invite-unregistered" id="{{userId}}">Invite to service</button>
+                                  {{/if}}
+                                </td>
+                              </tr>
+                              {{/each}}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+      					</div>
+      				</div>
+
+      			</div>
+      		</div>
+          {{/if}}
+
         </div>
+
         <div class="tab-pane fade" id="settings">
+          {{#if userIsChannelCreator ..}}
           <a class="channel__delete btn btn-danger m-t-15 m-b-15" href="#">Delete Channel</a>
+          {{/if}}
         </div>
       </div>
-    </div>
   </div>
 </div>
 </template>

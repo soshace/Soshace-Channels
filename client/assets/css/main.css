@@ -87,11 +87,11 @@
 }
 
 .channel-block__comment-wrapper{
-  margin-bottom:20px;
+  margin-bottom: 20px;
 }
 
 .line-break{
-  white-space:pre-wrap;
+  white-space: pre-wrap;
 }
 
 .channel-block__accordion{
@@ -99,15 +99,7 @@
 }
 
 .channel-block__accordion-header{
-    background-color: #d9e0e7;
-}
-
-.channel__associated-emails{
-  list-style-type: none;
-}
-
-.channel__associated-emails-element{
-  padding:10px;
+  background-color: #d9e0e7;
 }
 
 .commit__green-line{
@@ -145,4 +137,35 @@ p{margin-bottom:.3em;}
   position: absolute;
   top: 0;
   right: 0;
+}
+
+/* Channel Members tab */
+
+.channel-members__accordion {
+  /*border: solid 1px black;*/
+}
+
+.channel-members__accordion-header {
+  background-color: #929ba1;
+}
+
+.channel-members__accordion .accordion-body {
+  background: #f0f3f4;
+}
+
+.channel-members__accordion h3 {
+  color: white;
+}
+
+.channel__add-member label {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.channel__associated-emails{
+  list-style-type: none;
+}
+
+.channel__associated-emails-element{
+  padding:10px;
 }

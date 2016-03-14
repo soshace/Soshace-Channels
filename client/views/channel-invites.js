@@ -1,7 +1,7 @@
 Meteor.subscribe('invites');
 
 Template.channelInvites.helpers({
-  hasInvitations: function() {
+  noInvitations: function() {
     var invitations = Invitations.find().count();
     return invitations < 1 ? false : true;
   },
@@ -49,7 +49,7 @@ Template.channelInvites.events({
       Bert.alert('Please, set an email', 'warning');
     }
   },
-  
+
   'click .revoke-invite': function(event, template) {
     if (confirm('Are you sure? This is permanent.')) {
       Meteor.call('deleteInvitation', this.token, function(error, response) {
