@@ -200,7 +200,6 @@ Template.channel.helpers({
           }
         },
         createdBy = Channels.findOne(selector, options).createdBy;
-    console.log(channelId);
     return createdBy === currentUser;
   }
 });
