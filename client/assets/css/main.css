@@ -16,21 +16,11 @@
   margin-bottom: 30px;
 }
 
-.channel__member {
-  position: relative;
-}
-
-.channel__remove-member {
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-
 .border-panel {
   border: 1px solid #242a30;
 }
 
-/* CSS for buttons on Creation Channel Page */
+/* CSS for buttons on Channel Creation Page */
 
 .github{
   background-image:url(/images/github.png);
@@ -65,14 +55,29 @@
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-
+/* Sidebar */
 .sidebar-addchannel span:hover {
   color: #00acac;
 }
 
+/*fix css from color admin*/
+.media-list.media-list-with-divider > li + li {
+  padding-top: 0;
+}
+
+/* Channel feed tab */
+.grey-text {
+  color: grey;
+}
 .channel__resource-block {
-  border: Solid 1px Lavender;
-  padding: 10px;
+  margin-bottom: 15px;
+  border: solid 1px rgba(77, 202, 202, 0.2);
+  border-radius: 5px;
+  /*padding: 10px;*/
+}
+
+.channel__resource-block:hover {
+  background: rgba(77, 202, 202, 0.2);
 }
 
 .channel__resource-avatar{
@@ -140,6 +145,15 @@ p{margin-bottom:.3em;}
 }
 
 /* Channel Members tab */
+.channel__member {
+  position: relative;
+}
+
+.channel__remove-member {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
 
 .channel-members__accordion {
   /*border: solid 1px black;*/
