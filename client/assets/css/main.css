@@ -80,9 +80,6 @@
   background: rgba(77, 202, 202, 0.2);
 }
 
-.channel__resource-avatar{
-}
-
 .channel__show-details{
   cursor: pointer;
 }
@@ -91,7 +88,26 @@
   color: Black;
 }
 
-.channel-block__comment-wrapper{
+/* Channel feed tab details */
+.channel-details__header {
+  width: 350px;
+  border-bottom: 2px solid #4DCACA;
+}
+
+.channel-details__author {
+  position: relative;
+}
+
+.channel-details__author i {
+  position: absolute;
+  bottom: -70px;
+  left: 20px;
+
+  font-size: 70px;
+  color: #4DCACA;
+}
+
+.channel-block__comment-wrapper {
   margin-bottom: 20px;
 }
 
@@ -99,19 +115,20 @@
   white-space: pre-wrap;
 }
 
-.channel-block__accordion{
-  border: solid 1px #d9e0e7;
+.channel-block__accordion {
+  border: solid 1px rgba(77, 202, 202, 0.2);
 }
 
-.channel-block__accordion-header{
-  background-color: #d9e0e7;
+.channel-block__accordion-header {
+  color: black;
+  background-color: rgba(77, 202, 202, 0.2);
 }
 
-.commit__green-line{
+.commit__green-line {
   background-color: #eaffea;
 }
 
-.commit__red-line{
+.commit__red-line {
   background-color: #ffecec;;
 }
 
