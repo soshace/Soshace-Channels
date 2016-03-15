@@ -65,13 +65,19 @@ Template.header.onRendered(function() {
             activeMenuItem.removeClass('active');
           }
 
-          target.addClass('active');
+          if (target.hasClass('has-sub') && target.hasClass('expand')) {
+            target.addClass('active');
+          } else if (target.hasClass('has-sub') && !target.hasClass('expand')) {
+            target.removeClass('active');
+          } else {
+            target.addClass('active');
+          }
       });
 
       $('.sub-menu > li').click(function() {
           var target = $(this),
               isActiveMenuItem = $('.sub-menu > li').hasClass('active');
-
+              
           if (isActiveMenuItem) {
             var activeMenuItem = $('.sub-menu > li.active');
             activeMenuItem.removeClass('active');
