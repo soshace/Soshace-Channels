@@ -66,8 +66,8 @@
 }
 
 
-.sidebar-addchannel:hover {
-  color: red;
+.sidebar-addchannel span:hover {
+  color: #00acac;
 }
 
 .channel__resource-block {

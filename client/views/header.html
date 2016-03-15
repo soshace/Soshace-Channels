@@ -34,7 +34,6 @@
 
   {{#if currentUser}}
     <div id="sidebar" class="sidebar">
-    <!-- <div class="slimScrollDiv" style="position: relative; overflow: hidden; width: auto; height: 100%;"> -->
       <div data-scrollbar="true" data-height="100%">
         <ul class="nav">
           <li class="nav-profile">
@@ -64,12 +63,13 @@
             <a href="{{pathFor route='contacts'}}">Contacts</a>
           </li>
 
-          <li class="active has-sub">
-            <a href="{{pathFor route='channels'}}">
+          <li class="has-sub">
+            <a href="#">
               <span>
                 Channels
                 <a class="sidebar-addchannel pull-right" href="{{pathFor route='addchannel'}}">
-                <span class="badge badge-inverse">+</span></a>
+                <span class="badge badge-inverse fa fa-2x fa-plus">
+                </span></a>
               </span>
             </a>
             <ul class="sub-menu">
@@ -91,7 +91,6 @@
 
         </ul>
       </div>
-    <!-- </div> -->
     </div>
     <div class="sidebar-bg"></div>
   {{/if}}
