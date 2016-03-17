@@ -132,6 +132,14 @@
   background-color: #ffecec;;
 }
 
+.commit__grey-line {
+  background-color: #f4f7fb;;
+}
+
+.tabulation {
+  white-space: pre-wrap;
+}
+
 /* Extras */
 a:visited{color:#888}
 a{color:#444;text-decoration:none;}

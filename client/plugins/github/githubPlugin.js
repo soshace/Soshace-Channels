@@ -20,6 +20,7 @@
 
 		$('input[name=repoVisibility]:radio').change(function() {
 			visibility = $('input[name=repoVisibility]:checked').val();
+
 			if (visibility === 'external') {
 				$('.github__external-name').removeClass('hidden');
 				$('.github__repo-list').addClass('hidden');
@@ -41,7 +42,7 @@
 			self.resourceId = selectedValue;
 			var repoName = selectedValue.split('/')[1];
 			setDefaultChannelName('github/'+repoName);
-		})
+		});
 	};
 
 	// Public methods
@@ -49,6 +50,7 @@
 		if (!getUserReposCallback) {
 			getUserReposCallback = func;
 		}
+
 		$.getJSON('https://api.github.com/user/repos', {
 			access_token: token,
 			visibility: visibility,
@@ -65,8 +67,10 @@
 
 	GithubPlugin.prototype.getRepoCommits = function(getCommits, getEmails) {
 		loading = false;
+		var request;
+
 		if (!isGuest) {
-			var request = 'https://api.github.com/repos/' + resourceId + '/commits';
+			request = 'https://api.github.com/repos/' + resourceId + '/commits';
 			$.getJSON(request, {
 				access_token: token
 			}, function(data) {
@@ -77,7 +81,8 @@
 			});
 		} else {
 			loading = true;
-			var request = 'https://api.github.com/repos/' + resourceId + '/commits?access_token=' + token;
+			request = 'https://api.github.com/repos/' + resourceId + '/commits?access_token=' + token;
+
 			Meteor.call('getGithub', request, function(error, results) {
 				commits = results.data;
 				runTemplating();
@@ -89,8 +94,10 @@
 	};
 
 	GithubPlugin.prototype.getSingleBlock = function(getCommitCallback, sha) {
+		var request;
+
 		if (!isGuest) {
-			var request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha;
+			request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha;
 			$.getJSON(request, {
 				access_token: token
 			}, function(data) {
@@ -98,7 +105,7 @@
 				getCommitCallback(data);
 			});
 		} else {
-			var request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha + '?access_token=' + token;
+			request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha + '?access_token=' + token;
 			Meteor.call('getGithub', request, function(error, results) {
 				parseCommitPatches(results ? results.data : {});
 				getCommitCallback(results ? results.data : {});
@@ -129,7 +136,7 @@
 				})(contributor);
 			}
 		});
-	};
+	}
 
 	function extendDefaults(source, properties) { // Utility method to extend defaults with user options
 		for (let property in properties) {
@@ -138,7 +145,7 @@
 			}
 		}
 		return source;
-	};
+	}
 
 	function runTemplating() {
 		for (let item of commits) {
@@ -147,28 +154,37 @@
 			item.date = item.commit.committer.date;
 			item.channelId = channelId;
 		}
-	};
+	}
 
 	function parseCommitPatches(data) {
 		_.each(data.files, function(file) {
+
 			if (!file.patch){
 				return;
 			}
 			file.patch = file.patch.split('\n');
+			//console.log(file.patch);
 			file.lines = _.map(file.patch, function(line) {
 				var bgStyle = '';
+
 				if (line[0] === '+') {
 					bgStyle = 'commit__green-line';
 				}
+
 				if (line[0] === '-') {
 					bgStyle = 'commit__red-line';
-				};
+				}
+
+				if (line[0] === '@') {
+					bgStyle = 'commit__grey-line';
+				}
+
 				return {
 					value: line,
 					bgStyle: bgStyle
-				}
+				};
 			});
 		});
-	};
+	}
 
 })();

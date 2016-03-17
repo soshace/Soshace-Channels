@@ -35,9 +35,18 @@
 
 				<div id="{{sha}}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
 					<div class="panel-body">
-						{{#each lines}}
-						<div class="{{bgStyle}}">{{value}}</div>
-						{{/each}}
+						<table>
+							{{#each lines}}
+							<tr class="{{bgStyle}}">
+								<td>
+									<!-- <code class="prettyprint"> -->
+									<pre class="prettyprint">{{value}}</pre>
+								<!-- </code> -->
+								</td>
+							</tr>
+							{{/each}}
+						</table>
+
 					</div>
 				</div>
 
