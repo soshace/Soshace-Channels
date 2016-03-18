@@ -101,13 +101,11 @@
 			$.getJSON(request, {
 				access_token: token
 			}, function(data) {
-				parseCommitPatches(data);
 				getCommitCallback(data);
 			});
 		} else {
 			request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha + '?access_token=' + token;
 			Meteor.call('getGithub', request, function(error, results) {
-				parseCommitPatches(results ? results.data : {});
 				getCommitCallback(results ? results.data : {});
 			});
 		}
@@ -154,37 +152,6 @@
 			item.date = item.commit.committer.date;
 			item.channelId = channelId;
 		}
-	}
-
-	function parseCommitPatches(data) {
-		_.each(data.files, function(file) {
-
-			if (!file.patch){
-				return;
-			}
-			file.patch = file.patch.split('\n');
-			//console.log(file.patch);
-			file.lines = _.map(file.patch, function(line) {
-				var bgStyle = '';
-
-				if (line[0] === '+') {
-					bgStyle = 'commit__green-line';
-				}
-
-				if (line[0] === '-') {
-					bgStyle = 'commit__red-line';
-				}
-
-				if (line[0] === '@') {
-					bgStyle = 'commit__grey-line';
-				}
-
-				return {
-					value: line,
-					bgStyle: bgStyle
-				};
-			});
-		});
 	}
 
 })();

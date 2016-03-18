@@ -1,4 +1,5 @@
 <template name="githubDetailsTemplate">
+
 <div class="panel">
 	<div class="panel-body">
 
@@ -35,18 +36,11 @@
 
 				<div id="{{sha}}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
 					<div class="panel-body">
-						<table>
-							{{#each lines}}
-							<tr class="{{bgStyle}}">
-								<td>
-									<!-- <code class="prettyprint"> -->
-									<pre class="prettyprint">{{value}}</pre>
-								<!-- </code> -->
-								</td>
-							</tr>
-							{{/each}}
-						</table>
-
+						<pre>
+							<code class="hljs">
+{{patch}}
+							</code>
+						</pre>
 					</div>
 				</div>
 
@@ -55,7 +49,7 @@
 		</div>
 
 		<button class="channel__return btn btn-sm btn-white">
-		Back to channel
+			Back to channel
 		</button>
 	</div>
 
@@ -63,4 +57,5 @@
 		{{> commentsBlock}}
 	</div> -->
 </div>
+
 </template>

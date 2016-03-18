@@ -38,6 +38,10 @@ Template.channelBlock.helpers({
 
 Template.channelBlock.onRendered(function() {
   _commentTextArea = document.getElementsByClassName('channel-block__add-comment-area')[0];
+
+  $('pre code').each(function(i, block) {
+    hljs.highlightBlock(block);
+  });
 });
 
 Template.channelBlock.updateData = function(channelId, blockId) {

@@ -125,7 +125,7 @@
 }
 
 .commit__green-line {
-  background-color: #eaffea;
+  background-color: rgba(234, 255, 234, 0.8);
 }
 
 .commit__red-line {
@@ -208,3 +208,24 @@ p{margin-bottom:.3em;}
 .channel__associated-emails-element{
   padding:10px;
 }
+
+pre {
+  padding: 0;
+  margin: 0;
+  white-space: normal;
+  border: none;
+  background-color: transparent;
+}
+
+code {
+  background-color: transparent;
+}
+
+.hljs {
+  background-color: transparent;
+  padding: 0;
+}
+
+/*pre code {
+  white-space: pre;
+}*/
