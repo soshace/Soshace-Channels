@@ -18,8 +18,8 @@
 			this.options = extendDefaults(defaults, arguments[0]);
 		}
 
-		$('input[name=repoVisibility]:radio').change(function() {
-			visibility = $('input[name=repoVisibility]:checked').val();
+		$('[name=repoVisibility]').change(function() {
+			visibility = $('[name=repoVisibility]').val();
 			if (visibility === 'external') {
 				$('.github__external-name').removeClass('hidden');
 				$('.github__repo-list').addClass('hidden');
@@ -27,11 +27,7 @@
 				$('.github__external-name').addClass('hidden');
 				$('.github__repo-list').removeClass('hidden');
 
-				$.getJSON('https://api.github.com/user/repos', {
-					access_token: token,
-					visibility: visibility,
-					per_page: 50
-				}, getUserReposCallback);
+				getRepositories();
 			}
 		});
 
@@ -49,11 +45,7 @@
 		if (!getUserReposCallback) {
 			getUserReposCallback = func;
 		}
-		$.getJSON('https://api.github.com/user/repos', {
-			access_token: token,
-			visibility: visibility,
-			per_page: 50
-		}, func);
+		getRepositories();
 	};
 
 	GithubPlugin.prototype.setParameters = function(tkn, resId, isGst, cnlId) {
@@ -168,6 +160,19 @@
 					bgStyle: bgStyle
 				}
 			});
+		});
+	};
+
+	function getRepositories(){
+		$.getJSON('https://api.github.com/user/repos', {
+			access_token: token,
+			visibility: visibility,
+			per_page: 50
+		}, function(data){
+			getUserReposCallback(data);
+			resourceId = data[0]['full_name'];
+			var repoName = resourceId.split('/')[1];
+			setDefaultChannelName('github/'+repoName);
 		});
 	};
 
