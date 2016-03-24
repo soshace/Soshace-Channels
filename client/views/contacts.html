@@ -2,8 +2,30 @@
 
   <h1 class="page-header">Contacts</h1>
 
+  <div class="row m-b-20">
+    {{#if contacts.toShow}}
+      <div class="col-sm-12">
+        <div class="panel panel-inverse p-t-15 p-b-15">
+
+          <ul class="registered-users-list clearfix">
+            {{#each contacts.data}}
+              <li>
+                <a href=""><img src="images/user.png" width="80" height="80" alt="User avatar"></a>
+                <h4 class="username text-ellipsis">{{profile.firstName}} {{profile.lastName}} <small>({{username}})</small></h4>
+                <a id="{{_id}}" class="contacts__remove-contact btn btn-danger btn-icon btn-circle" href="delete">
+                  <i class="fa fa-times" id="{{_id}}"></i>
+                </a>
+              </li>
+            {{/each}}
+          </ul>
+
+        </div>
+      </div>
+    {{/if}}
+  </div>
+
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-sm-12 col-md-6">
       <div class="panel">
         <div class="panel-body">
 
@@ -12,7 +34,7 @@
               <legend>Add contact</legend>
 
               <div class="form-group">
-                <label class="col-md-6 control-label" for="login-field">Enter User id:</label>
+                <label class="col-md-6 control-label" for="login-field">Enter username:</label>
                 <div class="col-md-6">
                   <input class="form-control" type="text" name="login" id="login-field" required>
                 </div>
@@ -30,44 +52,36 @@
         </div>
       </div>
     </div>
-  </div>
 
-
-  {{#if contacts.toShow}}
-  <div class="row">
-
-    <div class="col-md-12">
+    {{#if requestsToUsers.toShow}}
+    <div class="col-sm-12 col-md-6">
       <div class="panel panel-inverse">
 
         <div class="panel-heading">
-          <h4 class="panel-title">Contacts</h4>
+          <h4 class="panel-title">Your requests</h4>
         </div>
 
         <ul class="registered-users-list clearfix">
-          {{#each contacts.data}}
+          {{#each requestsToUsers.data}}
             <li>
-              <a href=""><img src="http://placehold.it/80x80" alt="User avatar"></a>
+              <a href=""><img src="images/user.png" width="80" height="80" alt="User avatar"></a>
               <h4 class="username text-ellipsis">{{profile.firstName}} {{profile.lastName}} <small>({{username}})</small></h4>
-              <button id="{{_id}}" class="btn btn-xs btn-primary contacts__remove-contact">Remove</button>
+              <button id="{{_id}}" class="btn btn-xs btn-warning contacts__cancel-contact-request">Cancel</button>
             </li>
           {{/each}}
         </ul>
 
-        <div class="panel-footer">
-
-        </div>
+        <div class="panel-footer"></div>
 
       </div>
     </div>
-
+    {{/if}}
   </div>
-  {{/if}}
 
-
-  {{#if requestsFromUsers.toShow}}
   <div class="row">
 
-    <div class="col-md-12">
+    {{#if requestsFromUsers.toShow}}
+    <div class="col-sm-12 col-md-6">
       <div class="panel panel-inverse">
 
         <div class="panel-heading">
@@ -77,81 +91,46 @@
         <ul class="registered-users-list clearfix">
           {{#each requestsFromUsers.data}}
             <li>
-              <a href=""><img src="http://placehold.it/80x80" alt="User avatar"></a>
+              <a href=""><img src="images/user.png" width="80" height="80" alt="User avatar"></a>
               <h4 class="username text-ellipsis">{{profile.firstName}} {{profile.lastName}} <small>({{username}})</small></h4>
-              <button id="{{_id}}" class="btn btn-xs btn-primary contacts__accept-contact-request">Accept</button>
-              <button id="{{_id}}" class="btn btn-xs btn-primary contacts__reject-contact-request">Decline</button>
+              <button id="{{_id}}" class="btn btn-xs btn-success contacts__accept-contact-request">Accept</button>
+              <button id="{{_id}}" class="btn btn-xs btn-warning contacts__reject-contact-request">Decline</button>
             </li>
           {{/each}}
         </ul>
 
-        <div class="panel-footer">
-
-        </div>
+        <div class="panel-footer"></div>
 
       </div>
     </div>
+    {{/if}}
 
-  </div>
-  {{/if}}
+    {{#if rejectedUsers.toShow}}
+      <div class="col-sm-12 col-md-6">
+        <div class="panel panel-inverse">
 
-  {{#if requestsToUsers.toShow}}
-  <div class="row">
+          <div class="panel-heading">
+            <h4 class="panel-title">Rejected requests</h4>
+          </div>
 
-    <div class="col-md-12">
-      <div class="panel panel-inverse">
+          <ul class="registered-users-list clearfix">
+            {{#each rejectedUsers.data}}
+              <li>
+                <a href=""><img src="images/user.png" width="80" height="80" alt="User avatar"></a>
+                <h4 class="username text-ellipsis">{{profile.firstName}} {{profile.lastName}} <small>({{username}})</small></h4>
+              </li>
+            {{/each}}
+          </ul>
 
-        <div class="panel-heading">
-          <h4 class="panel-title">Requests to users</h4>
-        </div>
+          <div class="panel-footer">
 
-        <ul class="registered-users-list clearfix">
-          {{#each requestsToUsers.data}}
-            <li>
-              <a href=""><img src="http://placehold.it/80x80" alt="User avatar"></a>
-              <h4 class="username text-ellipsis">{{profile.firstName}} {{profile.lastName}} <small>({{username}})</small></h4>
-              <button id="{{_id}}" class="btn btn-xs btn-primary contacts__cancel-contact-request">Cancel</button>
-            </li>
-          {{/each}}
-        </ul>
-
-        <div class="panel-footer">
+          </div>
 
         </div>
-
       </div>
-    </div>
+    {{/if}}
 
   </div>
-  {{/if}}
 
-  {{#if rejectedUsers.toShow}}
-  <div class="row">
-
-    <div class="col-md-12">
-      <div class="panel panel-inverse">
-
-        <div class="panel-heading">
-          <h4 class="panel-title">Rejected requests</h4>
-        </div>
-
-        <ul class="registered-users-list clearfix">
-          {{#each rejectedUsers.data}}
-            <li>
-              <a href=""><img src="http://placehold.it/80x80" alt="User avatar"></a>
-              <h4 class="username text-ellipsis">{{profile.firstName}} {{profile.lastName}} <small>({{username}})</small></h4>
-            </li>
-          {{/each}}
-        </ul>
-
-        <div class="panel-footer">
-
-        </div>
-
-      </div>
-    </div>
-
-  </div>
-  {{/if}}
 
 </template>

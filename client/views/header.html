@@ -33,64 +33,66 @@
   </header>
 
   {{#if currentUser}}
-    <div class="sidebar">
+    <div id="sidebar" class="sidebar">
+      <div data-scrollbar="true" data-height="100%">
+        <ul class="nav">
+          <li class="nav-profile">
 
-      <ul class="nav">
-        <li class="nav-profile">
+            <div class="image">
+              <a href="{{pathFor route='profile'}}">
+                <img src="images/user.png" width="80" height="80" alt="User avatar">
+              </a>
+            </div>
 
-          <div class="image">
-            <a href="{{pathFor route='profile'}}">
-              <img src="http://placehold.it/80x80" alt="User avatar">
+            <div class="info">
+              {{#if currentUser.profile.firstName}}
+                {{currentUser.profile.firstName}}
+              {{/if}}
+              {{#if currentUser.profile.lastName}}
+                {{currentUser.profile.lastName}}
+              {{/if}}
+              <small>{{currentUser.username}}</small>
+            </div>
+
+          </li>
+        </ul>
+
+        <ul class="nav">
+
+          <li>
+            <a href="{{pathFor route='contacts'}}">Contacts</a>
+          </li>
+
+          <li class="has-sub">
+            <a href="#">
+              <span>
+                Channels
+                <a class="sidebar-addchannel pull-right" href="{{pathFor route='addchannel'}}">
+                <span class="badge badge-inverse fa fa-2x fa-plus">
+                </span></a>
+              </span>
             </a>
-          </div>
+            <ul class="sub-menu">
 
-          <div class="info">
-            {{#if currentUser.profile.firstName}}
-              {{currentUser.profile.firstName}}
-            {{/if}}
-            {{#if currentUser.profile.lastName}}
-              {{currentUser.profile.lastName}}
-            {{/if}}
-            <small>{{currentUser.username}}</small>
-          </div>
+              {{#each channels}}
+                <li>
+                  <a href="{{pathFor route='channel'}}">{{name}}</a>
+                </li>
+              {{/each}}
 
-        </li>
-      </ul>
+              {{#each guestchannels}}
+                <li>
+                  <a href="{{pathFor route='channel'}}">{{name}}</a>
+                </li>
+              {{/each}}
 
-      <ul class="nav">
+            </ul>
+          </li>
 
-        <li>
-          <a href="{{pathFor route='contacts'}}">Contacts</a>
-        </li>
-
-        <li class="has-sub active">
-          <a href="{{pathFor route='channels'}}">
-            <span>
-              Channels
-              <a class="sidebar-addchannel pull-right" href="{{pathFor route='addchannel'}}">
-              <span class="badge badge-inverse">+</span></a>
-            </span>
-          </a>
-          <ul class="sub-menu">
-
-            {{#each channels}}
-              <li>
-                <a href="{{pathFor route='channel'}}">{{name}}</a>
-              </li>
-            {{/each}}
-
-            {{#each guestchannels}}
-              <li>
-                <a href="{{pathFor route='channel'}}">{{name}}</a>
-              </li>
-            {{/each}}
-
-          </ul>
-        </li>
-
-      </ul>
-
+        </ul>
+      </div>
     </div>
+    <div class="sidebar-bg"></div>
   {{/if}}
 
 </template>

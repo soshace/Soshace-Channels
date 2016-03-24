@@ -1,14 +1,43 @@
 <template name="channelInvites">
-  <div class="row">
 
-    <div class="col-md-6">
-      <div class="panel panel-inverse border-panel">
+  <div class="row m-b-30">
+    <div class="col-sm-12 col-md-6">
+      <div class="panel panel-inverse">
 
         <div class="panel-heading">
-          <h4 class="panel-title">Invites</h4>
+          <h4 class="panel-title">Invite users by email</h4>
         </div>
 
         <div class="panel-body">
+
+          <form class="">
+
+            <!-- <div class="form-group">
+              <label for="email-field">Enter email:</label>
+            </div> -->
+
+            <div class="form-group">
+              <input type="email" id="email-field" name="email" class="form-control">
+            </div>
+
+            <div class="form-group">
+              <input class="btn btn-primary btn-block pull-right" type="submit" value="Invite">
+            </div>
+
+          </form>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-12 col-md-6">
+      <div class="panel panel-inverse">
+
+        <div class="panel-heading">
+          <h4 class="panel-title">Sent invites</h4>
+        </div>
+
+        <div class="panel-body p-t-10 p-b-10">
           <table class="table">
             <thead>
               <tr>
@@ -32,29 +61,6 @@
       </div>
     </div>
 
-    <div class="col-md-6">
-      <div class="panel">
-        <div class="panel-body">
-
-          <form class="form-horizontal">
-            <fieldset>
-
-              <legend>Invite users by email:</legend>
-
-              <div class="form-group">
-                <input type="email" name="email" class="form-control">
-              </div>
-
-              <div class="form-group">
-                <input class="btn btn-sm btn-success" type="submit" value="Invite">
-              </div>
-            </fieldset>
-          </form>
-
-        </div>
-      </div>
-    </div>
   </div>
-
 
 </template>

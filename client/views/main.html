@@ -1,15 +1,19 @@
 <template name="main">
 
-  <div class="fade page-sidebar-fixed page-header-fixed in">
+  <body>
 
-    {{> header}}
+    <div id="page-container" class="fade page-sidebar-fixed page-header-fixed in">
 
-    <main class="content">
-      {{> yield}}
-    </main>
+      {{> header}}
 
-    {{> footer}}
-    
-  </div>
+      <main class="content">
+        {{> yield}}
+      </main>
+
+      {{> footer}}
+
+    </div>
+  
+  </body>
 
 </template>

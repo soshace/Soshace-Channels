@@ -21,7 +21,7 @@ Template.channelBlock.events({
     event.preventDefault();
     Router.go('channel', {
       _id: _channelId
-    })
+    });
   }
 });
 
@@ -38,6 +38,10 @@ Template.channelBlock.helpers({
 
 Template.channelBlock.onRendered(function() {
   _commentTextArea = document.getElementsByClassName('channel-block__add-comment-area')[0];
+
+  $('pre code').each(function(i, block) {
+    hljs.highlightBlock(block);
+  });
 });
 
 Template.channelBlock.updateData = function(channelId, blockId) {
@@ -60,11 +64,11 @@ Template.channelBlock.updateData = function(channelId, blockId) {
       _id: channel.createdBy
     });
     token = hostUser.profile.services.pass;
-  };
+  }
 
   if (!_plugin) {
     _plugin = new GithubPlugin(); // TODO: Make switch between available plugins
-  };
+  }
 
   _plugin.setParameters(token, channel.serviceResource, channelIsGuest, channelId);
 
@@ -75,7 +79,7 @@ function getSingleBlockCallback(data) {
   _singleBlock = data;
   loadComments();
   _deps.changed();
-};
+}
 
 function loadComments() {
   var messages = Channels.findOne({
@@ -90,8 +94,8 @@ function loadComments() {
       }).username;
       _singleBlock.messages.push(messages[i]);
     }
-  };
-};
+  }
+}
 
 function addComment(resourceBlockId) {
   var message = _commentTextArea.value;
@@ -99,7 +103,7 @@ function addComment(resourceBlockId) {
     Meteor.call('addComment', message, _channelId, _singleBlock.sha, Meteor.userId());
     _commentTextArea.value = '';
   }
-};
+}
 
 Template.registerHelper('formatDateTime', function(dt) {
   let date = new Date(dt);

@@ -1,7 +1,6 @@
 Meteor.startup(function() {
-  // ''%40' = encoded '@'
-  // TODO: need to hide auth data (settings.json?)
-  process.env.MAIL_URL = 'smtp://testov.testin%40yandex.ru:123123123123@smtp.yandex.ru:465/';
+  // '%40' = encoded '@'
+  process.env.MAIL_URL = 'smtp://' + Meteor.settings.public.mail_login + ':' + Meteor.settings.private.mail_pass + '@' + Meteor.settings.private.mail_smtp + ':' + Meteor.settings.private.mail_port;
 });
 
 Accounts.emailTemplates.siteName = 'Soshace Channels';
@@ -23,13 +22,12 @@ Accounts.emailTemplates.verifyEmail = {
 
 Meteor.methods({
   sendEmail: function (options) {
-    //TODO: check([to, from, subject, text], [String]);
+    //check([to, from, subject, text], [String]);
 
     // Let other method calls from the same client start running,
     // without waiting for the email sending to complete.
     this.unblock();
 
-    // TODO: check for errors?
     Email.send({
       to: options.to,
       from: options.from || 'NoReply <testov.testin@yandex.ru>',

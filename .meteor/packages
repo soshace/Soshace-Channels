@@ -31,3 +31,6 @@ momentjs:moment
 check
 themeteorchef:bert
 underscore
+flot:flot
+mizzao:jquery-ui
+rochal:slimscroll

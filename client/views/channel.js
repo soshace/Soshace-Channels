@@ -40,8 +40,6 @@ Template.channel.events({
     Meteor.call('addMember', _channelId, userId, function(error, results) {
       if (error) {
         console.log(error.reason);
-      } else {
-        console.log(results);
       }
     });
   },
@@ -187,9 +185,20 @@ Template.channel.helpers({
     return Template['githubPreviewTemplate'];
   },
 
-  showEmails: function() {
-    _deps.depend;
-    return _userIsHost;
+  userIsChannelCreator: function(parentContext) {
+    // check if user is channel creator
+    var currentUser = Meteor.userId(),
+        channelId = parentContext._id,
+        selector = {
+          _id: channelId
+        },
+        options = {
+          fields: {
+            createdBy: 1
+          }
+        },
+        createdBy = Channels.findOne(selector, options).createdBy;
+    return createdBy === currentUser;
   }
 });
 
@@ -206,7 +215,8 @@ Template.channel.updateData = function(channelId) {
     return;
   }
 
-  _userIsHost = _channelData.createdBy === Meteor.userId(); // Determine if current user is guest on this channel
+  // Determine if current user is guest on this channel
+  _userIsHost = _channelData.createdBy === Meteor.userId();
 
   var token = Meteor.user().profile.services ? Meteor.user().profile.services.pass : '';
   if (!_userIsHost) { // if this channel is guest then we take hosts token for requests
@@ -214,11 +224,12 @@ Template.channel.updateData = function(channelId) {
       _id: _channelData.createdBy
     });
     token = hostUser.profile.services.pass;
-  };
+  }
 
   if (!_github) {
     _github = new GithubPlugin();
   }
+
   _github.setParameters(token, _channelData.serviceResource, !_userIsHost, channelId);
   _github.getRepoCommits(getBlocksCallback, getEmailsCallback);
 };
@@ -226,7 +237,7 @@ Template.channel.updateData = function(channelId) {
 function getBlocksCallback(data, resourceId) {
   _blocks = data;
   _deps.changed();
-};
+}
 
 function getEmailsCallback(data) {
   _associatedEmails = data;
@@ -254,7 +265,8 @@ function getEmailsCallback(data) {
         _associatedEmails[i].userId = _members[j]._id;
         break;
       }
-    };
+    }
+
     if (_associatedEmails[i].emailType === 'member') continue;
 
     // Determine if this email is email of users contact who is not in channel yet
@@ -265,7 +277,8 @@ function getEmailsCallback(data) {
         _associatedEmails[i].userId = _contacts[l]._id;
         break;
       }
-    };
+    }
+
     if (_associatedEmails[i].emailType === 'contact') continue;
 
     // Determine if this email is email of a registered user who is not in channel yet
@@ -276,18 +289,19 @@ function getEmailsCallback(data) {
         _associatedEmails[i].userId = allEmails[k]._id;
         break;
       }
-    };
+    }
+
     if (_associatedEmails[i].emailType === 'registered') continue;
 
     _associatedEmails[i].emailType = 'unregistered';
     _associatedEmails[i].outputType = 'This email is not registered in SSI';
     _associatedEmails[i].userId = '';
-  };
+  }
   _deps.changed();
-};
+}
 
 Template.registerHelper('formatDateTime', function(dt) {
-  let date = new Date(dt);
+  var date = new Date(dt);
   return `${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}  ${date.getHours()}:${date.getMinutes()}`;
 });
 

@@ -78,124 +78,63 @@ Meteor.methods({
       username: newContactName
     };
 
-    var newContact = Meteor.users.findOne(selector);
+    var newContactId = Meteor.users.findOne(selector)._id;
 
-    Meteor.users.update({
+    if (newContactId === currentUserId){
+      return;
+    }
+
+    var currentUserContacts = Meteor.users.findOne({
       _id: currentUserId
-    }, {
-      $addToSet: {
-        'profile.contacts': {
-          contactId: newContact._id,
-          contactStatus: 'wasRequested'
-        }
-      }
-    }, function(error, results) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log(results);
-      }
-    });
+    }).profile.contacts;
 
-    Meteor.users.update({
-      _id: newContact._id
-    }, {
-      $addToSet: {
-        'profile.contacts': {
-          contactId: currentUserId,
-          contactStatus: 'sentRequest'
-        }
-      }
-    }, function(error, results) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log(results);
-      }
-    });
+    var isUserInList = _.findWhere(currentUserContacts, {
+        contactId: newContactId
+      });
+
+    if (!isUserInList) {
+      addContactStatus(currentUserId,newContactId,'wasRequested');
+      addContactStatus(newContactId,currentUserId,'sentRequest');
+    } else{
+      setContactStatus(currentUserId,newContactId,'wasRequested');
+      setContactStatus(newContactId,currentUserId,'sentRequest');
+    }
   },
 
   'acceptContact': function(contactId) {
     var currentUserId = this.userId;
 
-    Meteor.users.update({
-      _id: currentUserId,
-      'profile.contacts.contactId': contactId
-    }, {
-      $set: {
-        'profile.contacts.$.contactStatus': 'accepted'
-      }
-    }, function(error, results) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log(results);
-      }
-    });
-
-    Meteor.users.update({
-      _id: contactId,
-      'profile.contacts.contactId':currentUserId
-    }, {
-      $set: {
-        'profile.contacts.$.contactStatus': 'accepted'
-      }
-    }, function(error, results) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log(results);
-      }
-    });
+    setContactStatus(currentUserId,contactId,'accepted');
+    setContactStatus(contactId,currentUserId,'accepted');
   },
 
   'rejectContact': function(contactId) {
+    // Meteor.users.update({},{
+    //   $set: {
+    //     'profile.contacts': []
+    //   }
+    // }, {multi: true});
     var currentUserId = this.userId;
 
-    Meteor.users.update({
-      _id: currentUserId,
-      'profile.contacts.contactId':contactId
-    }, {
-      $set: {
-        'profile.contacts.$.contactStatus': 'rejected'
-      }
-    }, function(error, results) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log(results);
-      }
-    });
-
-    Meteor.users.update({
-      _id: contactId,
-      'profile.contacts.contactId':currentUserId
-    }, {
-      $set: {
-        'profile.contacts.$.contactStatus': 'rejected'
-      }
-    }, function(error, results) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log(results);
-      }
-    });
+    setContactStatus(currentUserId,contactId,'rejected');
+    setContactStatus(contactId,currentUserId,'rejected');
+    removeContactFromUserChannels(contactId,currentUserId);    
   },
 
-  'addToken': function(serviceName,token) {
+  'addToken': function(serviceName, token) {
     let currentUser = this.userId;
     console.log(token);
     Meteor.users.update(currentUser, {
       $set: {
         'profile.services.name': serviceName,
         'profile.services.pass': token,
-      }}, function(error, results) {
-        if (error) {
-          console.log(error);
-        } else {
-          console.log(results);
-        }
+      }
+    }, function(error, results) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log(results);
+      }
     });
   },
 
@@ -203,7 +142,7 @@ Meteor.methods({
     var userId = this.userId;
 
     if (userId) {
-      return Accounts.sendVerificationEmail( userId );
+      return Accounts.sendVerificationEmail(userId);
     }
   },
 
@@ -215,3 +154,53 @@ Meteor.methods({
     }
   },
 });
+
+var setContactStatus = function(userId,contactId,status){
+  Meteor.users.update({
+    _id: userId,
+    'profile.contacts.contactId': contactId
+  }, {
+    $set: {
+      'profile.contacts.$.contactStatus': status
+    }
+  }, function(error, results) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log(results);
+    }
+  });
+}
+
+var addContactStatus = function(userId,contactId,status){
+  Meteor.users.update({
+    _id: userId
+  }, {
+    $addToSet: {
+      'profile.contacts': {
+        contactId: contactId,
+        contactStatus: status
+      }
+    }
+  }, function(error, results) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log(results);
+    }
+  });
+}
+
+var removeContactFromUserChannels = function(contactId,userId){
+  var channels = Channels.find({createdBy: userId}).fetch();
+
+  _.map(channels,function(channel){
+    Channels.update({
+      _id: channel._id
+    }, {
+      $pull: {
+        members: contactId
+      }
+    });
+  });
+}

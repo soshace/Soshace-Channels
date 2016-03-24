@@ -88,9 +88,18 @@ Router.route('/channel/:_id', {
   },
   onBeforeAction: function() {
     var currentUser = Meteor.userId();
+    var channel = Channels.findOne({
+      _id: this.params._id
+    });
+    var userHasAccess = _.contains(channel.members,currentUser) || (channel.createdBy === currentUser);
+
     if (currentUser) {
-      Template.channel.updateData(this.params._id);
-      this.next();
+      if (userHasAccess){
+        Template.channel.updateData(this.params._id);
+        this.next();        
+      } else{
+        Router.go('channels');        
+      }
     } else {
       this.render('login');
     }

@@ -13,11 +13,11 @@ Template.contacts.events({
 
     var userToAdd = $('[name=login]').val();
 
-    Meteor.call('requestContact', userToAdd, function(error, results) {
+    Meteor.call('requestContact', userToAdd, function(error) {
       if (error) {
-        console.log(error.reason);
+        Bert.alert('No user with such username.', 'danger');
       } else {
-        console.log(results);
+        Bert.alert('Request has been sent.', 'success');
         $('[name=login]').val('');
       }
     });
@@ -98,7 +98,7 @@ Template.contacts.helpers({
     return {
       toShow: rejectedUsers,
       data: Meteor.users.find(selector, options)
-    }
+    };
   }
 
 });
@@ -107,19 +107,14 @@ function acceptContact(contactId){
   Meteor.call('acceptContact', contactId, function(error, results) {
     if (error) {
       console.log(error.reason);
-    } else {
-      console.log(results);
     }
   });
-};
+}
 
 function rejectContact(contactId){
-  Meteor.call('rejectContact', contactId, function(error, results) {
+  Meteor.call('rejectContact', contactId, function(error) {
     if (error) {
-      console.log(error.reason);
-    } else {
-      console.log(results);
+      Bert.alert(error.reason, 'warning');
     }
   });
-  // TODO: Remove user also from channels automatically
-};
+}
