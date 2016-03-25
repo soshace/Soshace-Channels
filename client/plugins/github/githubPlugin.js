@@ -6,7 +6,8 @@
 		channelId, // The id of channel
 		loading, // Boolean variable that triggers if loading through server wasn't finished yet
 		visibility,
-		getUserReposCallback;
+		getUserReposCallback,
+		self;
 
 	// Constructor
 	this.GithubPlugin = function() {
@@ -32,12 +33,12 @@
 			}
 		});
 
-		var self = this;
+		self = this;
 		$('select[name=resource-id]').change(function() {
 			var selectedValue = $(this).val();
 			self.resourceId = selectedValue;
 			var repoName = selectedValue.split('/')[1];
-			setDefaultChannelName('github/'+repoName);
+			setDefaultChannelName('github/' + repoName);
 		});
 	};
 
@@ -93,11 +94,13 @@
 			$.getJSON(request, {
 				access_token: token
 			}, function(data) {
+				parsePatches(data);
 				getCommitCallback(data);
 			});
 		} else {
 			request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha + '?access_token=' + token;
 			Meteor.call('getGithub', request, function(error, results) {
+				parsePatches(results.data);
 				getCommitCallback(results ? results.data : {});
 			});
 		}
@@ -151,12 +154,41 @@
 			access_token: token,
 			visibility: visibility,
 			per_page: 50
-		}, function(data){
+		}, function(data) {
 			getUserReposCallback(data);
-			resourceId = data[0]['full_name'];
-			var repoName = resourceId.split('/')[1];
-			setDefaultChannelName('github/'+repoName);
+			var repoName = data[0]['full_name'].split('/')[1];
+			self.resourceId = data[0]['full_name'];
+			setDefaultChannelName('github/' + repoName);
 		});
 	};
 
+	function parsePatches(data){
+		var files = data.files;
+
+		console.log(files);
+
+		_.map(files,function(file){
+			if (!file.patch){
+				return;
+			}
+			file.lines = file.patch.split('\n');
+			var lines = [];
+			_.map(file.lines,function(line){
+				var l = {};
+				l.text = line;
+				l.type = '';
+				if (line[0] === '+'){
+					l.type = 'addition';
+				}
+				if (line[0] === '-'){
+					l.type = 'deletion';
+				}
+				if (line[0] === '@'){
+					l.type = 'newline';
+				}
+				lines.push(l);
+			})
+			file.lines = lines;
+		});
+	}
 })();

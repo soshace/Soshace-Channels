@@ -35,13 +35,16 @@
 				</div>
 
 				<div id="{{sha}}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
-					<div class="panel-body">
+					{{#each lines}}
+					<div class="{{type}} block__code-line">
 						<pre>
-							<code class="hljs">
-{{patch}}
-							</code>
-						</pre>
+							<code class="hljs">{{text}}</code>
+						</pre>							
 					</div>
+					{{/each}}
+<!-- 						<pre>
+						<code class="hljs">{{patch}}</code>
+					</pre> -->							
 				</div>
 
 			</div>
@@ -52,6 +55,7 @@
 			Back to channel
 		</button>
 	</div>
+	{{runHighlighting}}
 
 	<!-- <div class="panel-body">
 		{{> commentsBlock}}

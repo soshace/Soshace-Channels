@@ -226,6 +226,22 @@ code {
   padding: 0;
 }
 
+.deletion{
+  background-color: #ffecec;
+}
+
+.addition{
+  background-color: #eaffea;
+}
+
+.newline{
+  background-color: #f4f7fb;
+}
+
+.block__code-line{
+  padding: 0 20px;
+}
+
 /*pre code {
   white-space: pre;
 }*/
