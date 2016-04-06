@@ -210,10 +210,10 @@ p{margin-bottom:.3em;}
 }
 
 pre {
-  padding: 0;
+  padding: 0 !important;
   margin: 0;
   white-space: normal;
-  border: none;
+  border: none !important;
   background-color: transparent;
 }
 

@@ -165,8 +165,6 @@
 	function parsePatches(data){
 		var files = data.files;
 
-		console.log(files);
-
 		_.map(files,function(file){
 			if (!file.patch){
 				return;
