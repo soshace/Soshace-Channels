@@ -61,6 +61,7 @@
 	GithubPlugin.prototype.getRepoCommits = function(getCommits, getEmails) {
 		loading = false;
 		var request;
+		commits = [];
 
 		if (!isGuest) {
 			request = 'https://api.github.com/repos/' + resourceId + '/commits';
@@ -169,12 +170,15 @@
 			if (!file.patch){
 				return;
 			}
+
+			file.patch = file.patch.replace(/@@/g,'\n');
 			file.lines = file.patch.split('\n');
 			var lines = [];
 			_.map(file.lines,function(line){
 				var l = {};
 				l.text = line;
 				l.type = '';
+
 				if (line[0] === '+'){
 					l.type = 'addition';
 				}

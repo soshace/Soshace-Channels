@@ -5,7 +5,7 @@
       <li class="nav-profile">
         <div class="image">
           <a href="{{pathFor route='profile'}}">
-            <img src="images/user.png" width="80" height="80" alt="User avatar">
+            <img src="/images/user.png" width="80" height="80" alt="User avatar">
           </a>
         </div>
         <div class="info">
@@ -26,24 +26,34 @@
       <li class="has-sub">
         <a href="{{pathFor route='channels'}}">
           <span>
-            Channels
+            My channels
             <a class="sidebar-addchannel pull-right" href="{{pathFor route='addchannel'}}">
               <span class="badge badge-inverse fa fa-2x fa-plus">
-              </span></a>
-            </span>
-          </a>
-          <ul class="sub-menu">
-            {{#each channels}}
-            <li>
-              <a href="{{pathFor route='channel'}}">{{name}}</a>
-            </li>
-            {{/each}}
-            {{#each guestchannels}}
-            <li>
-              <a href="{{pathFor route='channel'}}">{{name}}</a>
-            </li>
-            {{/each}}
-          </ul>
+              </span>
+            </a>
+          </span>
+        </a>
+        <ul class="sub-menu">
+          {{#each channels}}
+          <li>
+            <a href="{{pathFor route='channel'}}">{{name}}</a>
+          </li>
+          {{/each}}
+        </ul>
+      </li>
+      <li class="has-sub">
+        <a href="{{pathFor route='channels'}}">
+          <span>
+            Guest channels
+          </span>
+        </a>
+        <ul class="sub-menu">
+          {{#each guestchannels}}
+          <li>
+            <a href="{{pathFor route='channel'}}">{{name}}</a>
+          </li>
+          {{/each}}
+        </ul>
       </li>
     </ul>
   </div>

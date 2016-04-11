@@ -236,12 +236,22 @@ code {
 
 .newline{
   background-color: #f4f7fb;
+  color: rgba(0, 0, 0, 0.3) !important;
+}
+
+.block__code-line::before {
+    content: '';
 }
 
 .block__code-line{
   padding: 0 20px;
+  overflow: hidden;
 }
 
-/*pre code {
-  white-space: pre;
-}*/
+.pre br{
+  display: none; 
+}
+
+.highlight-table{
+  width: 100%;
+}
