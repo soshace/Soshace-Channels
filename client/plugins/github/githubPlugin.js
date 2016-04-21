@@ -150,7 +150,7 @@
 		}
 	}
 
-	function getRepositories(){
+	function getRepositories() {
 		$.getJSON('https://api.github.com/user/repos', {
 			access_token: token,
 			visibility: visibility,
@@ -163,33 +163,49 @@
 		});
 	};
 
-	function parsePatches(data){
+	function parsePatches(data) {
 		var files = data.files;
 
-		_.map(files,function(file){
-			if (!file.patch){
+		hljs.configure({
+		  tabReplace: '\u00a0\u00a0\u00a0\u00a0', // 4 spaces
+		});
+
+		_.map(files, function(file) {
+			if (!file.patch) {
 				return;
 			}
 
-			file.patch = file.patch.replace(/@@/g,'\n');
 			file.lines = file.patch.split('\n');
-			var lines = [];
-			_.map(file.lines,function(line){
-				var l = {};
-				l.text = line;
-				l.type = '';
+			var lines = [],
+				extension = file.filename.split('.')[1];
 
-				if (line[0] === '+'){
-					l.type = 'addition';
-				}
-				if (line[0] === '-'){
-					l.type = 'deletion';
-				}
-				if (line[0] === '@'){
-					l.type = 'newline';
-				}
-				lines.push(l);
-			})
+			// extension = extension === 'js' ? 'javascript' : extension;
+			// _.map(file.lines, function(line) {
+			// 	var l = {},
+			// 		ext = extension;
+			// 	l.text = line;
+			// 	l.type = '';
+
+			// 	if (line[0] === '+') {
+			// 		l.type = 'addition';
+			// 	}
+			// 	if (line[0] === '-') {
+			// 		l.type = 'deletion';
+			// 	}
+			// 	if (line[0] === '@') {
+			// 		l.type = 'newline';
+			// 		ext = 'diff';
+			// 	}
+
+			// 	l.text = l.text.replace(/ /g, '\u00a0')
+			// 	l.text = l.text.replace(/\t/g, '\u00a0\u00a0\u00a0\u00a0')
+			// 	l.text = hljs.highlightAuto(l.text, [ext]).value;
+
+			// 	lines.push(l);
+			// })
+
+			file.content = hljs.highlightAuto(file.patch, [extension]).value.replace(/\n/g, '<br/>');
+			file.content = file.content.replace(/\t/g, '\u00a0\u00a0\u00a0\u00a0');
 			file.lines = lines;
 		});
 	}

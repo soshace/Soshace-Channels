@@ -35,19 +35,22 @@
 				</div>
 
 				<div id="{{sha}}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
-					<table class="highlight-table">
+<!-- 					<table class="highlight-table">
 						<tbody>
 						{{#each lines}}
 						<tr>
 							<td class="{{type}} block__code-line">
-									<pre class="prettyprint">
-										<code>{{text}}</code>
-									</pre>							
+								<pre><code class="hljs">
+									{{text}}
+								</code></pre>
 							</td>
 						</tr>
 						{{/each}}
 						</tbody>
-					</table>
+					</table> -->
+					<div class="block__code-line">
+						{{{content}}}
+					</div>
 				</div>
 
 			</div>
