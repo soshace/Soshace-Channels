@@ -204,6 +204,17 @@
 			// 	lines.push(l);
 			// })
 
+			_.map(file.lines,function(line){
+				if ((line[0] === '+') || (line[0] === '-')){
+					lines.push(line.slice(1,line.length));
+				}else{
+					lines.push(line);
+				}
+			});
+
+			file.patch = lines.join('\n');
+			console.log(file.patch);
+
 			file.content = hljs.highlightAuto(file.patch, [extension]).value.replace(/\n/g, '<br/>');
 			file.content = file.content.replace(/\t/g, '\u00a0\u00a0\u00a0\u00a0');
 			file.lines = lines;
