@@ -213,7 +213,6 @@
 			});
 
 			file.patch = lines.join('\n');
-			console.log(file.patch);
 
 			file.content = hljs.highlightAuto(file.patch, [extension]).value.replace(/\n/g, '<br/>');
 			file.content = file.content.replace(/\t/g, '\u00a0\u00a0\u00a0\u00a0');
