@@ -171,50 +171,45 @@
 				return;
 			}
 
-			file.lines = file.patch.split('\n');
-			var lineInfos = [],
-					extension = file.filename.split('.')[1],
-					lines = [];
+			var extension = file.filename.split('.')[1],
+					lineInfos = [],
+					patchLines = file.patch.split('\n');
 
 			extension = extension === 'js' ? 'javascript' : extension;
 
-			_.map(file.lines, function(line) {
+			_.map(patchLines, function(line) {
 				var lineInfo = {
 					text: line,
+					stringForParse: line,
 					type: ''
 				};
 
-				var s = line;
-				
 				if (line[0] === '+') {
-					s = line.replace(/\+/, '');
+					lineInfo.stringForParse = line.replace(/\+/, '');
 					lineInfo.type = 'addition';
 				}
 
 				if (line[0] === '-') {
-					s = line.replace(/-/, '');
+					lineInfo.stringForParse = line.replace(/-/, '');
 					lineInfo.type = 'deletion';
 				}
-				if (line.match(/@@.+@@/)) {
-					lineInfo.text = line;
+				if (line.match(/@@.+@@/) && (line[0] === '@')) {
 					lineInfo.type = 'patchinfo';
-					s = '';
+					lineInfo.stringForParse = '';
 				}
 				if (line === '\\ No newline at end of file') {
-					lineInfo.text = 'No new line at end of file';
 					lineInfo.type = 'end';
-					s = '';
+					lineInfo.stringForParse = '';
 				}
 
-				lines.push(s);
 				lineInfos.push(lineInfo);
 			});
 
-			file.patch = lines.join('\n');
-			file.content = hljs.highlightAuto(file.patch, [extension]).value;
-			file.lines = file.content.split('\n');
+			var contentToHighlight = _.pluck(lineInfos, 'stringForParse').join('\n');
+			var highlightedContent = hljs.highlightAuto(contentToHighlight, [extension]).value;
+			patchLines = highlightedContent.split('\n');
 
-			_.map(file.lines, function(line, key) {
+			_.map(patchLines, function(line, key) {
 				switch (lineInfos[key].type) {
 					case 'addition':
 						lineInfos[key].text = '+' + line;
