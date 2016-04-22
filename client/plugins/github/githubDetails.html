@@ -35,22 +35,19 @@
 				</div>
 
 				<div id="{{sha}}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
-<!-- 					<table class="highlight-table">
+					<table class="highlight-table">
 						<tbody>
 						{{#each lines}}
 						<tr>
-							<td class="{{type}} block__code-line">
-								<pre><code class="hljs">
-									{{text}}
-								</code></pre>
-							</td>
+							{{#if showAsHtmlTags type}}
+								<td class="{{type}} block__code-line">{{text}}</td>
+							{{else}}
+								<td class="{{type}} block__code-line">{{{text}}}</td>
+							{{/if}}
 						</tr>
 						{{/each}}
 						</tbody>
-					</table> -->
-					<div class="block__code-line">
-						{{{content}}}
-					</div>
+					</table>
 				</div>
 
 			</div>
@@ -61,34 +58,10 @@
 			Back to channel
 		</button>
 	</div>
-	{{runHighlighting}}
 
-	<!-- <div class="panel-body">
+<!-- 	<div class="panel-body">
 		{{> commentsBlock}}
 	</div> -->
 </div>
 
 </template>
-
-
-<!-- <div class="data highlight blob-wrapper">
-	<table data-tab-size="8" class="diff-table tab-size  ">
-		
-		<tbody>
-			<tr data-position="0" class="js-expandable-line">
-				<td colspan="2" class="blob-num blob-num-expandable"></td>
-				<td class="blob-code blob-code-inner blob-code-hunk">@@ -358,7 +358,7 @@ label {</td>
-			</tr>
-			<tr>
-				<td class="blob-num blob-num-context js-linkable-line-number" data-line-number="358" id="diff-3cbd7807306a06db7d0bc9ad806cd1f2L358"></td>
-				<td class="blob-num blob-num-context js-linkable-line-number" data-line-number="358" id="diff-3cbd7807306a06db7d0bc9ad806cd1f2R358"></td>
-				<td class="blob-code blob-code-context">
-					<span aria-label="Add line comment" role="button" data-line="358" data-position="1" data-anchor="diff-3cbd7807306a06db7d0bc9ad806cd1f2" data-path="client/assets/css/style.css" class="add-line-comment js-add-line-comment js-add-single-line-comment">
-						<svg width="12" viewBox="0 0 12 16" version="1.1" height="16" class="octicon octicon-plus" aria-hidden="true"><path d="M12 9H7v5H5V9H0V7h5V2h2v5h5v2z"/></svg>
-					</span>
-					<span class="blob-code-inner">     <span class="pl-c1"><span class="pl-c1">margin-right</span></span>: <span class="pl-c1">10<span class="pl-k">px</span></span>;</span>
-				</td>
-			</tr>
-
-	</tbody></table>
-</div> -->

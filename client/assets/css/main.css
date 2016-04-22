@@ -234,9 +234,13 @@ code {
   background-color: #eaffea;
 }
 
-.newline{
+.patchinfo{
   background-color: #f4f7fb;
   color: rgba(0, 0, 0, 0.3) !important;
+}
+
+.end{
+  color: #E41212;
 }
 
 .block__code-line::before {
@@ -246,6 +250,7 @@ code {
 .block__code-line{
   padding: 0 20px;
   overflow: hidden;
+  white-space: pre-wrap;
 }
 
 .pre br{
@@ -254,4 +259,6 @@ code {
 
 .highlight-table{
   width: 100%;
+  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  font-size: 12px;
 }

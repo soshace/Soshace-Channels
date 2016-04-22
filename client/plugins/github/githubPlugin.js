@@ -166,57 +166,73 @@
 	function parsePatches(data) {
 		var files = data.files;
 
-		hljs.configure({
-		  tabReplace: '\u00a0\u00a0\u00a0\u00a0', // 4 spaces
-		});
-
 		_.map(files, function(file) {
 			if (!file.patch) {
 				return;
 			}
 
 			file.lines = file.patch.split('\n');
-			var lines = [],
-				extension = file.filename.split('.')[1];
+			var lineInfos = [],
+					extension = file.filename.split('.')[1],
+					lines = [];
 
-			// extension = extension === 'js' ? 'javascript' : extension;
-			// _.map(file.lines, function(line) {
-			// 	var l = {},
-			// 		ext = extension;
-			// 	l.text = line;
-			// 	l.type = '';
+			extension = extension === 'js' ? 'javascript' : extension;
 
-			// 	if (line[0] === '+') {
-			// 		l.type = 'addition';
-			// 	}
-			// 	if (line[0] === '-') {
-			// 		l.type = 'deletion';
-			// 	}
-			// 	if (line[0] === '@') {
-			// 		l.type = 'newline';
-			// 		ext = 'diff';
-			// 	}
+			_.map(file.lines, function(line) {
+				var lineInfo = {
+					text: line,
+					type: ''
+				};
 
-			// 	l.text = l.text.replace(/ /g, '\u00a0')
-			// 	l.text = l.text.replace(/\t/g, '\u00a0\u00a0\u00a0\u00a0')
-			// 	l.text = hljs.highlightAuto(l.text, [ext]).value;
-
-			// 	lines.push(l);
-			// })
-
-			_.map(file.lines,function(line){
-				if ((line[0] === '+') || (line[0] === '-')){
-					lines.push(line.slice(1,line.length));
-				}else{
-					lines.push(line);
+				var s = line;
+				
+				if (line[0] === '+') {
+					s = line.replace(/\+/, '');
+					lineInfo.type = 'addition';
 				}
+
+				if (line[0] === '-') {
+					s = line.replace(/-/, '');
+					lineInfo.type = 'deletion';
+				}
+				if (line.match(/@@.+@@/)) {
+					lineInfo.text = line;
+					lineInfo.type = 'patchinfo';
+					s = '';
+				}
+				if (line === '\\ No newline at end of file') {
+					lineInfo.text = 'No new line at end of file';
+					lineInfo.type = 'end';
+					s = '';
+				}
+
+				lines.push(s);
+				lineInfos.push(lineInfo);
 			});
 
 			file.patch = lines.join('\n');
+			file.content = hljs.highlightAuto(file.patch, [extension]).value;
+			file.lines = file.content.split('\n');
 
-			file.content = hljs.highlightAuto(file.patch, [extension]).value.replace(/\n/g, '<br/>');
-			file.content = file.content.replace(/\t/g, '\u00a0\u00a0\u00a0\u00a0');
-			file.lines = lines;
+			_.map(file.lines, function(line, key) {
+				switch (lineInfos[key].type) {
+					case 'addition':
+						lineInfos[key].text = '+' + line;
+						break
+					case 'deletion':
+						lineInfos[key].text = '-' + line;
+						break
+					case 'end':
+						break
+					case 'patchinfo':
+						break
+					default:
+						lineInfos[key].text = ' ' + line;
+						break
+				}
+			});
+
+			file.lines = lineInfos;
 		});
 	}
 })();
