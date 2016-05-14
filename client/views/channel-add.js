@@ -1,6 +1,7 @@
 var deps = new Deps.Dependency(),
   settingsTemplate = 'githubSettingsTemplate',
   authTemplate = 'githubAuthTemplate',
+  clientKey = Meteor.settings.public.github_client_id,
   settingsData,
   newChannelName,
   authDiv,
@@ -32,26 +33,32 @@ Template.addChannel.helpers({
     return selectedService;
   },
 
-  clientkey: function(){
-    return Meteor.settings.public.github_client_id;
+  clientkey: function() {
+    deps.depend();
+    return clientKey;
   }
 });
 
 Template.addChannel.events({
-  'click .github': function(event){
+  'click .github': function(event) {
     event.preventDefault();
     selectService('github');
   },
 
-  'click .trello': function(event){
+  'click .trello': function(event) {
     event.preventDefault();
     selectService('trello');
+  },
+
+  'click .bitbucket': function(event) {
+    event.preventDefault();
+    selectService('bitbucket');
   },
 
   'keyup .channel-add__name-field': function(event) {
     event.preventDefault();
     defaultChannelName = false;
-    if (event.target.value === ''){
+    if (event.target.value === '') {
       defaultChannelName = true;
     }
     document.getElementsByClassName('channel-add__button-create')[0].disabled = (event.target.value === '');
@@ -86,21 +93,31 @@ Template.addChannel.onRendered(function() {
   settingsDiv = $('.channel-add__settings');
 
   var code = window.location.search.replace('?code=', '');
-  // If we have code parameter in the url it means that github
+  // If we have code parameter in the url it means that github or bitbucket
   // redirected to this page to start authentication process.
   // Then post request sent to github to confirm authorization.
   // TODO: Bring authorization to separate page!
   if (code) {
-    Meteor.call('postGithub', code, function(error, results) {
-      var success = results.content.split('&')[0].split('=')[0] !== 'error';
-      if (success) {
+    selectedService = localStorage.getItem('selectedService');
+    Meteor.call('postCodeToService', code, selectedService, function(error, results) {
+      if (selectedService === 'github') {
+        var success = results.content.split('&')[0].split('=')[0] !== 'error';
+        if (!success) return;
         var token = results.content.split('&')[0].split('=')[1];
-        Meteor.call('addToken', 'github', token, function(error, results) {
-          if (!error) {
-            selectService('github');
-          }
-        });
       }
+
+      if (selectedService === 'bitbucket') {
+        var success = results.statusCode === 200;
+        if (!success) return;
+        var token = results.data.access_token;
+      }
+
+      Meteor.call('addToken', selectedService, token, function(error, results) {
+        if (!error) {
+          selectService(selectedService);
+        }
+      });
+
     });
   }
 });
@@ -125,6 +142,8 @@ function selectService(service) {
   var userAuthenticated;
 
   selectedService = service;
+  localStorage.setItem('selectedService', service);
+
   newChannelName.val(service);
   switch (service) {
     case 'github':
@@ -133,9 +152,25 @@ function selectService(service) {
       userAuthenticated = Meteor.user().profile.services ? Meteor.user().profile.services.pass : false;
       settingsTemplate = 'githubSettingsTemplate';
       authTemplate = 'githubAuthTemplate';
+      clientKey = Meteor.settings.public.github_client_id;
 
       if (userAuthenticated) {
         plugin = new GithubPlugin();
+        plugin.setParameters(userAuthenticated);
+        plugin.getUserRepos(getDataforSettingsCallback);
+        plugin.setDefaultChannelName(setDefaultName);
+      }
+      break;
+    case 'bitbucket':
+      // TODO: to check if user have pair github-token in data base.
+      // At the moment token is saved to services field.
+      userAuthenticated = Meteor.user().profile.services ? Meteor.user().profile.services.pass : false;
+      settingsTemplate = 'bitbucketSettingsTemplate';
+      authTemplate = 'bitbucketAuthTemplate';
+      clientKey = Meteor.settings.public.bitbucket_client_id;
+
+      if (userAuthenticated) {
+        plugin = new BitbucketPlugin();
         plugin.setParameters(userAuthenticated);
         plugin.getUserRepos(getDataforSettingsCallback);
         plugin.setDefaultChannelName(setDefaultName);
@@ -153,8 +188,8 @@ function selectService(service) {
   deps.changed();
 };
 
-function setDefaultName(val){
-  if (defaultChannelName){
+function setDefaultName(val) {
+  if (defaultChannelName) {
     newChannelName.val(val);
   }
 };

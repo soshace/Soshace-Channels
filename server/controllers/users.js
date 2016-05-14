@@ -123,7 +123,6 @@ Meteor.methods({
 
   'addToken': function(serviceName, token) {
     let currentUser = this.userId;
-    console.log(token);
     Meteor.users.update(currentUser, {
       $set: {
         'profile.services.name': serviceName,

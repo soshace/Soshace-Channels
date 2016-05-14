@@ -1,10 +1,19 @@
 Meteor.methods({
-	'postGithub': function(code) {
-		return Meteor.http.post('https://github.com/login/oauth/access_token', {
+	'postCodeToService': function(code, service) {
+		var url;
+		if (service === 'github') {
+			url = 'https://github.com/login/oauth/access_token';
+		}
+		if (service === 'bitbucket') {
+			url = 'https://bitbucket.org/site/oauth2/access_token';
+		}
+
+		return Meteor.http.post(url, {
 			params: {
-				client_id: Meteor.settings.public.github_client_id,
-				client_secret: Meteor.settings.private.github_client_secret,
-				code: code
+				client_id: Meteor.settings.public[service + '_client_id'],
+				client_secret: Meteor.settings.private[service + '_client_secret'],
+				code: code,
+				grant_type: 'authorization_code'
 			}
 		});
 	},
