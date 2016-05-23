@@ -28,6 +28,7 @@ Meteor.methods({
 	},
 
 	'getBitbucket': function(url) {
+		console.log(url);
 		var options = {
 			headers: {
 				'User-Agent':'node.js'
