@@ -65,7 +65,6 @@
 
 		console.log(resourceId);
 		if (!isGuest) {
-			// request = 'https://api.github.com/repos/' + resourceId + '/commits';
 			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commits';
 			$.getJSON(request, {
 				access_token: token
@@ -73,7 +72,6 @@
 				commits = data.values;
 				runTemplating();
 				getCommits(commits, channelId);
-				// getRepoContributors(getEmails); // Only for host users
 			});
 		} else {
 			loading = true;
@@ -109,7 +107,7 @@
 			Meteor.call('getBitbucket', request, function(error, results) {
 				var diffRequest = results.data.links.diff.href,
 						commitData = results.data;
-				$.get(diffRequest, {// MAKE THIS REQUEST FROM SERVER!!!!
+				$.get(diffRequest, {// MAKE THIS REQUEST FROM SERVER!!!
 					access_token: token
 				}, function(data) {
 					parseDiff(data, commitData, getCommitCallback);
