@@ -107,7 +107,7 @@
 			Meteor.call('getBitbucket', request, function(error, results) {
 				var diffRequest = results.data.links.diff.href,
 						commitData = results.data;
-				$.get(diffRequest, {// MAKE THIS REQUEST FROM SERVER!!!
+				$.get(diffRequest, {
 					access_token: token
 				}, function(data) {
 					parseDiff(data, commitData, getCommitCallback);
