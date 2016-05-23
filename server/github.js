@@ -25,5 +25,15 @@ Meteor.methods({
 			}
 		};
 		return Meteor.http.get(url, options);
+	},
+
+	'getBitbucket': function(url) {
+		var options = {
+			headers: {
+				'User-Agent':'node.js'
+			}
+		};
+		return Meteor.http.get(url, options);
 	}
+
 });

@@ -2,7 +2,7 @@ var _deps = new Deps.Dependency(),
   _associatedEmails = [],
   _channelId, // This channel identificator
   _blocks, // Array of loaded blocks (commits, boards etc)
-  _github,
+  plugin,
   _channelData,
   _members, // List of this channel members
   _userIsHost,
@@ -182,7 +182,14 @@ Template.channel.helpers({
   },
 
   previewTemplate: function() {
-    return Template['githubPreviewTemplate'];
+    switch (_channelData.serviceType) {
+      case 'github':
+        return Template['githubPreviewTemplate'];
+        break;
+      case 'bitbucket':
+        return Template['bitbucketPreviewTemplate'];
+        break;
+    }
   },
 
   userIsChannelCreator: function(parentContext) {
@@ -226,12 +233,17 @@ Template.channel.updateData = function(channelId) {
     token = hostUser.profile.services.pass;
   }
 
-  if (!_github) {
-    _github = new GithubPlugin();
+  if (!plugin) {
+    if (_channelData.serviceType === 'bitbucket'){
+      plugin = new BitbucketPlugin();      
+    }
+    if (_channelData.serviceType === 'github'){
+      plugin = new GithubPlugin();      
+    }
   }
 
-  _github.setParameters(token, _channelData.serviceResource, !_userIsHost, channelId);
-  _github.getRepoCommits(getBlocksCallback, getEmailsCallback);
+  plugin.setParameters(token, _channelData.serviceResource, !_userIsHost, channelId);
+  plugin.getRepoCommits(getBlocksCallback, getEmailsCallback);
 };
 
 function getBlocksCallback(data, resourceId) {

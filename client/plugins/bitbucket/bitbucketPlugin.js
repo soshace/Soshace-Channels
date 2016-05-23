@@ -63,22 +63,24 @@
 		var request;
 		commits = [];
 
+		console.log(resourceId);
 		if (!isGuest) {
-			request = 'https://api.github.com/repos/' + resourceId + '/commits';
+			// request = 'https://api.github.com/repos/' + resourceId + '/commits';
+			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commits';
 			$.getJSON(request, {
 				access_token: token
 			}, function(data) {
-				commits = data;
+				commits = data.values;
 				runTemplating();
 				getCommits(commits, channelId);
-				getRepoContributors(getEmails); // Only for host users
+				// getRepoContributors(getEmails); // Only for host users
 			});
 		} else {
 			loading = true;
-			request = 'https://api.github.com/repos/' + resourceId + '/commits?access_token=' + token;
-
+			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commits?access_token=' + token;
 			Meteor.call('getBitbucket', request, function(error, results) {
-				commits = results.data;
+				console.log(results);
+				commits = results.data.values;
 				runTemplating();
 				if (loading) {
 					getCommits(commits, channelId);
@@ -89,20 +91,29 @@
 
 	BitbucketPlugin.prototype.getSingleBlock = function(getCommitCallback, sha) {
 		var request;
-
 		if (!isGuest) {
-			request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha;
+			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commit/' + sha;
 			$.getJSON(request, {
 				access_token: token
 			}, function(data) {
-				parsePatches(data);
-				getCommitCallback(data);
+				var diffRequest = data.links.diff.href,
+						commitData = data;
+				$.get(diffRequest, {
+					access_token: token
+				}, function(data) {
+					parseDiff(data, commitData, getCommitCallback);
+				});
 			});
 		} else {
-			request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha + '?access_token=' + token;
+			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commit/' + sha + '?access_token=' + token;
 			Meteor.call('getBitbucket', request, function(error, results) {
-				parsePatches(results.data);
-				getCommitCallback(results ? results.data : {});
+				var diffRequest = results.data.links.diff.href,
+						commitData = results.data;
+				$.get(diffRequest, {// MAKE THIS REQUEST FROM SERVER!!!
+					access_token: token
+				}, function(data) {
+					parseDiff(data, commitData, getCommitCallback);
+				});
 			});
 		}
 	};
@@ -110,27 +121,6 @@
 	BitbucketPlugin.prototype.setDefaultChannelName = function(func) {
 		setDefaultChannelName = func;
 	};
-
-	//Private methods
-	function getRepoContributors(getEmails) {
-		$.getJSON('https://api.github.com/repos/' + resourceId + '/contributors', {
-			access_token: token
-		}, function(data) {
-			var contributors = data;
-			var counter = contributors.length;
-			for (var contributor of contributors) {
-				(function(contributor) {
-					$.getJSON('https://api.github.com/users/' + contributor.login, function(data) {
-						counter--; // This counter is used to determine if we took checked contributors for email.
-						contributor.email = data.email || 'private';
-						if (counter === 0) {
-							getEmails(contributors);
-						}
-					});
-				})(contributor);
-			}
-		});
-	}
 
 	function extendDefaults(source, properties) { // Utility method to extend defaults with user options
 		for (let property in properties) {
@@ -143,30 +133,58 @@
 
 	function runTemplating() {
 		for (let item of commits) {
-			item.name = item.author ? item.author.login : item.commit.author.email;
-			item.avatar = item.author ? item.author.avatar_url : 'http://placehold.it/30x30';
-			item.date = item.commit.committer.date;
+			item.name = item.author.user.display_name;
+			item.avatar = item.author.user.links.avatar.href;
+			item.date = item.date;
 			item.channelId = channelId;
 		}
 	}
 
 	function getRepositories() {
-		$.getJSON('https://api.bitbucket.org/2.0/repositories/', {
+		$.getJSON('https://api.bitbucket.org/2.0/repositories', {
 			// owner: 'VitaliiZhukov',
-			owner: token,
-			visibility: visibility,
-			per_page: 50
+			role: 'member',
+			access_token: token,
+			pagelen: 20
 		}, function(data) {
-			console.log(data);
-			getUserReposCallback(data);
-			var repoName = data[0]['full_name'].split('/')[1];
-			self.resourceId = data[0]['full_name'];
-			setDefaultChannelName('github/' + repoName);
+			var repos = data.values;
+			getUserReposCallback(repos);
+			var repoName = repos[0]['full_name'].split('/')[1];
+			self.resourceId = repos[0]['full_name'];
+			setDefaultChannelName('bitbucket/' + repoName);
 		});
 	};
 
-	function parsePatches(data) {
-		var files = data.files;
+	function parseDiff(data, commitData, getCommitCallback) {
+		var lines = data.split('\n'),
+				file,
+				files = [],
+				patchIndexes = [],
+				startRegexp = /^(diff --git a\/)(.*|\n)/g,
+				endRegexp = /^(\+\+\+ b\/)(.*|\n)/g;
+
+		_.map(lines, function(val, index){
+			if (lines[index].match(startRegexp)){
+				if (lines[index+3] && lines[index+3].match(endRegexp)){
+					files.push({
+						filename: /(diff --git a\/)(.*|\n)(?= b)/g.exec(lines[index])[2],
+						patch: '',
+						index: index
+					});
+					patchIndexes.push(index+4);
+				}
+			}
+		});
+
+		patchIndexes.push(lines.length + 3);
+
+		_.map(patchIndexes, function(val, index){
+			if (index < patchIndexes.length - 1){
+				for (var i = val; i < patchIndexes[index + 1] - 4; i++) {
+					files[index].patch += lines[i] + '\n';
+				};				
+			}
+		});
 
 		_.map(files, function(file) {
 			if (!file.patch) {
@@ -231,5 +249,7 @@
 
 			file.lines = lineInfos;
 		});
+		commitData.files = files;
+		getCommitCallback(commitData);
 	}
 })();

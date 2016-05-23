@@ -7,17 +7,17 @@
 		Back to channel
 		</button>
 
-		<h3 class="channel-details__header f-s-20">{{commit.message}}</h3>
+		<h3 class="channel-details__header f-s-20">{{message}}</h3>
 
 		<em class="channel-details__author grey-text">
-			Committed by <span class="semi-bold">{{committer.login}}</span> on {{formatDateTime commit.committer.date}}
+			Committed by <span class="semi-bold">{{author.user.display_name}}</span> on {{formatDateTime date}}
 			<i class="fa fa-4x fa-github"></i>
 		</em>
 
 		<div class="text-right">
-			<a class="btn btn-link" href="{{html_url}}" target="_blank">View at GitHub</a>
+			<a class="btn btn-link" href="{{links.self.href}}" target="_blank">View at BitBucket</a>
 		</div>
-		<p class="text-right">Sha: {{sha}}</p>
+		<p class="text-right">Sha: {{hash}}</p>
 		<p class="text-right">Total statistics: {{stats.additions}} additions, {{stats.deletions}} deletions</p>
 
 		<div class="panel-group" id="accordion">
@@ -26,7 +26,7 @@
 
 				<div class="panel-heading  channel-block__accordion-header">
 					<h3 class="panel-title">
-					<a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion" href="#{{sha}}" aria-expanded="false">
+					<a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion" href="#{{index}}" aria-expanded="false">
 						<i class="fa fa-plus-circle pull-right"></i>
 						<span class="f-w-600">{{filename}}</span>
 						<span class="pull-right">additions: {{additions}}, deletions {{deletions}}, changes {{changes}}</span>
@@ -34,7 +34,7 @@
 					</h3>
 				</div>
 
-				<div id="{{sha}}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+				<div id="{{index}}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
 					<table class="highlight-table">
 						<tbody>
 						{{#each lines}}

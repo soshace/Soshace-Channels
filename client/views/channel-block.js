@@ -2,7 +2,8 @@ var _deps = new Deps.Dependency(),
   _plugin,
   _singleBlock, // The content of this block shown in details at this page
   _channelId,
-  _blockId;
+  _blockId,
+  channel;
 
 Template.channelBlock.events({
   'click .channel-block__add-comment-button': function(event) {
@@ -27,7 +28,14 @@ Template.channelBlock.events({
 
 Template.channelBlock.helpers({
   detailsTemplate: function() {
-    return Template['githubDetailsTemplate'];
+    switch (channel.serviceType) {
+      case 'github':
+        return Template['githubDetailsTemplate'];
+        break;
+      case 'bitbucket':
+        return Template['bitbucketDetailsTemplate'];
+        break;
+    }
   },
 
   selectedBlock: function() {
@@ -45,7 +53,7 @@ Template.channelBlock.updateData = function(channelId, blockId) {
   _channelId = channelId;
   _blockId = blockId;
 
-  var channel = Channels.findOne({
+  channel = Channels.findOne({
     _id: channelId
   });
 
@@ -63,9 +71,15 @@ Template.channelBlock.updateData = function(channelId, blockId) {
     token = hostUser.profile.services.pass;
   }
 
-  if (!_plugin) {
-    _plugin = new GithubPlugin(); // TODO: Make switch between available plugins
+  switch (channel.serviceType) {
+    case 'github':
+      _plugin = new GithubPlugin();
+      break;
+    case 'bitbucket':
+      _plugin = new BitbucketPlugin();
+      break;
   }
+
 
   _plugin.setParameters(token, channel.serviceResource, channelIsGuest, channelId);
 
@@ -97,7 +111,7 @@ function loadComments() {
 function addComment(resourceBlockId) {
   var message = _commentTextArea.value;
   if (message) {
-    Meteor.call('addComment', message, _channelId, _singleBlock.sha, Meteor.userId());
+    Meteor.call('addComment', message, _channelId, _singleBlock.hash, Meteor.userId());
     _commentTextArea.value = '';
   }
 }

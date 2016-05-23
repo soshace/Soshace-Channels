@@ -106,7 +106,7 @@ Template.addChannel.onRendered(function() {
         var token = results.content.split('&')[0].split('=')[1];
       }
 
-      if (selectedService === 'bitbucket') {
+      if (selectedService === 'bitbucket' && !error) {
         var success = results.statusCode === 200;
         if (!success) return;
         var token = results.data.access_token;
