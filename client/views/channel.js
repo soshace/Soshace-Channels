@@ -22,7 +22,6 @@ Template.channel.events({
         if (error) {
           console.log(error.reason);
         } else {
-          console.log(results);
           Router.go('channels');
         }
       });
@@ -148,7 +147,7 @@ Template.channel.helpers({
     };
 
     // Get array of channel members
-    var membersArray = Channels.findOne(selector, options).members;
+    var membersArray = Channels.findOne(selector, options) ? Channels.findOne(selector, options).members : [];
 
     selector = {
       _id: {
@@ -225,12 +224,19 @@ Template.channel.updateData = function(channelId) {
   // Determine if current user is guest on this channel
   _userIsHost = _channelData.createdBy === Meteor.userId();
 
-  var token = Meteor.user().profile.services ? Meteor.user().profile.services.pass : '';
+  var userTokens = Meteor.user().profile.serviceTokens,
+      channelToken = userTokens ? _.findWhere(userTokens, {serviceName: _channelData.serviceType}) : '';
+
   if (!_userIsHost) { // if this channel is guest then we take hosts token for requests
     var hostUser = Meteor.users.findOne({
       _id: _channelData.createdBy
     });
-    token = hostUser.profile.services.pass;
+    userTokens =  hostUser.profile.serviceTokens;
+    channelToken = userTokens ? _.findWhere(userTokens, {serviceName: _channelData.serviceType}) : '';
+  }
+
+  if (!channelToken || !channelToken.token){
+    return;
   }
 
   if (!plugin) {
@@ -242,7 +248,7 @@ Template.channel.updateData = function(channelId) {
     }
   }
 
-  plugin.setParameters(token, _channelData.serviceResource, !_userIsHost, channelId);
+  plugin.setParameters(channelToken.token, _channelData.serviceResource, !_userIsHost, channelId);
   plugin.getRepoCommits(getBlocksCallback, getEmailsCallback);
 };
 

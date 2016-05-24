@@ -30,12 +30,17 @@
   background-image:url(/images/trello.png);
 }
 
+.bitbucket{
+  background-image:url(/images/bitbucket.png);
+}
+
 .service-link{
     cursor:pointer;
     background-size:contain;
     background-repeat:no-repeat;
     display:inline-block;
-    width:150px;height:50px;
+    width:150px;
+    height:50px;
     -webkit-transition: all 100ms ease-in;
        -moz-transition: all 100ms ease-in;
             transition: all 100ms ease-in;

@@ -42,14 +42,14 @@ Template.profile.events({
     });
   },
 
-  'click .sign-out-github': function(event) {
+  'click .sign-out-service': function(event) {
     event.preventDefault();
 
-    Meteor.call('signOutGithub', function(error) {
+    Meteor.call('signOutService', event.target.id, function(error) {
       if (error) {
         Bert.alert(error.reason, 'warning');
       } else {
-        Bert.alert('Github token was deleted.', 'success');
+        Bert.alert('Service token was deleted.', 'success');
       }
     });
   }

@@ -62,8 +62,6 @@
 		loading = false;
 		var request;
 		commits = [];
-
-		console.log(resourceId);
 		if (!isGuest) {
 			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commits';
 			$.getJSON(request, {
@@ -107,7 +105,7 @@
 			Meteor.call('getBitbucket', request, function(error, results) {
 				var diffRequest = results.data.links.diff.href,
 						commitData = results.data;
-				$.get(diffRequest, {
+				$.get(diffRequest, {// MAKE THIS REQUEST FROM SERVER!!!
 					access_token: token
 				}, function(data) {
 					parseDiff(data, commitData, getCommitCallback);
@@ -140,7 +138,6 @@
 
 	function getRepositories() {
 		$.getJSON('https://api.bitbucket.org/2.0/repositories', {
-			// owner: 'VitaliiZhukov',
 			role: 'member',
 			access_token: token,
 			pagelen: 20

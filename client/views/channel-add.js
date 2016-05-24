@@ -73,7 +73,7 @@ Template.addChannel.events({
     event.preventDefault();
 
     var channelName = newChannelName.val(),
-      resourceId = plugin.resourceId;
+        resourceId = plugin.resourceId;
 
     Meteor.call('createNewChannel', channelName, selectedService, resourceId, function(error, results) {
       if (error) {
@@ -117,7 +117,6 @@ Template.addChannel.onRendered(function() {
           selectService(selectedService);
         }
       });
-
     });
   }
 });
@@ -139,7 +138,9 @@ function getDataforSettingsCallback(data) {
 };
 
 function selectService(service) {
-  var userAuthenticated;
+  var currentUser = Meteor.user(),
+      userService = _.findWhere(currentUser.profile.serviceTokens, {serviceName: service}),
+      serviceToken = userService ? userService.token : '';
 
   selectedService = service;
   localStorage.setItem('selectedService', service);
@@ -147,31 +148,25 @@ function selectService(service) {
   newChannelName.val(service);
   switch (service) {
     case 'github':
-      // TODO: to check if user have pair github-token in data base.
-      // At the moment token is saved to services field.
-      userAuthenticated = Meteor.user().profile.services ? Meteor.user().profile.services.pass : false;
       settingsTemplate = 'githubSettingsTemplate';
       authTemplate = 'githubAuthTemplate';
       clientKey = Meteor.settings.public.github_client_id;
 
-      if (userAuthenticated) {
+      if (serviceToken) {
         plugin = new GithubPlugin();
-        plugin.setParameters(userAuthenticated);
+        plugin.setParameters(serviceToken);
         plugin.getUserRepos(getDataforSettingsCallback);
         plugin.setDefaultChannelName(setDefaultName);
       }
       break;
     case 'bitbucket':
-      // TODO: to check if user have pair github-token in data base.
-      // At the moment token is saved to services field.
-      userAuthenticated = Meteor.user().profile.services ? Meteor.user().profile.services.pass : false;
       settingsTemplate = 'bitbucketSettingsTemplate';
       authTemplate = 'bitbucketAuthTemplate';
       clientKey = Meteor.settings.public.bitbucket_client_id;
 
-      if (userAuthenticated) {
+      if (serviceToken) {
         plugin = new BitbucketPlugin();
-        plugin.setParameters(userAuthenticated);
+        plugin.setParameters(serviceToken);
         plugin.getUserRepos(getDataforSettingsCallback);
         plugin.setDefaultChannelName(setDefaultName);
       }
@@ -182,7 +177,7 @@ function selectService(service) {
       authTemplate = 'trelloAuthTemplate';
       break;
   };
-  displayAuthButton(userAuthenticated);
+  displayAuthButton(serviceToken);
   $('.channel-add__step-1').addClass('hidden');
   $('.channel-add__step-2').removeClass('hidden');
   deps.changed();

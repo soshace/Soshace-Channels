@@ -2,11 +2,11 @@
 
 var Schema = {};
 
-Schema.UserServices = new SimpleSchema({
-  name: {
+Schema.PluginService = new SimpleSchema({
+  serviceName: {
     type: String
   },
-  pass: {
+  token: {
     type: String,
     optional: true
   },
@@ -42,8 +42,8 @@ Schema.UserProfile = new SimpleSchema({
       type: [String],
       optional: true
     },
-    services: {
-      type: Schema.UserServices,
+    serviceTokens: {
+      type: [Schema.PluginService],
       optional: true
     }
 

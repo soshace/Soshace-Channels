@@ -63,12 +63,15 @@ Template.channelBlock.updateData = function(channelId, blockId) {
 
   var channelIsGuest = channel.createdBy !== Meteor.userId(); // Determine if current user is guest on this channel
 
-  var token = Meteor.user().profile.services ? Meteor.user().profile.services.pass : '';
+  var userTokens = Meteor.user().profile.serviceTokens,
+      channelToken = userTokens ? _.findWhere(userTokens, {serviceName: channel.serviceType}) : '';
+
   if (channelIsGuest) { // if this channel is guest then we take hosts token for requests
     var hostUser = Meteor.users.findOne({
       _id: channel.createdBy
     });
-    token = hostUser.profile.services.pass;
+    userTokens =  hostUser.profile.serviceTokens;
+    channelToken = userTokens ? _.findWhere(userTokens, {serviceName: channel.serviceType}) : '';
   }
 
   switch (channel.serviceType) {
@@ -81,7 +84,7 @@ Template.channelBlock.updateData = function(channelId, blockId) {
   }
 
 
-  _plugin.setParameters(token, channel.serviceResource, channelIsGuest, channelId);
+  _plugin.setParameters(channelToken.token, channel.serviceResource, channelIsGuest, channelId);
 
   _plugin.getSingleBlock(getSingleBlockCallback, blockId);
 };

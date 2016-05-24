@@ -61,12 +61,13 @@ Meteor.methods({
     });
   },
 
-  'signOutGithub': function() {
-    var currentUser = this.userId;
+  'signOutService': function(serviceName) {
+    console.log(serviceName);
+    console.log(this.userId);
 
-    Meteor.users.update(currentUser, {
+    Meteor.users.update({_id: this.userId, 'profile.serviceTokens.serviceName': serviceName}, {
       $set: {
-        'profile.services.pass': ''
+        'profile.serviceTokens.$.token': ''
       }
     });
   },
@@ -122,11 +123,25 @@ Meteor.methods({
   },
 
   'addToken': function(serviceName, token) {
-    let currentUser = this.userId;
-    Meteor.users.update(currentUser, {
+    var currentUserId = Meteor.userId(),
+        userTokens = Meteor.user().profile.serviceTokens,
+        newToken = {serviceName: serviceName, token: token};
+
+    console.log(userTokens);
+    if (userTokens){
+      var currentToken = _.findWhere(userTokens, {serviceName: serviceName});
+      if (currentToken){
+        _.findWhere(userTokens, {serviceName: serviceName}).token = token;
+      }else{
+        userTokens.push(newToken);
+      }
+    }else{
+      userTokens = [newToken]
+    }
+
+    Meteor.users.update({_id: currentUserId}, {
       $set: {
-        'profile.services.name': serviceName,
-        'profile.services.pass': token,
+        'profile.serviceTokens': userTokens
       }
     }, function(error, results) {
       if (error) {
