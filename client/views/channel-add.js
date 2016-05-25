@@ -8,7 +8,8 @@ var deps = new Deps.Dependency(),
   settingsDiv,
   selectedService = '',
   defaultChannelName = true,
-  plugin;
+  plugin,
+  serviceData;
 
 Template.addChannel.helpers({
   settingsData: function() {
@@ -100,19 +101,30 @@ Template.addChannel.onRendered(function() {
   if (code) {
     selectedService = localStorage.getItem('selectedService');
     Meteor.call('postCodeToService', code, selectedService, function(error, results) {
+      var token,
+          refreshToken,
+          serviceData;
+
       if (selectedService === 'github') {
         var success = results.content.split('&')[0].split('=')[0] !== 'error';
         if (!success) return;
-        var token = results.content.split('&')[0].split('=')[1];
+        token = results.content.split('&')[0].split('=')[1];
       }
 
       if (selectedService === 'bitbucket' && !error) {
         var success = results.statusCode === 200;
         if (!success) return;
-        var token = results.data.access_token;
+        token = results.data.access_token;
+        refreshToken = results.data.refresh_token;
       }
 
-      Meteor.call('addToken', selectedService, token, function(error, results) {
+      var serviceData = {
+        serviceName: selectedService,
+        token: token,
+        refreshToken: refreshToken
+      }
+
+      Meteor.call('addToken', serviceData, function(error, results) {
         if (!error) {
           selectService(selectedService);
         }
@@ -138,9 +150,9 @@ function getDataforSettingsCallback(data) {
 };
 
 function selectService(service) {
-  var currentUser = Meteor.user(),
-      userService = _.findWhere(currentUser.profile.serviceTokens, {serviceName: service}),
-      serviceToken = userService ? userService.token : '';
+  var currentUser = Meteor.user();
+
+  serviceData = _.findWhere(currentUser.profile.serviceTokens, {serviceName: service});
 
   selectedService = service;
   localStorage.setItem('selectedService', service);
@@ -151,10 +163,10 @@ function selectService(service) {
       settingsTemplate = 'githubSettingsTemplate';
       authTemplate = 'githubAuthTemplate';
       clientKey = Meteor.settings.public.github_client_id;
+      plugin = new GithubPlugin();
 
-      if (serviceToken) {
-        plugin = new GithubPlugin();
-        plugin.setParameters(serviceToken);
+      if (serviceData) {
+        plugin.setParameters(serviceData);
         plugin.getUserRepos(getDataforSettingsCallback);
         plugin.setDefaultChannelName(setDefaultName);
       }
@@ -163,10 +175,10 @@ function selectService(service) {
       settingsTemplate = 'bitbucketSettingsTemplate';
       authTemplate = 'bitbucketAuthTemplate';
       clientKey = Meteor.settings.public.bitbucket_client_id;
+      plugin = new BitbucketPlugin();
 
-      if (serviceToken) {
-        plugin = new BitbucketPlugin();
-        plugin.setParameters(serviceToken);
+      if (serviceData) {
+        plugin.setParameters(serviceData);
         plugin.getUserRepos(getDataforSettingsCallback);
         plugin.setDefaultChannelName(setDefaultName);
       }
@@ -177,7 +189,7 @@ function selectService(service) {
       authTemplate = 'trelloAuthTemplate';
       break;
   };
-  displayAuthButton(serviceToken);
+  displayAuthButton(serviceData);
   $('.channel-add__step-1').addClass('hidden');
   $('.channel-add__step-2').removeClass('hidden');
   deps.changed();
@@ -188,3 +200,4 @@ function setDefaultName(val) {
     newChannelName.val(val);
   }
 };
+

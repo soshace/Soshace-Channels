@@ -1,13 +1,13 @@
 (function() {
 	var commits = [],
-			token,
-			resourceId, // The name of repository
-			isGuest,
-			channelId, // The id of channel
-			loading, // Boolean variable that triggers if loading through server wasn't finished yet
-			visibility,
-			getUserReposCallback,
-			self;
+		serviceData,
+		resourceId, // The name of repository
+		isGuest,
+		channelId, // The id of channel
+		loading, // Boolean variable that triggers if loading through server wasn't finished yet
+		visibility,
+		getUserReposCallback,
+		self;
 
 	// Constructor
 	this.BitbucketPlugin = function() {
@@ -19,27 +19,15 @@
 			this.options = extendDefaults(defaults, arguments[0]);
 		}
 
-		$('[name=repoVisibility]').change(function() {
-			visibility = $('[name=repoVisibility]').val();
-
-			if (visibility === 'external') {
-				$('.github__external-name').removeClass('hidden');
-				$('.github__repo-list').addClass('hidden');
-			} else {
-				$('.github__external-name').addClass('hidden');
-				$('.github__repo-list').removeClass('hidden');
-
-				getRepositories();
-			}
-		});
-
 		self = this;
-		$('select[name=resource-id]').change(function() {
-			var selectedValue = $(this).val();
-			self.resourceId = selectedValue;
-			var repoName = selectedValue.split('/')[1];
-			setDefaultChannelName('bitbucket/' + repoName);
-		});
+
+		// $('select[name=resource-id]').change(function() {
+		// 	console.log(123);
+		// 	var selectedValue = $(this).val();
+		// 	self.resourceId = selectedValue;
+		// 	var repoName = selectedValue.split('/')[1];
+		// 	setDefaultChannelName('bitbucket/' + repoName);
+		// });
 	};
 
 	// Public methods
@@ -51,8 +39,8 @@
 		getRepositories();
 	};
 
-	BitbucketPlugin.prototype.setParameters = function(tkn, resId, isGst, cnlId) {
-		token = tkn;
+	BitbucketPlugin.prototype.setParameters = function(serviceD, resId, isGst, cnlId) {
+		serviceData = serviceD;
 		resourceId = resId;
 		isGuest = isGst;
 		channelId = cnlId;
@@ -65,17 +53,35 @@
 		if (!isGuest) {
 			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commits';
 			$.getJSON(request, {
-				access_token: token
-			}, function(data) {
-				commits = data.values;
-				runTemplating();
-				getCommits(commits, channelId);
-			});
+					access_token: serviceData.token
+				})
+				.done(function(data) {
+					commits = data.values;
+					runTemplating();
+					getCommits(commits, channelId);
+				})
+				.fail(function(error) {
+					if (error.status === 401) {
+						Meteor.call('refreshBitbucketToken', serviceData.refreshToken, function(error, results) {
+							serviceData.token = results.data.access_token;
+							serviceData.refreshToken = results.data.refresh_token;
+
+							$.getJSON(request, {
+									access_token: serviceData.token
+								})
+								.done(function(data) {
+									commits = data.values;
+									runTemplating();
+									getCommits(commits, channelId);
+								});
+							Meteor.call('addToken', serviceData);
+						});
+					}
+				});
 		} else {
 			loading = true;
-			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commits?access_token=' + token;
+			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commits?access_token=' + serviceData.token;
 			Meteor.call('getBitbucket', request, function(error, results) {
-				console.log(results);
 				commits = results.data.values;
 				runTemplating();
 				if (loading) {
@@ -90,23 +96,27 @@
 		if (!isGuest) {
 			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commit/' + sha;
 			$.getJSON(request, {
-				access_token: token
-			}, function(data) {
-				var diffRequest = data.links.diff.href,
+					access_token: serviceData.token
+				})
+				.done(function(data) {
+					var diffRequest = data.links.diff.href,
 						commitData = data;
-				$.get(diffRequest, {
-					access_token: token
-				}, function(data) {
-					parseDiff(data, commitData, getCommitCallback);
+					$.get(diffRequest, {
+						access_token: serviceData.token
+					}, function(data) {
+						parseDiff(data, commitData, getCommitCallback);
+					});
+				})
+				.fail(function(error) {
+					console.log(error);
 				});
-			});
 		} else {
-			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commit/' + sha + '?access_token=' + token;
+			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commit/' + sha + '?access_token=' + serviceData.token;
 			Meteor.call('getBitbucket', request, function(error, results) {
 				var diffRequest = results.data.links.diff.href,
-						commitData = results.data;
-				$.get(diffRequest, {// MAKE THIS REQUEST FROM SERVER!!!
-					access_token: token
+					commitData = results.data;
+				$.get(diffRequest, { // MAKE THIS REQUEST FROM SERVER!!!
+					access_token: serviceData.token
 				}, function(data) {
 					parseDiff(data, commitData, getCommitCallback);
 				});
@@ -138,46 +148,57 @@
 
 	function getRepositories() {
 		$.getJSON('https://api.bitbucket.org/2.0/repositories', {
-			role: 'member',
-			access_token: token,
-			pagelen: 20
-		}, function(data) {
-			var repos = data.values;
-			getUserReposCallback(repos);
-			var repoName = repos[0]['full_name'].split('/')[1];
-			self.resourceId = repos[0]['full_name'];
-			setDefaultChannelName('bitbucket/' + repoName);
-		});
+				role: 'member',
+				access_token: serviceData.token,
+				pagelen: 20
+			})
+			.done(function(data) {
+				var repos = data.values;
+				getUserReposCallback(repos);
+				var repoName = repos[0]['full_name'].split('/')[1];
+				self.resourceId = repos[0]['full_name'];
+				setDefaultChannelName('bitbucket/' + repoName);
+			})
+			.fail(function(error) {
+				if (error.status === 401) {
+					Meteor.call('refreshBitbucketToken', serviceData.refreshToken, function(error, results) {
+						serviceData.token = results.data.access_token;
+						serviceData.refreshToken = results.data.refresh_token;
+
+						Meteor.call('addToken', serviceData);
+					});
+				}
+			});
 	};
 
 	function parseDiff(data, commitData, getCommitCallback) {
 		var lines = data.split('\n'),
-				file,
-				files = [],
-				patchIndexes = [],
-				startRegexp = /^(diff --git a\/)(.*|\n)/g,
-				endRegexp = /^(\+\+\+ b\/)(.*|\n)/g;
+			file,
+			files = [],
+			patchIndexes = [],
+			startRegexp = /^(diff --git a\/)(.*|\n)/g,
+			endRegexp = /^(\+\+\+ b\/)(.*|\n)/g;
 
-		_.map(lines, function(val, index){
-			if (lines[index].match(startRegexp)){
-				if (lines[index+3] && lines[index+3].match(endRegexp)){
+		_.map(lines, function(val, index) {
+			if (lines[index].match(startRegexp)) {
+				if (lines[index + 3] && lines[index + 3].match(endRegexp)) {
 					files.push({
 						filename: /(diff --git a\/)(.*|\n)(?= b)/g.exec(lines[index])[2],
 						patch: '',
 						index: index
 					});
-					patchIndexes.push(index+4);
+					patchIndexes.push(index + 4);
 				}
 			}
 		});
 
 		patchIndexes.push(lines.length + 3);
 
-		_.map(patchIndexes, function(val, index){
-			if (index < patchIndexes.length - 1){
+		_.map(patchIndexes, function(val, index) {
+			if (index < patchIndexes.length - 1) {
 				for (var i = val; i < patchIndexes[index + 1] - 4; i++) {
 					files[index].patch += lines[i] + '\n';
-				};				
+				};
 			}
 		});
 
@@ -187,8 +208,8 @@
 			}
 
 			var extension = file.filename.split('.')[1],
-					lineInfos = [],
-					patchLines = file.patch.split('\n');
+				lineInfos = [],
+				patchLines = file.patch.split('\n');
 
 			extension = extension === 'js' ? 'javascript' : extension;
 
@@ -247,4 +268,13 @@
 		commitData.files = files;
 		getCommitCallback(commitData);
 	}
+
+	Template.bitbucketSettingsTemplate.events({
+		'change select[name=resource-id]': function(event) {
+			var selectedValue = event.target.value;
+			self.resourceId = selectedValue;
+			var repoName = selectedValue.split('/')[1];
+			setDefaultChannelName('bitbucket/' + repoName);
+		},
+	});
 })();

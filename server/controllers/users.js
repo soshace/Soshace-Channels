@@ -62,24 +62,20 @@ Meteor.methods({
   },
 
   'signOutService': function(serviceName) {
-    console.log(serviceName);
-    console.log(this.userId);
-
     Meteor.users.update({_id: this.userId, 'profile.serviceTokens.serviceName': serviceName}, {
       $set: {
-        'profile.serviceTokens.$.token': ''
+        'profile.serviceTokens.$.token': '',
+        'profile.serviceTokens.$.refreshToken': ''
       }
     });
   },
 
   'requestContact': function(newContactName) {
-    var currentUserId = this.userId;
-
-    var selector = {
-      username: newContactName
-    };
-
-    var newContactId = Meteor.users.findOne(selector)._id;
+    var currentUserId = this.userId,
+        selector = {
+          username: newContactName
+        },
+        newContactId = Meteor.users.findOne(selector)._id;
 
     if (newContactId === currentUserId){
       return;
@@ -122,21 +118,24 @@ Meteor.methods({
     removeContactFromUserChannels(contactId,currentUserId);    
   },
 
-  'addToken': function(serviceName, token) {
+  'addToken': function(serviceData) {
     var currentUserId = Meteor.userId(),
-        userTokens = Meteor.user().profile.serviceTokens,
-        newToken = {serviceName: serviceName, token: token};
+        userTokens = Meteor.user().profile.serviceTokens;
 
-    console.log(userTokens);
     if (userTokens){
-      var currentToken = _.findWhere(userTokens, {serviceName: serviceName});
-      if (currentToken){
-        _.findWhere(userTokens, {serviceName: serviceName}).token = token;
+      var tokenIndex = -1;
+      _.map(userTokens, function(data, index){
+        if (data.serviceName === serviceData.serviceName){
+          tokenIndex = index;
+        }
+      });
+      if (tokenIndex > -1){
+        userTokens[tokenIndex] = serviceData;
       }else{
-        userTokens.push(newToken);
+        userTokens.push(serviceData);
       }
     }else{
-      userTokens = [newToken]
+      userTokens = [serviceData]
     }
 
     Meteor.users.update({_id: currentUserId}, {
@@ -218,3 +217,9 @@ var removeContactFromUserChannels = function(contactId,userId){
     });
   });
 }
+
+// var removeObjectFromArray = function(array, name) {
+//   return _.reject(array, function(item) {
+//     return item.serviceName === name;
+//   });
+// };

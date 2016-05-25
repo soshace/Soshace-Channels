@@ -1,6 +1,6 @@
 (function() {
 	var commits = [],
-		token,
+		serviceData,
 		resourceId, // The name of repository
 		isGuest,
 		channelId, // The id of channel
@@ -19,27 +19,7 @@
 			this.options = extendDefaults(defaults, arguments[0]);
 		}
 
-		$('[name=repoVisibility]').change(function() {
-			visibility = $('[name=repoVisibility]').val();
-
-			if (visibility === 'external') {
-				$('.github__external-name').removeClass('hidden');
-				$('.github__repo-list').addClass('hidden');
-			} else {
-				$('.github__external-name').addClass('hidden');
-				$('.github__repo-list').removeClass('hidden');
-
-				getRepositories();
-			}
-		});
-
 		self = this;
-		$('select[name=resource-id]').change(function() {
-			var selectedValue = $(this).val();
-			self.resourceId = selectedValue;
-			var repoName = selectedValue.split('/')[1];
-			setDefaultChannelName('github/' + repoName);
-		});
 	};
 
 	// Public methods
@@ -51,8 +31,8 @@
 		getRepositories();
 	};
 
-	GithubPlugin.prototype.setParameters = function(tkn, resId, isGst, cnlId) {
-		token = tkn;
+	GithubPlugin.prototype.setParameters = function(serviceD, resId, isGst, cnlId) {
+		serviceData = serviceD;
 		resourceId = resId;
 		isGuest = isGst;
 		channelId = cnlId;
@@ -66,7 +46,7 @@
 		if (!isGuest) {
 			request = 'https://api.github.com/repos/' + resourceId + '/commits';
 			$.getJSON(request, {
-				access_token: token
+				access_token: serviceData.token
 			}, function(data) {
 				commits = data;
 				runTemplating();
@@ -75,7 +55,7 @@
 			});
 		} else {
 			loading = true;
-			request = 'https://api.github.com/repos/' + resourceId + '/commits?access_token=' + token;
+			request = 'https://api.github.com/repos/' + resourceId + '/commits?access_token=' + serviceData.token;
 
 			Meteor.call('getGithub', request, function(error, results) {
 				commits = results.data;
@@ -93,13 +73,13 @@
 		if (!isGuest) {
 			request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha;
 			$.getJSON(request, {
-				access_token: token
+				access_token: serviceData.token
 			}, function(data) {
 				parsePatches(data);
 				getCommitCallback(data);
 			});
 		} else {
-			request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha + '?access_token=' + token;
+			request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha + '?access_token=' + serviceData.token;
 			Meteor.call('getGithub', request, function(error, results) {
 				parsePatches(results.data);
 				getCommitCallback(results ? results.data : {});
@@ -114,7 +94,7 @@
 	//Private methods
 	function getRepoContributors(getEmails) {
 		$.getJSON('https://api.github.com/repos/' + resourceId + '/contributors', {
-			access_token: token
+			access_token: serviceData.token
 		}, function(data) {
 			var contributors = data;
 			var counter = contributors.length;
@@ -152,7 +132,7 @@
 
 	function getRepositories() {
 		$.getJSON('https://api.github.com/user/repos', {
-			access_token: token,
+			access_token: serviceData.token,
 			visibility: visibility,
 			per_page: 50
 		}, function(data) {
@@ -172,8 +152,8 @@
 			}
 
 			var extension = file.filename.split('.')[1],
-					lineInfos = [],
-					patchLines = file.patch.split('\n');
+				lineInfos = [],
+				patchLines = file.patch.split('\n');
 
 			extension = extension === 'js' ? 'javascript' : extension;
 
@@ -230,4 +210,27 @@
 			file.lines = lineInfos;
 		});
 	}
+
+	Template.githubSettingsTemplate.events({
+		'change select[name=resource-id]': function(event) {
+			var selectedValue = event.target.value;
+			self.resourceId = selectedValue;
+			var repoName = selectedValue.split('/')[1];
+			setDefaultChannelName('github/' + repoName);
+		},
+
+		'change select[name=repoVisibility]': function(event) {
+			visibility = event.target.value;
+
+			if (visibility === 'external') {
+				$('.github__external-name').removeClass('hidden');
+				$('.github__repo-list').addClass('hidden');
+			} else {
+				$('.github__external-name').addClass('hidden');
+				$('.github__repo-list').removeClass('hidden');
+				getRepositories();
+			}
+		}
+	});
+
 })();

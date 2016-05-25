@@ -193,6 +193,9 @@ Template.channel.helpers({
 
   userIsChannelCreator: function(parentContext) {
     // check if user is channel creator
+    if (!parentContext){
+      return false;
+    }
     var currentUser = Meteor.userId(),
         channelId = parentContext._id,
         selector = {
@@ -225,30 +228,29 @@ Template.channel.updateData = function(channelId) {
   _userIsHost = _channelData.createdBy === Meteor.userId();
 
   var userTokens = Meteor.user().profile.serviceTokens,
-      channelToken = userTokens ? _.findWhere(userTokens, {serviceName: _channelData.serviceType}) : '';
+      serviceData = userTokens ? _.findWhere(userTokens, {serviceName: _channelData.serviceType}) : '';
 
   if (!_userIsHost) { // if this channel is guest then we take hosts token for requests
     var hostUser = Meteor.users.findOne({
       _id: _channelData.createdBy
     });
     userTokens =  hostUser.profile.serviceTokens;
-    channelToken = userTokens ? _.findWhere(userTokens, {serviceName: _channelData.serviceType}) : '';
+    serviceData = userTokens ? _.findWhere(userTokens, {serviceName: _channelData.serviceType}) : '';
   }
 
-  if (!channelToken || !channelToken.token){
+  if (!serviceData || !serviceData.token){
     return;
   }
 
-  if (!plugin) {
-    if (_channelData.serviceType === 'bitbucket'){
-      plugin = new BitbucketPlugin();      
-    }
-    if (_channelData.serviceType === 'github'){
-      plugin = new GithubPlugin();      
-    }
+  if (_channelData.serviceType === 'bitbucket'){
+    plugin = new BitbucketPlugin();      
+  }
+  if (_channelData.serviceType === 'github'){
+    plugin = new GithubPlugin();      
   }
 
-  plugin.setParameters(channelToken.token, _channelData.serviceResource, !_userIsHost, channelId);
+
+  plugin.setParameters(serviceData, _channelData.serviceResource, !_userIsHost, channelId);
   plugin.getRepoCommits(getBlocksCallback, getEmailsCallback);
 };
 

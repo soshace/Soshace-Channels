@@ -84,7 +84,7 @@ Template.channelBlock.updateData = function(channelId, blockId) {
   }
 
 
-  _plugin.setParameters(channelToken.token, channel.serviceResource, channelIsGuest, channelId);
+  _plugin.setParameters(channelToken, channel.serviceResource, channelIsGuest, channelId);
 
   _plugin.getSingleBlock(getSingleBlockCallback, blockId);
 };

@@ -10,6 +10,10 @@ Schema.PluginService = new SimpleSchema({
     type: String,
     optional: true
   },
+  refreshToken:{
+    type: String,
+    optional: true    
+  }
 });
 
 Schema.Contact = new SimpleSchema({
