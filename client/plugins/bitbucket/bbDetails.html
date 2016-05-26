@@ -26,7 +26,7 @@
 
 				<div class="panel-heading  channel-block__accordion-header">
 					<h3 class="panel-title">
-					<a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion" href="#{{index}}" aria-expanded="false">
+					<a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion" href="#{{startInfoIndex}}" aria-expanded="false">
 						<i class="fa fa-plus-circle pull-right"></i>
 						<span class="f-w-600">{{filename}}</span>
 						<span class="pull-right">additions: {{additions}}, deletions {{deletions}}, changes {{changes}}</span>
@@ -34,7 +34,7 @@
 					</h3>
 				</div>
 
-				<div id="{{index}}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+				<div id="{{startInfoIndex}}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
 					<table class="highlight-table">
 						<tbody>
 						{{#each lines}}

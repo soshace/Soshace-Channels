@@ -82,6 +82,11 @@
 			loading = true;
 			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commits?access_token=' + serviceData.token;
 			Meteor.call('getBitbucket', request, function(error, results) {
+				if (error){
+					Meteor.call('refreshBitbucketTokenByGuest',function(error, result){
+						console.log(result);
+					});
+				}
 				commits = results.data.values;
 				runTemplating();
 				if (loading) {
@@ -176,30 +181,35 @@
 			file,
 			files = [],
 			patchIndexes = [],
+			patches = [],
 			startRegexp = /^(diff --git a\/)(.*|\n)/g,
-			endRegexp = /^(\+\+\+ b\/)(.*|\n)/g;
+			endRegexp = /^(\+\+\+ b\/)(.*|\n)/g,
+			filesCount = 0,
+			linesCount = lines.length;
 
 		_.map(lines, function(val, index) {
 			if (lines[index].match(startRegexp)) {
-				if (lines[index + 3] && lines[index + 3].match(endRegexp)) {
-					files.push({
-						filename: /(diff --git a\/)(.*|\n)(?= b)/g.exec(lines[index])[2],
-						patch: '',
-						index: index
-					});
-					patchIndexes.push(index + 4);
-				}
+				files.push({
+					filename: /(diff --git a\/)(.*|\n)(?= b)/g.exec(lines[index])[2],
+					patch: '',
+					extension: lines[index].split('.').splice(-1)[0],
+					startInfoIndex: index,
+				});
+			}
+			if (lines[index].match(endRegexp)) {
+				files[files.length - 1].startDataIndex = index+1;
 			}
 		});
 
-		patchIndexes.push(lines.length + 3);
-
-		_.map(patchIndexes, function(val, index) {
-			if (index < patchIndexes.length - 1) {
-				for (var i = val; i < patchIndexes[index + 1] - 4; i++) {
-					files[index].patch += lines[i] + '\n';
-				};
+		_.map(files, function(file, index) {
+			if (index === files.length - 1){
+				file.linesCount = linesCount - file.startDataIndex;
+			}else{
+				file.linesCount =  files[index + 1].startInfoIndex - file.startDataIndex;				
 			}
+			for (var i = file.startDataIndex; i < file.startDataIndex + file.linesCount; i++) {
+				file.patch += lines[i] + '\n';
+			};
 		});
 
 		_.map(files, function(file) {
@@ -207,11 +217,8 @@
 				return;
 			}
 
-			var extension = file.filename.split('.')[1],
-				lineInfos = [],
+			var lineInfos = [],
 				patchLines = file.patch.split('\n');
-
-			extension = extension === 'js' ? 'javascript' : extension;
 
 			_.map(patchLines, function(line) {
 				var lineInfo = {
@@ -241,28 +248,30 @@
 				lineInfos.push(lineInfo);
 			});
 
-			var contentToHighlight = _.pluck(lineInfos, 'stringForParse').join('\n');
-			var highlightedContent = hljs.highlightAuto(contentToHighlight, [extension]).value;
-			patchLines = highlightedContent.split('\n');
+			var contentToHighlight = _.pluck(lineInfos, 'stringForParse').join('\n'),
+				highlightedContent = contentToHighlight;
 
+			if (!['jpg', 'jpeg', 'png'].indexOf(file.extension) > -1) {
+				highlightedContent = hljs.highlightAuto(contentToHighlight, [file.extension]).value;
+			}
+			patchLines = highlightedContent.split('\n');
 			_.map(patchLines, function(line, key) {
 				switch (lineInfos[key].type) {
 					case 'addition':
 						lineInfos[key].text = '+' + line;
-						break
+						break;
 					case 'deletion':
 						lineInfos[key].text = '-' + line;
-						break
+						break;
 					case 'end':
-						break
+						break;
 					case 'patchinfo':
-						break
+						break;
 					default:
 						lineInfos[key].text = ' ' + line;
 						break
 				}
 			});
-
 			file.lines = lineInfos;
 		});
 		commitData.files = files;
