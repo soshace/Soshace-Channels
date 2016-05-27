@@ -1,6 +1,5 @@
 (function() {
-	var commits = [],
-		serviceData,
+	var serviceData,
 		resourceId, // The name of repository
 		isGuest,
 		channelId, // The id of channel
@@ -60,7 +59,7 @@
 								})
 								.done(function(data) {
 									commits = data.values;
-									runTemplating();
+									runTemplating(commits);
 									getCommits(commits, channelId);
 								});
 							Meteor.call('addToken', serviceData);
@@ -69,15 +68,14 @@
 				});
 		} else {
 			loading = true;
-			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commits?access_token=' + serviceData.token;
-			Meteor.call('getBitbucket', request, function(error, results) {
+			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commits?access_token=';
+			Meteor.call('getBitbucketDataForGuest', request, channelId, function(error, results) {
 				if (error) {
-					Meteor.call('refreshBitbucketTokenByGuest', channelId, function(error, result) {
-					});
+					Meteor.call('refreshBitbucketTokenByGuest', channelId, function(error, result) {});
 					return;
 				}
 				commits = results.data.values;
-				runTemplating();
+				runTemplating(commits);
 				if (loading) {
 					getCommits(commits, channelId);
 				}
@@ -105,14 +103,12 @@
 					console.log(error);
 				});
 		} else {
-			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commit/' + sha + '?access_token=' + serviceData.token;
-			Meteor.call('getBitbucket', request, function(error, results) {
+			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commit/' + sha + '?access_token=';
+			Meteor.call('getBitbucketDataForGuest', request, channelId, function(error, results) {
 				var diffRequest = results.data.links.diff.href,
 					commitData = results.data;
-				$.get(diffRequest, { // MAKE THIS REQUEST FROM SERVER!!!
-					access_token: serviceData.token
-				}, function(data) {
-					parseDiff(data, commitData, getCommitCallback);
+				Meteor.call('getBitbucketDataForGuest', diffRequest + '?access_token=', channelId, function(error, results) {
+					parseDiff(results.content, commitData, getCommitCallback);
 				});
 			});
 		}
@@ -131,7 +127,7 @@
 		return source;
 	};
 
-	function runTemplating() {
+	function runTemplating(commits) {
 		for (let item of commits) {
 			item.name = item.author.user.display_name;
 			item.avatar = item.author.user.links.avatar.href;
@@ -221,13 +217,13 @@
 				if (line[0] === '+') {
 					lineInfo.stringForParse = line.replace(/\+/, '');
 					lineInfo.type = 'addition';
-					file.additions ++;
+					file.additions++;
 				}
 
 				if (line[0] === '-') {
 					lineInfo.stringForParse = line.replace(/-/, '');
 					lineInfo.type = 'deletion';
-					file.deletions ++;
+					file.deletions++;
 				}
 				if (line.match(/@@.+@@/) && (line[0] === '@')) {
 					lineInfo.type = 'patchinfo';

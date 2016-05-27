@@ -208,9 +208,9 @@ Template.channel.updateData = function(channelId) {
     }) : '';
   }
 
-  if (!serviceData || !serviceData.token) {
-    return;
-  }
+  // if (!serviceData || !serviceData.token) {
+  //   return;
+  // }
 
   if (_channelData.serviceType === 'bitbucket') {
     plugin = new BitbucketPlugin();
