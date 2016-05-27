@@ -5,14 +5,12 @@
 		isGuest,
 		channelId, // The id of channel
 		loading, // Boolean variable that triggers if loading through server wasn't finished yet
-		visibility,
 		getUserReposCallback,
 		self;
 
 	// Constructor
 	this.BitbucketPlugin = function() {
 		this.settingsTemplateName = 'bitbucketSettingsTemplate';
-		visibility = 'all';
 
 		var defaults = {};
 		if (arguments[0] && typeof arguments[0] === 'object') {
@@ -20,14 +18,6 @@
 		}
 
 		self = this;
-
-		// $('select[name=resource-id]').change(function() {
-		// 	console.log(123);
-		// 	var selectedValue = $(this).val();
-		// 	self.resourceId = selectedValue;
-		// 	var repoName = selectedValue.split('/')[1];
-		// 	setDefaultChannelName('bitbucket/' + repoName);
-		// });
 	};
 
 	// Public methods
@@ -35,7 +25,6 @@
 		if (!getUserReposCallback) {
 			getUserReposCallback = func;
 		}
-
 		getRepositories();
 	};
 
@@ -140,7 +129,7 @@
 			}
 		}
 		return source;
-	}
+	};
 
 	function runTemplating() {
 		for (let item of commits) {
@@ -149,7 +138,7 @@
 			item.date = item.date;
 			item.channelId = channelId;
 		}
-	}
+	};
 
 	function getRepositories() {
 		$.getJSON('https://api.bitbucket.org/2.0/repositories', {
@@ -284,7 +273,7 @@
 		});
 		commitData.files = files;
 		getCommitCallback(commitData);
-	}
+	};
 
 	Template.bitbucketSettingsTemplate.events({
 		'change select[name=resource-id]': function(event) {
