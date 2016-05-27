@@ -47,7 +47,7 @@ Template.channel.events({
     event.preventDefault();
 
     var channelId = template.data._id,
-        userId = event.target.dataset.userid;
+      userId = event.target.dataset.userid;
 
     Meteor.call('removeMember', channelId, userId, function(error, results) {
       if (error) {
@@ -60,13 +60,13 @@ Template.channel.events({
 
   'click .channel__invite-unregistered': function(event, template) {
     var emailForInvite = this.email,
-        channelId = template.data._id,
-        channelCreatorId = Meteor.userId(),
-        invitation = {
-          email: emailForInvite,
-          channelId: channelId,
-          channelCreatorId: channelCreatorId
-        };
+      channelId = template.data._id,
+      channelCreatorId = Meteor.userId(),
+      invitation = {
+        email: emailForInvite,
+        channelId: channelId,
+        channelCreatorId: channelCreatorId
+      };
 
     Meteor.call('sendInvitation', invitation, function(error, response) {
       if (error) {
@@ -84,15 +84,15 @@ Template.channel.events({
 
   'click .channel__invite-registered': function(event, template) {
     var userId = event.target.id,
-        channelId = template.data._id,
-        selector = {
-          _id: userId
-        },
-        options = {
-          fields: {
-            username: 1,
-          }
-        };
+      channelId = template.data._id,
+      selector = {
+        _id: userId
+      },
+      options = {
+        fields: {
+          username: 1,
+        }
+      };
 
     userToAdd = Meteor.users.findOne(selector, options);
 
@@ -112,62 +112,28 @@ Template.channel.helpers({
 
     // Get current User contacts array
     var allContacts = Meteor.user().profile.contacts;
-    var acceptedUsers = _.where(allContacts,{contactStatus:'accepted'});
+    var acceptedUsers = _.where(allContacts, {
+      contactStatus: 'accepted'
+    });
 
     var selector = {
-      _id: { $in: _.pluck(acceptedUsers, 'contactId')}
-    };
-
-    var options = {
-      fields: {
-        username: 1,
-        _id: 1,
-        emails: 1,
-        'profile.firstName': 1,
-        'profile.lastName': 1
+      _id: {
+        $in: _.pluck(acceptedUsers, 'contactId')
       }
     };
 
-    _contacts = Meteor.users.find(selector, options).fetch();
-    return Meteor.users.find(selector, options);
+    _contacts = Meteor.users.find(selector).fetch();
+    return _contacts;
   },
 
   members: function() {
-    // Get current channel id
-    var channelId = this._id;
-
-    var selector = {
-      _id: channelId
-    };
-
-    var options = {
-      fields: {
-        members: 1
-      }
-    };
-
-    // Get array of channel members
-    var membersArray = Channels.findOne(selector, options) ? Channels.findOne(selector, options).members : [];
-
-    selector = {
+    var membersArray = Channels.find().fetch()[0].members || [];
+    _members = Meteor.users.find({
       _id: {
         $in: membersArray
       }
-    };
-
-    options = {
-      fields: {
-        username: 1,
-        _id: 1,
-        emails: 1,
-        'profile.firstName': 1,
-        'profile.lastName': 1
-      }
-    };
-
-    // Return channel members list
-    _members = Meteor.users.find(selector, options).fetch();
-    return Meteor.users.find(selector, options);
+    }).fetch();
+    return _members;
   },
 
   channelFeed: function() {
@@ -193,20 +159,20 @@ Template.channel.helpers({
 
   userIsChannelCreator: function(parentContext) {
     // check if user is channel creator
-    if (!parentContext){
+    if (!parentContext) {
       return false;
     }
     var currentUser = Meteor.userId(),
-        channelId = parentContext._id,
-        selector = {
-          _id: channelId
-        },
-        options = {
-          fields: {
-            createdBy: 1
-          }
-        },
-        createdBy = Channels.findOne(selector, options).createdBy;
+      channelId = parentContext._id,
+      selector = {
+        _id: channelId
+      },
+      options = {
+        fields: {
+          createdBy: 1
+        }
+      },
+      createdBy = Channels.findOne(selector, options).createdBy;
     return createdBy === currentUser;
   }
 });
@@ -228,25 +194,29 @@ Template.channel.updateData = function(channelId) {
   _userIsHost = _channelData.createdBy === Meteor.userId();
 
   var userTokens = Meteor.user().profile.serviceTokens,
-      serviceData = userTokens ? _.findWhere(userTokens, {serviceName: _channelData.serviceType}) : '';
+    serviceData = userTokens ? _.findWhere(userTokens, {
+      serviceName: _channelData.serviceType
+    }) : '';
 
   if (!_userIsHost) { // if this channel is guest then we take hosts token for requests
     var hostUser = Meteor.users.findOne({
       _id: _channelData.createdBy
     });
-    userTokens =  hostUser.profile.serviceTokens;
-    serviceData = userTokens ? _.findWhere(userTokens, {serviceName: _channelData.serviceType}) : '';
+    userTokens = hostUser.profile.serviceTokens;
+    serviceData = userTokens ? _.findWhere(userTokens, {
+      serviceName: _channelData.serviceType
+    }) : '';
   }
 
-  if (!serviceData || !serviceData.token){
+  if (!serviceData || !serviceData.token) {
     return;
   }
 
-  if (_channelData.serviceType === 'bitbucket'){
-    plugin = new BitbucketPlugin();      
+  if (_channelData.serviceType === 'bitbucket') {
+    plugin = new BitbucketPlugin();
   }
-  if (_channelData.serviceType === 'github'){
-    plugin = new GithubPlugin();      
+  if (_channelData.serviceType === 'github') {
+    plugin = new GithubPlugin();
   }
 
 

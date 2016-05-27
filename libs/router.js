@@ -27,7 +27,7 @@ Router.route('/profile', {
     }
   },
   waitOn: function() {
-    return [Meteor.subscribe('channels'), Meteor.subscribe('Meteor.users')];
+    return [Meteor.subscribe('privateUserData')];
   }
 });
 
@@ -42,7 +42,7 @@ Router.route('/contacts', {
     }
   },
   waitOn: function() {
-    return [Meteor.subscribe('Meteor.users')];
+    return [Meteor.subscribe('userContacts', Meteor.userId()), Meteor.subscribe('allUsers')];
   }
 });
 
@@ -58,7 +58,7 @@ Router.route('/channels', {
     }
   },
   waitOn: function() {
-    return Meteor.subscribe('channels');
+    return [Meteor.subscribe('hostChannels'), Meteor.subscribe('guestChannels')];
   }
 });
 
@@ -73,7 +73,7 @@ Router.route('/addchannel', {
     }
   },
   waitOn: function() {
-    return [Meteor.subscribe('channels'), Meteor.subscribe('Meteor.users')];
+    return [Meteor.subscribe('channels')];
   }
 });
 
@@ -91,21 +91,21 @@ Router.route('/channel/:_id', {
     var channel = Channels.findOne({
       _id: this.params._id
     });
-    var userHasAccess = _.contains(channel.members,currentUser) || (channel.createdBy === currentUser);
+    var userHasAccess = _.contains(channel.members, currentUser) || (channel.createdBy === currentUser);
 
     if (currentUser) {
-      if (userHasAccess){
+      if (userHasAccess) {
         Template.channel.updateData(this.params._id);
-        this.next();        
-      } else{
-        Router.go('channels');        
+        this.next();
+      } else {
+        Router.go('channels');
       }
     } else {
       this.render('login');
     }
   },
   waitOn: function() {
-    return [Meteor.subscribe('channels'), Meteor.subscribe('Meteor.users'), Meteor.subscribe('invites')];
+    return [Meteor.subscribe('selectedChannel', this.params._id), Meteor.subscribe('userContacts', Meteor.userId()), Meteor.subscribe('invites')];
   }
 });
 
@@ -127,7 +127,7 @@ Router.route('/channel/:_id/block/:_blockid', {
     }
   },
   waitOn: function() {
-    return [Meteor.subscribe('channels'), Meteor.subscribe('Meteor.users'), Meteor.subscribe('invites')];
+    return [Meteor.subscribe('hostChannels'), Meteor.subscribe('guestChannels'), Meteor.subscribe('userContacts', Meteor.userId()), Meteor.subscribe('invites')];
   }
 });
 

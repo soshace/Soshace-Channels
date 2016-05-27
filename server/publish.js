@@ -1,33 +1,69 @@
-Meteor.publish('channels', function() {
-  var currentUser = this.userId;
-  return Channels.find({});
-  //return Channels.find({ createdBy: currentUser });
+Meteor.publish('hostChannels', function() {
+	return Channels.find({createdBy: this.userId});
 });
 
-Meteor.publish('Meteor.users', function () {
-  return Meteor.users.find();
+Meteor.publish('guestChannels', function(){
+	return Channels.find({members: this.userId});
 });
 
-Meteor.publish('invites', function () {
-  var currentUser = this.userId;
-  return Invitations.find({ channelCreatorId: currentUser});
+Meteor.publish('selectedChannel', function(channelId){
+	return Channels.find({_id: channelId})
+})
+
+// Meteor.publish('Meteor.users', function() {
+// 	return Meteor.users.find();
+// });
+
+Meteor.publish('publicUserData', function(userId) {
+	return Meteor.users.find({
+		_id: userId
+	}, {
+		fields: {
+			'username': 1,
+		}
+	});
+});
+
+Meteor.publish('privateUserData', function() {
+	return Meteor.users.find({
+		_id: this.userId
+	});
+});
+
+Meteor.publish('userContacts', function(userId) {
+	var userContacts = _.pluck(Meteor.users.findOne(userId).profile.contacts, 'contactId');
+	return Meteor.users.find({
+		_id: {
+			$in: userContacts
+		}
+	}, {
+		fields: {
+			'username': 1,
+			'emails': 1,
+			'profile.firstName': 1,
+			'profile.lastName': 1
+		}
+	});
+});
+
+Meteor.publish('allUsers', function(){
+	return Meteor.users.find({}, {
+		fields: {
+			'username': 1
+		}
+	});
+});
+
+Meteor.publish('invites', function() {
+	var currentUser = this.userId;
+	return Invitations.find({
+		channelCreatorId: currentUser
+	});
 });
 
 Meteor.publish('invite', function(token) {
-  check(token, String);
-  return Invitations.find( { 'token': token } );
+	check(token, String);
+	return Invitations.find({
+		'token': token
+	});
 });
-
-// Meteor.publish('Meteor.users.trelloData', function () {
-//   var currentUser = this.userId;
-//
-//   var selector = {
-//     _id: currentUser
-//   };
-//
-//   var options = {
-//     fields: { trelloData: 1}
-//   };
-//
-//   return Meteor.users.find(selector, options);
-// });
