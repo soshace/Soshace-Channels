@@ -178,14 +178,13 @@
 
 	function parseDiff(data, commitData, getCommitCallback) {
 		var lines = data.split('\n'),
-			file,
 			files = [],
-			patchIndexes = [],
-			patches = [],
 			startRegexp = /^(diff --git a\/)(.*|\n)/g,
 			endRegexp = /^(\+\+\+ b\/)(.*|\n)/g,
-			filesCount = 0,
 			linesCount = lines.length;
+
+		commitData.additions = 0;
+		commitData.deletions = 0;
 
 		_.map(lines, function(val, index) {
 			if (lines[index].match(startRegexp)) {
@@ -194,6 +193,9 @@
 					patch: '',
 					extension: lines[index].split('.').splice(-1)[0],
 					startInfoIndex: index,
+					additions: 0,
+					deletions: 0,
+					changes: 0
 				});
 			}
 			if (lines[index].match(endRegexp)) {
@@ -230,11 +232,13 @@
 				if (line[0] === '+') {
 					lineInfo.stringForParse = line.replace(/\+/, '');
 					lineInfo.type = 'addition';
+					file.additions ++;
 				}
 
 				if (line[0] === '-') {
 					lineInfo.stringForParse = line.replace(/-/, '');
 					lineInfo.type = 'deletion';
+					file.deletions ++;
 				}
 				if (line.match(/@@.+@@/) && (line[0] === '@')) {
 					lineInfo.type = 'patchinfo';
@@ -247,6 +251,10 @@
 
 				lineInfos.push(lineInfo);
 			});
+
+			file.changes = file.additions + file.deletions;
+			commitData.additions += file.additions;
+			commitData.deletions += file.deletions;
 
 			var contentToHighlight = _.pluck(lineInfos, 'stringForParse').join('\n'),
 				highlightedContent = contentToHighlight;
