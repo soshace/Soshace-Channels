@@ -45,7 +45,7 @@
 				})
 				.done(function(data) {
 					commits = data.values;
-					runTemplating();
+					runTemplating(commits);
 					getCommits(commits, channelId);
 				})
 				.fail(function(error) {

@@ -198,15 +198,15 @@ Template.channel.updateData = function(channelId) {
       serviceName: _channelData.serviceType
     }) : '';
 
-  if (!_userIsHost) { // if this channel is guest then we take hosts token for requests
-    var hostUser = Meteor.users.findOne({
-      _id: _channelData.createdBy
-    });
-    userTokens = hostUser.profile.serviceTokens;
-    serviceData = userTokens ? _.findWhere(userTokens, {
-      serviceName: _channelData.serviceType
-    }) : '';
-  }
+  // if (!_userIsHost) { // if this channel is guest then we take hosts token for requests
+    // var hostUser = Meteor.users.findOne({
+    //   _id: _channelData.createdBy
+    // });
+    // userTokens = hostUser.profile.serviceTokens;
+    // serviceData = userTokens ? _.findWhere(userTokens, {
+    //   serviceName: _channelData.serviceType
+    // }) : '';
+  // }
 
   // if (!serviceData || !serviceData.token) {
   //   return;
@@ -218,7 +218,6 @@ Template.channel.updateData = function(channelId) {
   if (_channelData.serviceType === 'github') {
     plugin = new GithubPlugin();
   }
-
 
   plugin.setParameters(serviceData, _channelData.serviceResource, !_userIsHost, channelId);
   plugin.getRepoCommits(getBlocksCallback, getEmailsCallback);

@@ -73,7 +73,7 @@ Router.route('/addchannel', {
     }
   },
   waitOn: function() {
-    return [Meteor.subscribe('channels')];
+    return [];
   }
 });
 

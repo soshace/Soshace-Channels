@@ -38,7 +38,6 @@ Meteor.methods({
 			}).refreshToken,
 			url = 'https://bitbucket.org/site/oauth2/access_token';
 
-		console.log(refreshToken);
 		return Meteor.http.post(url, {
 				params: {
 					client_id: Meteor.settings.public['bitbucket_client_id'],
@@ -79,12 +78,23 @@ Meteor.methods({
 			});
 	},
 
-	'getGithubDataForGuest': function(url, hostId) {
-		var options = {
-			headers: {
-				'User-Agent': 'node.js'
-			}
-		};
+	'getGithubDataForGuest': function(url, channelId) {
+		var hostId = Channels.findOne(channelId).createdBy,
+			hostTokens = Meteor.users.findOne(hostId).profile.serviceTokens,
+			hostToken = _.findWhere(hostTokens, {
+				serviceName: 'github'
+			}).token,
+			options = {
+				headers: {
+					'User-Agent': 'node.js'
+				}
+			};
+
+		if (!hostToken) {
+			console.log('Host token is undefined!')
+			return {};
+		}
+		url = url + hostToken;
 		return Meteor.http.get(url, options);
 	},
 
@@ -100,8 +110,11 @@ Meteor.methods({
 				}
 			};
 
+		if (!hostToken) {
+			console.log('Host token is undefined!')
+			return {};
+		}
 		url = url + hostToken;
-		console.log(url);
 		return Meteor.http.get(url, options);
 	}
 

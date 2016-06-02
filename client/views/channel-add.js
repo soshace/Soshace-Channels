@@ -74,7 +74,7 @@ Template.addChannel.events({
     event.preventDefault();
 
     var channelName = newChannelName.val(),
-        resourceId = plugin.resourceId;
+      resourceId = plugin.resourceId;
 
     Meteor.call('createNewChannel', channelName, selectedService, resourceId, function(error, results) {
       if (error) {
@@ -102,8 +102,8 @@ Template.addChannel.onRendered(function() {
     selectedService = localStorage.getItem('selectedService');
     Meteor.call('postCodeToService', code, selectedService, function(error, results) {
       var token,
-          refreshToken,
-          serviceData;
+        refreshToken,
+        serviceData;
 
       if (selectedService === 'github') {
         var success = results.content.split('&')[0].split('=')[0] !== 'error';
@@ -152,7 +152,9 @@ function getDataforSettingsCallback(data) {
 function selectService(service) {
   var currentUser = Meteor.user();
 
-  serviceData = _.findWhere(currentUser.profile.serviceTokens, {serviceName: service});
+  serviceData = _.findWhere(currentUser.profile.serviceTokens, {
+    serviceName: service
+  });
 
   selectedService = service;
   localStorage.setItem('selectedService', service);
@@ -165,7 +167,7 @@ function selectService(service) {
       clientKey = Meteor.settings.public.github_client_id;
       plugin = new GithubPlugin();
 
-      if (serviceData) {
+      if (serviceData.token) {
         plugin.setParameters(serviceData);
         plugin.getUserRepos(getDataforSettingsCallback);
         plugin.setDefaultChannelName(setDefaultName);
@@ -189,7 +191,7 @@ function selectService(service) {
       authTemplate = 'trelloAuthTemplate';
       break;
   };
-  displayAuthButton(serviceData);
+  displayAuthButton(serviceData.token);
   $('.channel-add__step-1').addClass('hidden');
   $('.channel-add__step-2').removeClass('hidden');
   deps.changed();
@@ -200,4 +202,3 @@ function setDefaultName(val) {
     newChannelName.val(val);
   }
 };
-

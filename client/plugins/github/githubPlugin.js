@@ -55,10 +55,9 @@
 			});
 		} else {
 			loading = true;
-			request = 'https://api.github.com/repos/' + resourceId + '/commits?access_token=' + serviceData.token;
-
-			Meteor.call('getGithub', request, function(error, results) {
-				commits = results.data;
+			request = 'https://api.github.com/repos/' + resourceId + '/commits?access_token=';
+			Meteor.call('getGithubDataForGuest', request, channelId, function(error, results) {
+				commits = results.data || [];
 				runTemplating();
 				if (loading) {
 					getCommits(commits, channelId);
@@ -79,8 +78,8 @@
 				getCommitCallback(data);
 			});
 		} else {
-			request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha + '?access_token=' + serviceData.token;
-			Meteor.call('getGithub', request, function(error, results) {
+			request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha + '?access_token=';
+			Meteor.call('getGithubDataForGuest', request, channelId, function(error, results) {
 				parsePatches(results.data);
 				getCommitCallback(results ? results.data : {});
 			});
