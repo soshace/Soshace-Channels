@@ -69,7 +69,7 @@
 		} else {
 			loading = true;
 			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commits?access_token=';
-			Meteor.call('getBitbucketDataForGuest', request, channelId, function(error, results) {
+			Meteor.call('getDataForGuest', request, channelId, function(error, results) {
 				if (error) {
 					Meteor.call('refreshBitbucketTokenByGuest', channelId, function(error, result) {});
 					return;
@@ -104,10 +104,10 @@
 				});
 		} else {
 			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commit/' + sha + '?access_token=';
-			Meteor.call('getBitbucketDataForGuest', request, channelId, function(error, results) {
+			Meteor.call('getDataForGuest', request, channelId, function(error, results) {
 				var diffRequest = results.data.links.diff.href,
 					commitData = results.data;
-				Meteor.call('getBitbucketDataForGuest', diffRequest + '?access_token=', channelId, function(error, results) {
+				Meteor.call('getDataForGuest', diffRequest + '?access_token=', channelId, function(error, results) {
 					parseDiff(results.content, commitData, getCommitCallback);
 				});
 			});

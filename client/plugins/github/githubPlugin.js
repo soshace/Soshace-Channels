@@ -56,7 +56,7 @@
 		} else {
 			loading = true;
 			request = 'https://api.github.com/repos/' + resourceId + '/commits?access_token=';
-			Meteor.call('getGithubDataForGuest', request, channelId, function(error, results) {
+			Meteor.call('getDataForGuest', request, channelId, function(error, results) {
 				commits = results.data || [];
 				runTemplating();
 				if (loading) {
@@ -79,7 +79,7 @@
 			});
 		} else {
 			request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha + '?access_token=';
-			Meteor.call('getGithubDataForGuest', request, channelId, function(error, results) {
+			Meteor.call('getDataForGuest', request, channelId, function(error, results) {
 				parsePatches(results.data);
 				getCommitCallback(results ? results.data : {});
 			});

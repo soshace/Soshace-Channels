@@ -78,44 +78,47 @@ Meteor.methods({
 			});
 	},
 
-	'getGithubDataForGuest': function(url, channelId) {
-		var hostId = Channels.findOne(channelId).createdBy,
+	'getDataForGuest': function(url, channelId) {
+		var channel = Channels.findOne(channelId),
+			hostId = channel.createdBy,
+			serviceName = channel.serviceType,
 			hostTokens = Meteor.users.findOne(hostId).profile.serviceTokens,
-			hostToken = _.findWhere(hostTokens, {
-				serviceName: 'github'
-			}).token,
+			serviceData = _.findWhere(hostTokens, {
+				serviceName: serviceName
+			}),
+			token = serviceData ? serviceData.token : '',
 			options = {
 				headers: {
 					'User-Agent': 'node.js'
 				}
 			};
 
-		if (!hostToken) {
-			console.log('Host token is undefined!')
+		if (!token) {
+			console.log('Host is not logged in to service!')
 			return {};
 		}
-		url = url + hostToken;
+		url = url + token;
 		return Meteor.http.get(url, options);
 	},
 
-	'getBitbucketDataForGuest': function(url, channelId) {
-		var hostId = Channels.findOne(channelId).createdBy,
-			hostTokens = Meteor.users.findOne(hostId).profile.serviceTokens,
-			hostToken = _.findWhere(hostTokens, {
-				serviceName: 'bitbucket'
-			}).token,
-			options = {
-				headers: {
-					'User-Agent': 'node.js'
-				}
-			};
+	// 'getBitbucketDataForGuest': function(url, channelId) {
+	// 	var hostId = Channels.findOne(channelId).createdBy,
+	// 		hostTokens = Meteor.users.findOne(hostId).profile.serviceTokens,
+	// 		hostToken = _.findWhere(hostTokens, {
+	// 			serviceName: 'bitbucket'
+	// 		}).token,
+	// 		options = {
+	// 			headers: {
+	// 				'User-Agent': 'node.js'
+	// 			}
+	// 		};
 
-		if (!hostToken) {
-			console.log('Host token is undefined!')
-			return {};
-		}
-		url = url + hostToken;
-		return Meteor.http.get(url, options);
-	}
+	// 	if (!hostToken) {
+	// 		console.log('Host is not logged in to service!')
+	// 		return {};
+	// 	}
+	// 	url = url + hostToken;
+	// 	return Meteor.http.get(url, options);
+	// }
 
 });

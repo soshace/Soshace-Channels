@@ -167,7 +167,7 @@ function selectService(service) {
       clientKey = Meteor.settings.public.github_client_id;
       plugin = new GithubPlugin();
 
-      if (serviceData.token) {
+      if (serviceData && serviceData.token) {
         plugin.setParameters(serviceData);
         plugin.getUserRepos(getDataforSettingsCallback);
         plugin.setDefaultChannelName(setDefaultName);
@@ -179,7 +179,7 @@ function selectService(service) {
       clientKey = Meteor.settings.public.bitbucket_client_id;
       plugin = new BitbucketPlugin();
 
-      if (serviceData) {
+      if (serviceData && serviceData.token) {
         plugin.setParameters(serviceData);
         plugin.getUserRepos(getDataforSettingsCallback);
         plugin.setDefaultChannelName(setDefaultName);
@@ -191,7 +191,7 @@ function selectService(service) {
       authTemplate = 'trelloAuthTemplate';
       break;
   };
-  displayAuthButton(serviceData.token);
+  displayAuthButton(serviceData ? serviceData.token : false);
   $('.channel-add__step-1').addClass('hidden');
   $('.channel-add__step-2').removeClass('hidden');
   deps.changed();
