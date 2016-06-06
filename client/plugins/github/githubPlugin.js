@@ -208,6 +208,8 @@
 
 			file.lines = lineInfos;
 		});
+
+		data.hash = data.sha;
 	}
 
 	Template.githubSettingsTemplate.events({
