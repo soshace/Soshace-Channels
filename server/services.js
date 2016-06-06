@@ -99,26 +99,5 @@ Meteor.methods({
 		}
 		url = url + token;
 		return Meteor.http.get(url, options);
-	},
-
-	// 'getBitbucketDataForGuest': function(url, channelId) {
-	// 	var hostId = Channels.findOne(channelId).createdBy,
-	// 		hostTokens = Meteor.users.findOne(hostId).profile.serviceTokens,
-	// 		hostToken = _.findWhere(hostTokens, {
-	// 			serviceName: 'bitbucket'
-	// 		}).token,
-	// 		options = {
-	// 			headers: {
-	// 				'User-Agent': 'node.js'
-	// 			}
-	// 		};
-
-	// 	if (!hostToken) {
-	// 		console.log('Host is not logged in to service!')
-	// 		return {};
-	// 	}
-	// 	url = url + hostToken;
-	// 	return Meteor.http.get(url, options);
-	// }
-
+	}
 });

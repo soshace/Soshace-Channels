@@ -105,7 +105,7 @@ Router.route('/channel/:_id', {
     }
   },
   waitOn: function() {
-    return [Meteor.subscribe('selectedChannel', this.params._id), Meteor.subscribe('userContacts', Meteor.userId()), Meteor.subscribe('invites')];
+    return [Meteor.subscribe('selectedChannel', this.params._id), Meteor.subscribe('userContacts'), Meteor.subscribe('invites')];
   }
 });
 

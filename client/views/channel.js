@@ -1,24 +1,20 @@
-var _deps = new Deps.Dependency(),
-  _associatedEmails = [],
-  _channelId, // This channel identificator
-  _blocks, // Array of loaded blocks (commits, boards etc)
+var deps = new Deps.Dependency(),
+  associatedEmails = [],
+  blocks, // Array of loaded blocks (commits, boards etc)
   plugin,
-  _channelData,
-  _members, // List of this channel members
-  _userIsHost,
-  _contacts; // Users contacts to determine who is not in channel yet
+  channelData,
+  channelMembers, // List of this channel members
+  userIsHost,
+  contacts; // Users contacts to determine who is not in channel yet
 
 Template.channel.events({
   'click .channel__delete': function(event) {
     event.preventDefault();
 
-    // Get current channel id
-    var channelId = this._id;
-
     var confirm = window.confirm('Delete ' + this.name + ' ?');
 
     if (confirm) {
-      Meteor.call('removeChannel', channelId, function(error, results) {
+      Meteor.call('removeChannel', channelData._id, function(error, results) {
         if (error) {
           console.log(error.reason);
         } else {
@@ -36,7 +32,7 @@ Template.channel.events({
     // Get id of a selected user
     var userId = select.options[select.selectedIndex].value;
 
-    Meteor.call('addMember', _channelId, userId, function(error, results) {
+    Meteor.call('addMember', channelData._id, userId, function(error, results) {
       if (error) {
         console.log(error.reason);
       }
@@ -46,10 +42,9 @@ Template.channel.events({
   'click .channel__remove-member': function(event, template) {
     event.preventDefault();
 
-    var channelId = template.data._id,
-      userId = event.target.dataset.userid;
+    var userId = event.target.dataset.userid;
 
-    Meteor.call('removeMember', channelId, userId, function(error, results) {
+    Meteor.call('removeMember', channelData._id, userId, function(error, results) {
       if (error) {
         console.log(error.reason);
       } else {
@@ -60,11 +55,10 @@ Template.channel.events({
 
   'click .channel__invite-unregistered': function(event, template) {
     var emailForInvite = this.email,
-      channelId = template.data._id,
       channelCreatorId = Meteor.userId(),
       invitation = {
         email: emailForInvite,
-        channelId: channelId,
+        channelId: channelData._id,
         channelCreatorId: channelCreatorId
       };
 
@@ -84,7 +78,6 @@ Template.channel.events({
 
   'click .channel__invite-registered': function(event, template) {
     var userId = event.target.id,
-      channelId = template.data._id,
       selector = {
         _id: userId
       },
@@ -99,18 +92,16 @@ Template.channel.events({
     // Request from inviter to user
     Meteor.call('requestContact', userToAdd.username);
     // Add user to channel
-    Meteor.call('addMember', channelId, userId);
+    Meteor.call('addMember', channelData._id, userId);
   },
 
   'click .channel__add-contact-to-channel': function(event, template) {
-    Meteor.call('addMember', _channelId, event.target.id);
+    Meteor.call('addMember', channelData._id, event.target.id);
   },
 });
 
 Template.channel.helpers({
   contacts: function() {
-
-    // Get current User contacts array
     var allContacts = Meteor.user().profile.contacts;
     var acceptedUsers = _.where(allContacts, {
       contactStatus: 'accepted'
@@ -122,32 +113,32 @@ Template.channel.helpers({
       }
     };
 
-    _contacts = Meteor.users.find(selector).fetch();
-    return _contacts;
+    contacts = Meteor.users.find(selector).fetch();
+    return contacts;
   },
 
   members: function() {
-    var membersArray = Channels.find().fetch()[0].members || [];
-    _members = Meteor.users.find({
+    var membersArray = Channels.findOne(channelData._id).members || [];
+    channelMembers = Meteor.users.find({
       _id: {
         $in: membersArray
       }
     }).fetch();
-    return _members;
+    return channelMembers;
   },
 
   channelFeed: function() {
-    _deps.depend();
-    return _blocks;
+    deps.depend();
+    return blocks;
   },
 
-  associatedEmails: function() {
-    _deps.depend();
-    return _associatedEmails;
+  emails: function() {
+    deps.depend();
+    return associatedEmails;
   },
 
   previewTemplate: function() {
-    switch (_channelData.serviceType) {
+    switch (channelData.serviceType) {
       case 'github':
         return Template['githubPreviewTemplate'];
         break;
@@ -157,136 +148,102 @@ Template.channel.helpers({
     }
   },
 
-  userIsChannelCreator: function(parentContext) {
-    // check if user is channel creator
-    if (!parentContext) {
-      return false;
-    }
-    var currentUser = Meteor.userId(),
-      channelId = parentContext._id,
-      selector = {
-        _id: channelId
-      },
-      options = {
-        fields: {
-          createdBy: 1
-        }
-      },
-      createdBy = Channels.findOne(selector, options).createdBy;
-    return createdBy === currentUser;
+  userIsChannelCreator: function() {
+    deps.depend();
+    return userIsHost;
   }
 });
 
-Template.channel.onRendered(function() {});
-
 Template.channel.updateData = function(channelId) {
-  _channelId = channelId;
-
-  _channelData = Channels.findOne({
+  channelData = Channels.findOne({
     _id: channelId
   });
 
-  if (!_channelData) { // This fix is for avoiding removed channel updating
+  if (!channelData) { // This fix is for avoiding removed channel updating
     return;
   }
 
-  // Determine if current user is guest on this channel
-  _userIsHost = _channelData.createdBy === Meteor.userId();
+  userIsHost = channelData.createdBy === Meteor.userId();
 
   var userTokens = Meteor.user().profile.serviceTokens,
     serviceData = userTokens ? _.findWhere(userTokens, {
-      serviceName: _channelData.serviceType
+      serviceName: channelData.serviceType
     }) : '';
 
-  // if (!_userIsHost) { // if this channel is guest then we take hosts token for requests
-    // var hostUser = Meteor.users.findOne({
-    //   _id: _channelData.createdBy
-    // });
-    // userTokens = hostUser.profile.serviceTokens;
-    // serviceData = userTokens ? _.findWhere(userTokens, {
-    //   serviceName: _channelData.serviceType
-    // }) : '';
-  // }
-
-  // if (!serviceData || !serviceData.token) {
-  //   return;
-  // }
-
-  if (_channelData.serviceType === 'bitbucket') {
+  if (channelData.serviceType === 'bitbucket') {
     plugin = new BitbucketPlugin();
   }
-  if (_channelData.serviceType === 'github') {
+  if (channelData.serviceType === 'github') {
     plugin = new GithubPlugin();
   }
 
-  plugin.setParameters(serviceData, _channelData.serviceResource, !_userIsHost, channelId);
+  plugin.setParameters(serviceData, channelData.serviceResource, !userIsHost, channelId);
   plugin.getRepoCommits(getBlocksCallback, getEmailsCallback);
 };
 
 function getBlocksCallback(data, resourceId) {
-  _blocks = data;
-  _deps.changed();
+  blocks = data;
+  deps.changed();
 }
 
 function getEmailsCallback(data) {
-  _associatedEmails = data;
+  var memberEmails = [],
+    contactEmails = [],
+    allEmails = [],
+    i;
 
-  var allEmails = Meteor.users.find({}, {
-    fields: {
-      emails: 1,
-      _id: 1
-    }
-  }).fetch();
+  Meteor.subscribe('userByEmail', _.pluck(data, 'email'));
+  var associatedUsers = Meteor.users.find().fetch();
 
-  for (var i = _associatedEmails.length - 1; i >= 0; i--) {
-    // Determine if one of associated emails is hosts
-    if (Meteor.user().emails[0].address === _associatedEmails[i].email) {
-      _associatedEmails[i].emailType = 'host';
-      _associatedEmails[i].outputType = 'This is your email';
-      continue;
-    }
+  _.each(channelMembers, function(item) {
+    memberEmails.push(item.emails[0].address);
+  });
 
-    // Determine if this email is email of a channel member already
-    for (var j = _members.length - 1; j >= 0; j--) {
-      if (_associatedEmails[i].email === _members[j].emails[0].address) {
-        _associatedEmails[i].emailType = 'member';
-        _associatedEmails[i].outputType = 'This user is member of this channel';
-        _associatedEmails[i].userId = _members[j]._id;
-        break;
-      }
-    }
+  _.each(contacts, function(item) {
+    contactEmails.push(item.emails[0].address);
+  });
 
-    if (_associatedEmails[i].emailType === 'member') continue;
+  _.each(associatedUsers, function(item) {
+    allEmails.push(item.emails[0].address);
+  });
 
-    // Determine if this email is email of users contact who is not in channel yet
-    for (var l = _contacts.length - 1; l >= 0; l--) {
-      if (_associatedEmails[i].email === _contacts[l].emails[0].address) {
-        _associatedEmails[i].emailType = 'contact';
-        _associatedEmails[i].outputType = 'This is your contact, not in channel';
-        _associatedEmails[i].userId = _contacts[l]._id;
-        break;
-      }
+  associatedEmails = data;
+  _.each(associatedEmails, function(item) {
+    if (Meteor.user().emails[0].address === item.email) {
+      item.emailType = 'host';
+      item.outputType = 'This is your email';
+      return;
     }
 
-    if (_associatedEmails[i].emailType === 'contact') continue;
-
-    // Determine if this email is email of a registered user who is not in channel yet
-    for (var k = allEmails.length - 1; k >= 0; k--) {
-      if (_associatedEmails[i].email === allEmails[k].emails[0].address) {
-        _associatedEmails[i].emailType = 'registered';
-        _associatedEmails[i].outputType = 'This user is registered at SSI, not in your contacts';
-        _associatedEmails[i].userId = allEmails[k]._id;
-        break;
-      }
+    i = memberEmails.indexOf(item.email);
+    if (i > -1) {
+      item.emailType = 'member';
+      item.outputType = 'This user is member of this channel';
+      item.userId = channelMembers[i]._id;
+      return;
     }
 
-    if (_associatedEmails[i].emailType === 'registered') continue;
+    i = contactEmails.indexOf(item.email);
+    if (i > -1) {
+      items.emailType = 'contact';
+      itmes.outputType = 'This is your contact, not in channel';
+      item.userId = contacts[i]._id;
+      return;
+    }
 
-    _associatedEmails[i].emailType = 'unregistered';
-    _associatedEmails[i].outputType = 'This email is not registered in SSI';
-    _associatedEmails[i].userId = '';
-  }
-  _deps.changed();
+    i = allEmails.indexOf(item.email);
+    if (i > -1) {
+      item.emailType = 'registered';
+      item.outputType = 'This user is registered at SSI, not in your contacts';
+      item.userId = associatedUsers[i]._id;
+      return;
+    }
+
+    item.emailType = 'unregistered';
+    item.outputType = 'This email is not registered in SSI';
+    item.userId = '';
+  });
+  deps.changed();
 }
 
 Template.registerHelper('formatDateTime', function(dt) {
