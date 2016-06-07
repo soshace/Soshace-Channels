@@ -85,3 +85,20 @@ Meteor.publish('invite', function(token) {
 		'token': token
 	});
 });
+
+Meteor.publish('guestChannelCreators', function() {
+	var userGuestChannels = Channels.find({
+		members: this.userId
+	}).fetch();
+	var guestChannelsCreators = _.pluck(userGuestChannels, 'createdBy');
+	console.log(guestChannelsCreators);
+	return Meteor.users.find({
+		_id: {
+			$in: guestChannelsCreators
+		}
+	}, {
+		fields: {
+			username: 1
+		}
+	});
+});

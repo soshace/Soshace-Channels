@@ -58,7 +58,7 @@ Router.route('/channels', {
     }
   },
   waitOn: function() {
-    return [Meteor.subscribe('hostChannels'), Meteor.subscribe('guestChannels')];
+    return [Meteor.subscribe('hostChannels'), Meteor.subscribe('guestChannels'), Meteor.subscribe('guestChannelCreators')];
   }
 });
 

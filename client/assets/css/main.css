@@ -267,3 +267,12 @@ code {
   font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
   font-size: 12px;
 }
+
+.stats-info h4{
+  text-transform: uppercase;
+}
+
+.stats-info span{
+  font-style: italic;
+  font-weight: 800;
+}

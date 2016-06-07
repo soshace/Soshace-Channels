@@ -1,33 +1,35 @@
 <template name="channelList">
 
-  <h1 class="page-header">Channels</h1>
+  <h1 class="page-header">
+    Channels
+    <div class="clearfix">
+      <a class="btn btn-primary btn-lg pull-right" href="{{pathFor route='addchannel'}}">Create new channel</a>
+    </div>
+  </h1>
+
 
   <div class="row panel bg-white m-b-30">
 
     <h4 class="m-20">Your Channels</h4>
 
     {{#each channels}}
-      <a href="{{pathFor route='channel'}}">
-        <div class="col-md-3 col-sm-6">
-          <div class="widget widget-stats bg-green">
-
-            <div class="stats-info">
-              <h4>{{name}}</h4>
-            </div>
-
-            <div class="stats-link">
-              <a href="{{pathFor route='channel'}}">Last update: 02/02/2016</a>
-            </div>
-
+      <div class="col-md-3 col-sm-6">
+        <div class="widget widget-stats bg-green">
+          <div class="stats-icon"><i class="fa fa-{{serviceType}}"></i></div>
+          
+          <div class="stats-info channel-name">
+            <h4>{{name}}</h4>
+            created by <span>{{channelHost createdBy}}</span>
           </div>
+
+          <div class="stats-link">
+            <a href="{{pathFor route='channel'}}">View details</a>
+          </div>
+
         </div>
-      </a>
+      </div>
     {{/each}}
 
-  </div>
-
-  <div class="clearfix">
-    <a class="btn btn-primary btn-lg pull-right" href="{{pathFor route='addchannel'}}">Create new channel</a>
   </div>
 
   <div class="row panel bg-white m-t-20">
@@ -35,21 +37,22 @@
     <h4 class="m-20">Guest Channels</h4>
 
     {{#each guestchannels}}
-      <a href="{{pathFor route='channel'}}">
-        <div class="col-md-3 col-sm-6">
-          <div class="widget widget-stats bg-green">
+      <div class="col-md-3 col-sm-6">
+        <div class="widget widget-stats bg-green">
 
-            <div class="stats-info">
-              <h4>{{name}}</h4>
-            </div>
+          <div class="stats-icon"><i class="fa fa-{{serviceType}}"></i></div>
 
-            <div class="stats-link">
-              <a href="{{pathFor route='channel'}}">Last update: 02/02/2016</a>
-            </div>
-
+          <div class="stats-info channel-name">
+            <h4>{{name}}</h4>
+            created by <span>{{channelHost createdBy}}</span>
           </div>
+
+          <div class="stats-link">
+            <a href="{{pathFor route='channel'}}">View details</a>
+          </div>
+
         </div>
-      </a>
+      </div>
     {{/each}}
 
   </div>
