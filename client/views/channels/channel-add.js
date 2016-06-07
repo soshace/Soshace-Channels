@@ -1,15 +1,11 @@
 var deps = new Deps.Dependency(),
-  settingsTemplate = 'githubSettingsTemplate',
-  authTemplate = 'githubAuthTemplate',
-  clientKey = Meteor.settings.public.github_client_id,
   settingsData,
   newChannelName,
   authDiv,
   settingsDiv,
   selectedService = '',
   defaultChannelName = true,
-  plugin,
-  serviceData;
+  plugin;
 
 Template.addChannel.helpers({
   settingsData: function() {
@@ -21,12 +17,18 @@ Template.addChannel.helpers({
 
   settingsTemplate: function() {
     deps.depend();
-    return Template[settingsTemplate];
+    if (plugin) {
+      return Template[plugin.settingsTemplateName];
+    };
+    return null;
   },
 
   authTemplate: function() {
     deps.depend();
-    return Template[authTemplate];
+    if (plugin) {
+      return Template[plugin.authTemplate];
+    };
+    return null;
   },
 
   selectedService: function() {
@@ -36,7 +38,10 @@ Template.addChannel.helpers({
 
   clientkey: function() {
     deps.depend();
-    return clientKey;
+    if (plugin) {
+      return plugin.clientKey;
+    };
+    return null;
   }
 });
 
@@ -101,27 +106,21 @@ Template.addChannel.onRendered(function() {
   if (code) {
     selectedService = localStorage.getItem('selectedService');
     Meteor.call('postCodeToService', code, selectedService, function(error, results) {
-      var token,
-        refreshToken,
-        serviceData;
+      var serviceData;
 
+      serviceData.serviceName = selectedService;
       if (selectedService === 'github') {
         var success = results.content.split('&')[0].split('=')[0] !== 'error';
         if (!success) return;
-        token = results.content.split('&')[0].split('=')[1];
+        serviceData.token = results.content.split('&')[0].split('=')[1];
       }
 
       if (selectedService === 'bitbucket' && !error) {
-        var success = results.statusCode === 200;
-        if (!success) return;
-        token = results.data.access_token;
-        refreshToken = results.data.refresh_token;
-      }
-
-      var serviceData = {
-        serviceName: selectedService,
-        token: token,
-        refreshToken: refreshToken
+        if (results.statusCode !== 200) {
+          return;
+        }
+        serviceData.token = results.data.access_token;
+        serviceData.refreshToken = results.data.refresh_token;
       }
 
       Meteor.call('addToken', serviceData, function(error, results) {
@@ -150,11 +149,10 @@ function getDataforSettingsCallback(data) {
 };
 
 function selectService(service) {
-  var currentUser = Meteor.user();
-
-  serviceData = _.findWhere(currentUser.profile.serviceTokens, {
-    serviceName: service
-  });
+  var currentUser = Meteor.user(),
+    serviceData = _.findWhere(currentUser.profile.serviceTokens, {
+      serviceName: service
+    });
 
   selectedService = service;
   localStorage.setItem('selectedService', service);
@@ -162,35 +160,21 @@ function selectService(service) {
   newChannelName.val(service);
   switch (service) {
     case 'github':
-      settingsTemplate = 'githubSettingsTemplate';
-      authTemplate = 'githubAuthTemplate';
-      clientKey = Meteor.settings.public.github_client_id;
       plugin = new GithubPlugin();
-
-      if (serviceData && serviceData.token) {
-        plugin.setParameters(serviceData);
-        plugin.getUserRepos(getDataforSettingsCallback);
-        plugin.setDefaultChannelName(setDefaultName);
-      }
       break;
     case 'bitbucket':
-      settingsTemplate = 'bitbucketSettingsTemplate';
-      authTemplate = 'bitbucketAuthTemplate';
-      clientKey = Meteor.settings.public.bitbucket_client_id;
       plugin = new BitbucketPlugin();
-
-      if (serviceData && serviceData.token) {
-        plugin.setParameters(serviceData);
-        plugin.getUserRepos(getDataforSettingsCallback);
-        plugin.setDefaultChannelName(setDefaultName);
-      }
       break;
     case 'trello':
-      userAuthenticated = false;
-      settingsTemplate = 'trelloSettingsTemplate';
-      authTemplate = 'trelloAuthTemplate';
       break;
   };
+
+  if (serviceData && serviceData.token) {
+    plugin.setParameters(serviceData);
+    plugin.getUserRepos(getDataforSettingsCallback);
+    plugin.setDefaultChannelName(setDefaultName);
+  }
+
   displayAuthButton(serviceData ? serviceData.token : false);
   $('.channel-add__step-1').addClass('hidden');
   $('.channel-add__step-2').removeClass('hidden');

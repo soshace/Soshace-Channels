@@ -12,13 +12,11 @@
 	// Constructor
 	this.GithubPlugin = function() {
 		this.settingsTemplateName = 'githubSettingsTemplate';
+		this.previewTemplateName = 'githubPreviewTemplate';
+		this.authTemplate = 'githubAuthTemplate';
+		this.clientKey = Meteor.settings.public.github_client_id;
+
 		visibility = 'all';
-
-		var defaults = {};
-		if (arguments[0] && typeof arguments[0] === 'object') {
-			this.options = extendDefaults(defaults, arguments[0]);
-		}
-
 		self = this;
 	};
 
@@ -109,16 +107,7 @@
 				})(contributor);
 			}
 		});
-	}
-
-	function extendDefaults(source, properties) { // Utility method to extend defaults with user options
-		for (let property in properties) {
-			if (properties.hasOwnProperty(property)) {
-				source[property] = properties[property];
-			}
-		}
-		return source;
-	}
+	};
 
 	function runTemplating() {
 		for (let item of commits) {
@@ -127,7 +116,7 @@
 			item.date = item.commit.committer.date;
 			item.channelId = channelId;
 		}
-	}
+	};
 
 	function getRepositories() {
 		$.getJSON('https://api.github.com/user/repos', {
@@ -210,7 +199,7 @@
 		});
 
 		data.hash = data.sha;
-	}
+	};
 
 	Template.githubSettingsTemplate.events({
 		'change select[name=resource-id]': function(event) {
@@ -233,5 +222,4 @@
 			}
 		}
 	});
-
 })();

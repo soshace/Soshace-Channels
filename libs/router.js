@@ -42,7 +42,7 @@ Router.route('/contacts', {
     }
   },
   waitOn: function() {
-    return [Meteor.subscribe('userContacts', Meteor.userId()), Meteor.subscribe('allUsers')];
+    return [Meteor.subscribe('userContacts', Meteor.userId())];
   }
 });
 

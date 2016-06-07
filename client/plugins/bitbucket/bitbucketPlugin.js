@@ -10,11 +10,9 @@
 	// Constructor
 	this.BitbucketPlugin = function() {
 		this.settingsTemplateName = 'bitbucketSettingsTemplate';
-
-		var defaults = {};
-		if (arguments[0] && typeof arguments[0] === 'object') {
-			this.options = extendDefaults(defaults, arguments[0]);
-		}
+		this.previewTemplateName = 'bitbucketPreviewTemplate';
+		this.authTemplate = 'bitbucketAuthTemplate';
+		this.clientKey = Meteor.settings.public.bitbucket_client_id;
 
 		self = this;
 	};
@@ -70,8 +68,9 @@
 			loading = true;
 			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commits?access_token=';
 			Meteor.call('getDataForGuest', request, channelId, function(error, results) {
-				if (error) {
-					Meteor.call('refreshBitbucketTokenByGuest', channelId, function(error, result) {});
+				if (error.status === 401) {
+					Meteor.call('refreshBitbucketTokenByGuest', channelId, function(error, result) {
+					});
 					return;
 				}
 				commits = results.data.values;
@@ -118,22 +117,14 @@
 		setDefaultChannelName = func;
 	};
 
-	function extendDefaults(source, properties) { // Utility method to extend defaults with user options
-		for (let property in properties) {
-			if (properties.hasOwnProperty(property)) {
-				source[property] = properties[property];
-			}
-		}
-		return source;
-	};
-
+	// Private methods
 	function runTemplating(commits) {
-		for (let item of commits) {
-			item.name = item.author.user.display_name;
-			item.avatar = item.author.user.links.avatar.href;
-			item.date = item.date;
-			item.channelId = channelId;
-		}
+		_.map(commits, function(commit) {
+			commit.name = commit.author.user.display_name;
+			commit.avatar = commit.author.user.links.avatar.href;
+			commit.date = commit.date;
+			commit.channelId = channelId;
+		});
 	};
 
 	function getRepositories() {
@@ -155,7 +146,9 @@
 						serviceData.token = results.data.access_token;
 						serviceData.refreshToken = results.data.refresh_token;
 
-						Meteor.call('addToken', serviceData);
+						Meteor.call('addToken', serviceData, function(error, results) {
+							getRepositories();
+						});
 					});
 				}
 			});
