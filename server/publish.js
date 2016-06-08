@@ -91,7 +91,6 @@ Meteor.publish('guestChannelCreators', function() {
 		members: this.userId
 	}).fetch();
 	var guestChannelsCreators = _.pluck(userGuestChannels, 'createdBy');
-	console.log(guestChannelsCreators);
 	return Meteor.users.find({
 		_id: {
 			$in: guestChannelsCreators

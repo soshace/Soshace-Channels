@@ -8,7 +8,6 @@ Meteor.methods({
 			url = 'https://bitbucket.org/site/oauth2/access_token';
 		}
 
-		console.log(url, code);
 		return Meteor.http.post(url, {
 			params: {
 				client_id: Meteor.settings.public[service + '_client_id'],
@@ -72,8 +71,6 @@ Meteor.methods({
 				}, function(error, results) {
 					if (error) {
 						console.log(error);
-					} else {
-						console.log(results);
 					}
 				});
 			});

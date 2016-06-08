@@ -192,7 +192,7 @@ function getEmailsCallback(data) {
     allEmails = [],
     i;
 
-  Meteor.subscribe('userByEmail', _.pluck(data, 'email'));
+  // Meteor.subscribe('userByEmail', _.pluck(data, 'email'));
   var associatedUsers = Meteor.users.find().fetch();
 
   _.each(channelMembers, function(item) {

@@ -50,7 +50,6 @@ Schema.UserProfile = new SimpleSchema({
       type: [Schema.PluginService],
       optional: true
     }
-
 });
 
 Schema.User = new SimpleSchema({
