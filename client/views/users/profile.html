@@ -2,26 +2,34 @@
 
   <h1 class="page-header">
     Profile
-    <a href="#" class="delete-user btn btn-danger pull-right">Delete account</a>
   </h1>
 
 
     <div class="row">
 
-      <div class="col-md-6">
-        <div class="panel panel-inverse">
+      <div class="col-md-4 text-center">
+        <div class="user-avatar m-b-20">
+          <a href="" class="user-avatar__link">
+            <img src="/images/user.png" alt="User avatar">
+            <span class="user-avatar__edit">Change photo</span>
+            <!-- /images/user.png -->
+            <!-- http://cs629231.vk.me/v629231001/c535/Aolq7Qohi2o.jpg -->
+          </a>
+        </div>
 
-          <div class="panel-heading">
+        <div class="panel panel-inverse p-t-20 p-b-20">
+
+          <!-- <div class="panel-heading">
             <h4 class="panel-title">Base info</h4>
-          </div>
+          </div> -->
 
-          <div class="panel-body f-s-14">
-            <p class="row m-b-10">
+          <div class="panel-body f-s-14 text-center">
+            <p class="row m-b-20">
               <div class="col-sm-4 col-md-4 text-right f-w-600">ID:</div>
               <div class="col-sm-8 col-md-8">{{currentUser.username}}</div>
             </p>
 
-            <p class="row m-t-20 m-b-20">
+            <p class="row">
               <div class="col-sm-4 col-md-4 text-right f-w-600">E-mail: </div>
               <div class="col-sm-8 col-md-8">{{currentUser.emails.[0].address}}</div>
               {{#unless currentUser.emails.[0].verified}}
@@ -42,7 +50,7 @@
         </div>
       </div>
 
-      <div class="col-md-6">
+      <div class="col-md-4">
         <div class="panel panel-inverse">
           <div class="panel-heading">
             <h4 class="panel-title">Additional info (click to edit)</h4>
@@ -76,13 +84,11 @@
         </div>
       </div>
 
-    </div>
-
-    <h4>Services</h4>
-
-    <div class="row">
-      <div class="col-md-6">
+      <div class="col-md-4">
         <div class="panel panel-inverse">
+          <div class="panel-heading">
+            <h4 class="panel-title">Services</h4>
+          </div>
           <div class="panel-body">
             {{#each currentUser.profile.serviceTokens}}
             <div class="row">
@@ -112,6 +118,20 @@
           </div>
         </div>
       </div>
+
+    </div>
+
+
+    <!-- <h4>Services</h4>
+
+    <div class="row">
+      <div class="col-md-6">
+
+      </div>
+    </div> -->
+
+    <div class="row">
+      <a href="#" class="delete-user btn btn-danger pull-right">Delete account</a>
     </div>
 
 </template>
