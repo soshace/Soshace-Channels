@@ -12,7 +12,7 @@ Schema.PluginService = new SimpleSchema({
   },
   refreshToken:{
     type: String,
-    optional: true    
+    optional: true
   }
 });
 
@@ -38,17 +38,35 @@ Schema.UserProfile = new SimpleSchema({
         regEx: /^[a-zA-Z]{2,25}$/,
         optional: true
     },
-    contacts: {
-        type: [Schema.Contact],
+    gender: {
+        type: String,
+        //regEx: /^[a-zA-Z]{2,25}$/,
         optional: true
     },
-    channels: {
-      type: [String],
-      optional: true
+    bday: {
+        type: String,
+        //regEx: /^[a-zA-Z]{2,25}$/,
+        optional: true
     },
-    serviceTokens: {
-      type: [Schema.PluginService],
-      optional: true
+    tel: {
+        type: String,
+        //regEx: /^[a-zA-Z]{2,25}$/,
+        optional: true
+    },
+    skype: {
+        type: String,
+        //regEx: /^[a-zA-Z]{2,25}$/,
+        optional: true
+    },
+    country: {
+        type: String,
+        //regEx: /^[a-zA-Z]{2,25}$/,
+        optional: true
+    },
+    city: {
+        type: String,
+        regEx: /^[a-zA-Z]{2,25}$/,
+        optional: true
     }
 });
 
@@ -73,7 +91,7 @@ Schema.User = new SimpleSchema({
     createdAt: {
         type: Date
     },
-    profile: {
+    personalData: {
         type: Schema.UserProfile,
         optional: true
     },
@@ -81,6 +99,18 @@ Schema.User = new SimpleSchema({
         type: Object,
         optional: true,
         blackbox: true
+    },
+    contacts: {
+        type: [Schema.Contact],
+        optional: true
+    },
+    channels: {
+      type: [String],
+      optional: true
+    },
+    serviceTokens: {
+      type: [Schema.PluginService],
+      optional: true
     }
     // ,
     // // Add `roles` to your schema if you use the meteor-roles package.
