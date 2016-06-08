@@ -106,24 +106,24 @@ Template.addChannel.onRendered(function() {
   if (code) {
     selectedService = localStorage.getItem('selectedService');
     Meteor.call('postCodeToService', code, selectedService, function(error, results) {
-      var serviceData;
+      var params = {};
+      params.serviceName = selectedService;
 
-      serviceData.serviceName = selectedService;
       if (selectedService === 'github') {
-        var success = results.content.split('&')[0].split('=')[0] !== 'error';
+        var success = results.statusCode === 200;
         if (!success) return;
-        serviceData.token = results.content.split('&')[0].split('=')[1];
+        params.token = results.content.split('&')[0].split('=')[1];
       }
 
       if (selectedService === 'bitbucket' && !error) {
         if (results.statusCode !== 200) {
           return;
         }
-        serviceData.token = results.data.access_token;
-        serviceData.refreshToken = results.data.refresh_token;
+        params.token = results.data.access_token;
+        params.refreshToken = results.data.refresh_token;
       }
 
-      Meteor.call('addToken', serviceData, function(error, results) {
+      Meteor.call('addToken', params, function(error, results) {
         if (!error) {
           selectService(selectedService);
         }
