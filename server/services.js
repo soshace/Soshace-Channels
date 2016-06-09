@@ -8,6 +8,10 @@ Meteor.methods({
 			url = 'https://bitbucket.org/site/oauth2/access_token';
 		}
 
+		if (service === 'yandex') {
+			url = 'https://oauth.yandex.ru/token';
+		}
+
 		return Meteor.http.post(url, {
 			params: {
 				client_id: Meteor.settings.public[service + '_client_id'],
@@ -97,5 +101,61 @@ Meteor.methods({
 		}
 		url = url + token;
 		return Meteor.http.get(url, options);
+	},
+
+	'getYandexInfo': function(token) {
+		var url = 'https://login.yandex.ru/info?oauth_token=' + token;
+
+		options = {
+			headers: {
+				'User-Agent': 'node.js'
+			}
+		};
+		console.log(url);
+		return Meteor.http.get(url, options, function(error, result) {
+			var Imap = Npm.require('imap');
+			var xoauth2 = Npm.require('xoauth2');
+
+			xoauth2gen = xoauth2.createXOAuth2Generator({
+				user: result.data.login,
+				clientId: Meteor.settings.public['yandex_client_id'],
+				clientSecret: Meteor.settings.private['yandex_client_secret'],
+				accessToken: token
+			});
+
+			xoauth2gen.getToken(function(err, token) {
+				if (err) {
+					return console.log(123);
+				}
+				// console.log("AUTH XOAUTH2 " + token);
+			});
+
+			// user=<логин>\@yandex.ru\001auth=Bearer <OAuth-токен>\001\001
+			var s = 'user=zhukov_vi\@soshace.com\001auth=Bearer '+token+'\001\001';
+			var t = new Buffer(s).toString('base64');
+			console.log(s);
+			var connParams = {
+				id: 13,
+				xoauth2: 'A01AUTHENTICATEXOAUTH2'+t,
+				host: 'imap.yandex.com',
+				port: 993,
+				tls: 1,
+				debug: console.log
+			};
+
+			connParams.tlsOptions = {
+				rejectUnauthorized: false
+			};
+
+			imap = new Imap(connParams);
+			console.log(123);
+			imap.openBox('INBOX', true, function(result, error){
+				console.log(error);
+				console.log(result);
+
+			});
+
+
+		});
 	}
 });

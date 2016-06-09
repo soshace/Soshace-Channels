@@ -61,6 +61,11 @@ Template.addChannel.events({
     selectService('bitbucket');
   },
 
+  'click .yandex': function(event) {
+    event.preventDefault();
+    selectService('yandex');
+  },
+
   'keyup .channel-add__name-field': function(event) {
     event.preventDefault();
     defaultChannelName = false;
@@ -123,6 +128,14 @@ Template.addChannel.onRendered(function() {
         params.refreshToken = results.data.refresh_token;
       }
 
+      if (selectedService === 'yandex' && !error) {
+        if (results.statusCode !== 200) {
+          return;
+        }
+        params.token = results.data.access_token;
+        params.refreshToken = results.data.refresh_token;
+      }
+
       Meteor.call('addToken', params, function(error, results) {
         if (!error) {
           selectService(selectedService);
@@ -156,7 +169,6 @@ function selectService(service) {
 
   selectedService = service;
   localStorage.setItem('selectedService', service);
-
   newChannelName.val(service);
   switch (service) {
     case 'github':
@@ -164,6 +176,9 @@ function selectService(service) {
       break;
     case 'bitbucket':
       plugin = new BitbucketPlugin();
+      break;
+    case 'yandex':
+      plugin = new YandexPlugin();
       break;
     case 'trello':
       break;
