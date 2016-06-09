@@ -36,52 +36,32 @@
 	};
 
 	YandexPlugin.prototype.getRepoCommits = function(getCommits, getEmails) {
-		Meteor.call('getYandexLogin', serviceData.token, function(error, results) {
+		Meteor.call('getYandexMessages', serviceData.token, function(error, results) {
 			_.map(results, function(item){
 				item.channelId = channelId;
 			});
 			console.log(results);
 			getCommits(results);
 		});
-
-		// loading = false;
-		// var request;
-		// commits = [];
-
-		// if (!isGuest) {
-		// 	request = 'https://api.github.com/repos/' + resourceId + '/commits';
-		// 	$.getJSON(request, {
-		// 		access_token: serviceData.token
-		// 	}, function(data) {
-		// 		commits = data;
-		// 		runTemplating();
-		// 		getCommits(commits, channelId);
-		// 		getRepoContributors(getEmails); // Only for host users
-		// 	});
-		// } else {
-		// 	loading = true;
-		// 	request = 'https://api.github.com/repos/' + resourceId + '/commits?access_token=';
-		// 	Meteor.call('getDataForGuest', request, channelId, function(error, results) {
-		// 		commits = results.data || [];
-		// 		runTemplating();
-		// 		if (loading) {
-		// 			getCommits(commits, channelId);
-		// 		}
-		// 	});
-		// }
 	};
 
-	YandexPlugin.prototype.getSingleBlock = function(getCommitCallback, sha) {
+	YandexPlugin.prototype.getSingleBlock = function(getOneEmailCallback, id) {
 		var request;
 
 		if (!isGuest) {
-			request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha;
-			$.getJSON(request, {
-				access_token: serviceData.token
-			}, function(data) {
-				parsePatches(data);
-				getCommitCallback(data);
+			Meteor.call('getOneMessage', serviceData.token, id, function(error, results) {
+				_.map(results, function(item){
+					item.channelId = channelId;
+				});
+				console.log(results);
 			});
+			// request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha;
+			// $.getJSON(request, {
+			// 	access_token: serviceData.token
+			// }, function(data) {
+			// 	parsePatches(data);
+			// 	getCommitCallback(data);
+			// });
 		} else {
 			request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha + '?access_token=';
 			Meteor.call('getDataForGuest', request, channelId, function(error, results) {

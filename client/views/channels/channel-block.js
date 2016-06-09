@@ -62,6 +62,9 @@ Template.channelBlock.updateData = function(channelId, blockId) {
     case 'bitbucket':
       plugin = new BitbucketPlugin();
       break;
+    case 'yandex':
+      plugin = new YandexPlugin();
+      break;
   }
 
   plugin.setParameters(channelToken, channelData.serviceResource, channelIsGuest, channelData._id);
