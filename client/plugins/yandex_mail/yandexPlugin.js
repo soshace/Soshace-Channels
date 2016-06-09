@@ -37,6 +37,10 @@
 
 	YandexPlugin.prototype.getRepoCommits = function(getCommits, getEmails) {
 		Meteor.call('getYandexLogin', serviceData.token, function(error, results) {
+			_.map(results, function(item){
+				item.channelId = channelId;
+			});
+			console.log(results);
 			getCommits(results);
 		});
 

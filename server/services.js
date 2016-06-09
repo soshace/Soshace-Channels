@@ -133,13 +133,12 @@ Meteor.methods({
 				rejectUnauthorized: false
 			};
 
-			var authors = [],
-				bodies = [];
+			var items = [];
 			imap = new Imap(connParams);
 			imap.once('ready', function() {
 				imap.openBox('INBOX', true, function(err, box) {
 					var f = imap.seq.fetch((box.messages.total - 10) + ':' + box.messages.total, {
-						bodies: ['HEADER.FIELDS (FROM)', 'TEXT'],
+						bodies: ['HEADER'],
 						struct: true
 					});
 					f.on('message', function(msg, seqno) {
@@ -153,7 +152,8 @@ Meteor.methods({
 							});
 							stream.once('end', function() {
 								if (info.which !== 'TEXT') {
-									authors.push(Imap.parseHeader(buffer).from[0]);
+									var item = Imap.parseHeader(buffer);
+									items.push(item);
 								} else {
 									bodies.push(buffer);
 								}
@@ -166,10 +166,13 @@ Meteor.methods({
 					f.once('end', function() {
 						imap.end();
 						var emails = [];
-						_.map(authors, function(item, index) {
+						_.map(items, function(item, index) {
 							emails.push({
-								from: item,
-								body: bodies[index]
+								from: item.from[0],
+								// body: bodies[index],
+								date: item.date[0],
+								subject: item.subject[0],
+								hash: item['message-id'][0]
 							});
 						});
 
