@@ -2,19 +2,6 @@
 
 	<div class="row m-b-10">
 
-		<div class="row text-center lead m-b-10">
-			<span>Select repository type:</span>
-		</div>
-
-		<div class="p-l-40 p-r-40 m-b-20">
-			<select class="form-control input-lg m-auto" name="repoVisibility">
-				<option value="all">All</option>
-				<option value="private">Private</option>
-				<option value="public">Public</option>
-				<option value="external">External</option>
-			</select>
-		</div>
-
 		<div class="m-b-10 hidden github__external-name">
 		  <div class="row text-center lead m-b-10">
 		    <span>Enter repository name:</span>
@@ -23,19 +10,6 @@
 		  <div class="p-l-40 p-r-40">
 		    <input class="form-control input-lg m-auto github__name-field" type="text">
 		  </div>
-		</div>
-
-		<div class="m-b-10 github__repo-list">
-			<div class="row text-center lead m-b-10">
-				<span>Select available repository:</span>
-			</div>
-			<div class="p-l-40 p-r-40">
-				<select class="form-control input-lg m-auto" name="resource-id" id="type-field">
-					{{#each settingsData}}
-					<option value="{{full_name}}">{{full_name}}</option>
-					{{/each}}
-				</select>
-			</div>
 		</div>
 	</div>
 

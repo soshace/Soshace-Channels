@@ -86,6 +86,8 @@ Template.addChannel.events({
     var channelName = newChannelName.val(),
       resourceId = plugin.resourceId;
 
+      console.log(plugin);
+
     Meteor.call('createNewChannel', channelName, selectedService, resourceId, function(error, results) {
       if (error) {
         console.log(error.reason);
@@ -133,7 +135,6 @@ Template.addChannel.onRendered(function() {
           return;
         }
         params.token = results.data.access_token;
-        params.refreshToken = results.data.refresh_token;
       }
 
       Meteor.call('addToken', params, function(error, results) {
@@ -186,7 +187,7 @@ function selectService(service) {
 
   if (serviceData && serviceData.token) {
     plugin.setParameters(serviceData);
-    plugin.getUserRepos(getDataforSettingsCallback);
+    plugin.getSettings(getDataforSettingsCallback);
     plugin.setDefaultChannelName(setDefaultName);
   }
 

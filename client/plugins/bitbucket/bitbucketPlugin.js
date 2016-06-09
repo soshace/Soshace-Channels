@@ -127,7 +127,7 @@
 		});
 	};
 
-	function getRepositories() {
+	function getSettings() {
 		$.getJSON('https://api.bitbucket.org/2.0/repositories', {
 				role: 'member',
 				access_token: serviceData.token,

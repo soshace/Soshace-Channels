@@ -118,7 +118,7 @@
 		}
 	};
 
-	function getRepositories() {
+	function getSettings() {
 		$.getJSON('https://api.github.com/user/repos', {
 			access_token: serviceData.token,
 			visibility: visibility,
