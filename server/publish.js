@@ -22,10 +22,12 @@ Meteor.publish('selectedChannel', function(channelId) {
 
 Meteor.publish('publicUserData', function(userId) {
 	return Meteor.users.find({
-		_id: userId
+		_id: this.userId
 	}, {
 		fields: {
 			'username': 1,
+			'personalData.firstName': 1,
+			'personalData.lastName': 1
 		}
 	});
 });
