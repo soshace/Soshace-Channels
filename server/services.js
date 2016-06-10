@@ -116,9 +116,9 @@ Meteor.methods({
 		var fut = new Future();
 		Meteor.http.get(url, options, function(err, results) {
 			var login = results.data.login;
-
 			var Imap = Npm.require('imap');
-			var s = 'user=' + login + '\001auth=Bearer ' + token + '\001\001';
+			var s = 'user=' + login + '@yandex.ru\001auth=Bearer ' + token + '\001\001';
+			console.log(s);
 			var t = new Buffer(s).toString('base64');
 			var connParams = {
 				id: 13,
@@ -172,10 +172,10 @@ Meteor.methods({
 						var emails = [];
 						_.map(items, function(item, index) {
 							emails.push({
-								from: item.from[0],
+								from: item.from ? item.from[0] : '',
 								// body: bodies[index],
-								date: item.date[0],
-								subject: item.subject[0],
+								date: item.date ? item.date[0] : '',
+								subject: item.subject ? item.subject[0] : 'No subject' ,
 								// hash: uids[index].uid,
 								attr: uids[index]
 							});

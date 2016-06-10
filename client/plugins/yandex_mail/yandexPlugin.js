@@ -70,6 +70,7 @@
 					}
 				}
 
+				console.log(results);
 				getOneEmailCallback(results);
 			});
 		}
