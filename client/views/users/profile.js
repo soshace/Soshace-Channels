@@ -4,10 +4,18 @@ Template.profile.events({
 
     // Get data
     var form = $('.user-info'),
-        firstName = $('[name=first-name]').val(),
-        lastName = $('[name=last-name]').val();
+        userData = {
+          firstName: $('[name=first-name]').val(),
+          lastName: $('[name=last-name]').val(),
+          gender: $('[name=gender]').val(),
+          bday: $('[name=bday]').val(),
+          phone: $('[name=phone]').val(),
+          skype: $('[name=skype]').val(),
+          country: $('[name=country]').val(),
+          city: $('[name=city]').val()
+        };
 
-    Meteor.call('saveUserName', firstName, lastName, function(error) {
+    Meteor.call('saveUserData', userData, function(error) {
       if (error) {
         Bert.alert(error.reason, 'warning');
       } else {

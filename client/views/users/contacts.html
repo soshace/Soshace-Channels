@@ -11,7 +11,7 @@
             {{#each contacts.data}}
               <li>
                 <a href=""><img src="images/user.png" width="80" height="80" alt="User avatar"></a>
-                <h4 class="username text-ellipsis">{{profile.firstName}} {{profile.lastName}} <small>({{username}})</small></h4>
+                <h4 class="username text-ellipsis">{{personalData.firstName}} {{personalData.lastName}} <small>({{username}})</small></h4>
                 <a id="{{_id}}" class="contacts__remove-contact btn btn-danger btn-icon btn-circle" href="delete">
                   <i class="fa fa-times" id="{{_id}}"></i>
                 </a>
@@ -65,7 +65,7 @@
           {{#each requestsToUsers.data}}
             <li>
               <a href=""><img src="images/user.png" width="80" height="80" alt="User avatar"></a>
-              <h4 class="username text-ellipsis">{{profile.firstName}} {{profile.lastName}} <small>({{username}})</small></h4>
+              <h4 class="username text-ellipsis">{{personalData.firstName}} {{personalData.lastName}} <small>({{username}})</small></h4>
               <button id="{{_id}}" class="btn btn-xs btn-warning contacts__cancel-contact-request">Cancel</button>
             </li>
           {{/each}}
@@ -92,7 +92,7 @@
           {{#each requestsFromUsers.data}}
             <li>
               <a href=""><img src="images/user.png" width="80" height="80" alt="User avatar"></a>
-              <h4 class="username text-ellipsis">{{profile.firstName}} {{profile.lastName}} <small>({{username}})</small></h4>
+              <h4 class="username text-ellipsis">{{personalData.firstName}} {{personalData.lastName}} <small>({{username}})</small></h4>
               <button id="{{_id}}" class="btn btn-xs btn-success contacts__accept-contact-request">Accept</button>
               <button id="{{_id}}" class="btn btn-xs btn-warning contacts__reject-contact-request">Decline</button>
             </li>
@@ -117,7 +117,7 @@
             {{#each rejectedUsers.data}}
               <li>
                 <a href=""><img src="images/user.png" width="80" height="80" alt="User avatar"></a>
-                <h4 class="username text-ellipsis">{{profile.firstName}} {{profile.lastName}} <small>({{username}})</small></h4>
+                <h4 class="username text-ellipsis">{{personalData.firstName}} {{personalData.lastName}} <small>({{username}})</small></h4>
               </li>
             {{/each}}
           </ul>

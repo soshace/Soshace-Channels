@@ -2,8 +2,8 @@ var options = {
   fields: {
     username: 1,
     _id: 1,
-    'profile.firstName': 1,
-    'profile.lastName': 1
+    'personalData.firstName': 1,
+    'personalData.lastName': 1
   }
 };
 
@@ -46,7 +46,7 @@ Template.contacts.events({
 
 Template.contacts.helpers({
   contacts: function() {
-    var allContacts = Meteor.user().profile.contacts;
+    var allContacts = Meteor.user().contacts;
     var acceptedUsers = _.where(allContacts,{contactStatus:'accepted'});
 
     var selector = {
@@ -56,11 +56,11 @@ Template.contacts.helpers({
     return {
       toShow: acceptedUsers,
       data: Meteor.users.find(selector, options)
-    }
+    };
   },
 
   requestsFromUsers: function() {
-    var allContacts = Meteor.user().profile.contacts;
+    var allContacts = Meteor.user().contacts;
     var requestsFromUsers = _.where(allContacts,{contactStatus:'sentRequest'});
 
     var selector = {
@@ -70,11 +70,11 @@ Template.contacts.helpers({
     return {
       toShow: requestsFromUsers,
       data: Meteor.users.find(selector, options)
-    }
+    };
   },
 
   requestsToUsers: function() {
-    var allContacts = Meteor.user().profile.contacts;
+    var allContacts = Meteor.user().contacts;
     var requestsToUsers = _.where(allContacts,{contactStatus:'wasRequested'});
 
     var selector = {
@@ -84,11 +84,11 @@ Template.contacts.helpers({
     return {
       toShow: requestsToUsers,
       data: Meteor.users.find(selector, options)
-    }
+    };
   },
 
   rejectedUsers: function() {
-    var allContacts = Meteor.user().profile.contacts;
+    var allContacts = Meteor.user().contacts;
     var rejectedUsers = _.where(allContacts,{contactStatus:'rejected'});
 
     var selector = {

@@ -19,7 +19,7 @@ Template.addChannel.helpers({
     deps.depend();
     if (plugin) {
       return Template[plugin.settingsTemplateName];
-    };
+    }
     return null;
   },
 
@@ -27,7 +27,7 @@ Template.addChannel.helpers({
     deps.depend();
     if (plugin) {
       return Template[plugin.authTemplate];
-    };
+    }
     return null;
   },
 
@@ -40,7 +40,7 @@ Template.addChannel.helpers({
     deps.depend();
     if (plugin) {
       return plugin.clientKey;
-    };
+    }
     return null;
   }
 });
@@ -154,17 +154,17 @@ function displayAuthButton(display) {
     authDiv.removeClass('hidden');
     settingsDiv.addClass('hidden');
   }
-};
+}
 
 // This function is passed as ajax request callback to plugin
 function getDataforSettingsCallback(data) {
   settingsData = data;
   deps.changed();
-};
+}
 
 function selectService(service) {
   var currentUser = Meteor.user(),
-    serviceData = _.findWhere(currentUser.profile.serviceTokens, {
+    serviceData = _.findWhere(currentUser.serviceTokens, {
       serviceName: service
     });
 
@@ -183,7 +183,7 @@ function selectService(service) {
       break;
     case 'trello':
       break;
-  };
+  }
 
   if (serviceData && serviceData.token) {
     plugin.setParameters(serviceData);
@@ -195,10 +195,10 @@ function selectService(service) {
   $('.channel-add__step-1').addClass('hidden');
   $('.channel-add__step-2').removeClass('hidden');
   deps.changed();
-};
+}
 
 function setDefaultName(val) {
   if (defaultChannelName) {
     newChannelName.val(val);
   }
-};
+}

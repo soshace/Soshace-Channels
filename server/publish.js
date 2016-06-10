@@ -13,8 +13,8 @@ Meteor.publish('guestChannels', function() {
 Meteor.publish('selectedChannel', function(channelId) {
 	return Channels.find({
 		_id: channelId
-	})
-})
+	});
+});
 
 // Meteor.publish('Meteor.users', function() {
 // 	return Meteor.users.find();
@@ -22,10 +22,12 @@ Meteor.publish('selectedChannel', function(channelId) {
 
 Meteor.publish('publicUserData', function(userId) {
 	return Meteor.users.find({
-		_id: userId
+		_id: this.userId
 	}, {
 		fields: {
 			'username': 1,
+			'personalData.firstName': 1,
+			'personalData.lastName': 1
 		}
 	});
 });
@@ -37,7 +39,7 @@ Meteor.publish('privateUserData', function() {
 });
 
 Meteor.publish('userContacts', function() {
-	var userContacts = _.pluck(Meteor.users.findOne(this.userId).profile.contacts, 'contactId');
+	var userContacts = _.pluck(Meteor.users.findOne(this.userId).contacts, 'contactId');
 	return Meteor.users.find({
 		_id: {
 			$in: userContacts
@@ -46,8 +48,8 @@ Meteor.publish('userContacts', function() {
 		fields: {
 			'username': 1,
 			'emails': 1,
-			'profile.firstName': 1,
-			'profile.lastName': 1
+			'personalData.firstName': 1,
+			'personalData.lastName': 1
 		}
 	});
 });

@@ -1,4 +1,4 @@
-Meteor.subscribe('channels');
+Meteor.subscribe('publicUserData');
 
 Template.sidebar.helpers({
   channels: function() {
@@ -25,7 +25,7 @@ Template.sidebar.helpers({
 
   currentUserLoaded: function(){
     deps.depend();
-    console.log(Meteor.userId())
+    console.log(Meteor.userId());
     return Meteor.userId();
   }
 });
