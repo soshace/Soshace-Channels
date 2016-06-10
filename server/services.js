@@ -140,7 +140,7 @@ Meteor.methods({
 				imap.openBox('INBOX', true, function(err, box) {
 					var f = imap.seq.fetch((box.messages.total - 10) + ':' + box.messages.total, {
 						bodies: ['HEADER'],
-						struct: true
+						// struct: true
 					});
 					f.on('message', function(msg, seqno) {
 						var prefix = '(#' + seqno + ') ';
@@ -161,7 +161,7 @@ Meteor.methods({
 							});
 						});
 						msg.on('attributes', function(attrs) {
-							uids.push(attrs.uid);
+							uids.push(attrs);
 						});
 					});
 					f.once('error', function(err) {
@@ -176,7 +176,8 @@ Meteor.methods({
 								// body: bodies[index],
 								date: item.date[0],
 								subject: item.subject[0],
-								hash: uids[index]
+								// hash: uids[index].uid,
+								attr: uids[index]
 							});
 						});
 
@@ -199,7 +200,8 @@ Meteor.methods({
 
 		var Future = Npm.require('fibers/future');
 
-		var fut = new Future();
+		var fut = new Future(),
+			fut1 = new Future();
 		Meteor.http.get(url, options, function(err, results) {
 			var login = results.data.login;
 
@@ -207,7 +209,7 @@ Meteor.methods({
 			var s = 'user=' + login + '\001auth=Bearer ' + token + '\001\001';
 			var t = new Buffer(s).toString('base64');
 			var connParams = {
-				id: 13,
+				// id: 13,
 				xoauth2: t,
 				host: 'imap.yandex.com',
 				port: 993,
@@ -219,30 +221,44 @@ Meteor.methods({
 				rejectUnauthorized: false
 			};
 
-			var items = [];
+			var item = {};
 			imap = new Imap(connParams);
 			imap.once('ready', function() {
 				imap.openBox('INBOX', true, function(err, box) {
-					console.log(id);
 					imap.search(['ALL', ['UID', id]], function(err, results) {
 						if (err) throw err;
-						var f = imap.seq.fetch(results, {
-							bodies: ''
+						var f = imap.fetch(results, {
+							bodies: ['HEADER', '1'],
+							struct: true
 						});
-						console.log(results[0]);
 						f.on('message', function(msg, seqno) {
-							var prefix = '(#' + seqno + ') ';
+							msg.on('attributes', function(attrs) {
+								item.attr = attrs;
+							});
 							msg.on('body', function(stream, info) {
-								var buffer = '',
-									count = 0;
+								var buffer = '';
 								stream.on('data', function(chunk) {
-									count += chunk.length;
 									buffer += chunk.toString('utf8');
 								});
 								stream.once('end', function() {
-									console.log(info);
-									if (info.which !== 'TEXT') {} else {
-										items.push(buffer);
+									switch (info.which) {
+										case 'HEADER':
+											var i = Imap.parseHeader(buffer);
+											item.from = i.from[0];
+											item.subject = i.subject[0];
+											item.date = i.date[0];
+											break;
+										case '1':
+											item.body1 = buffer;
+											break;
+										case '2':
+											item.body2 = buffer;
+											break;
+										case 'TEXT':
+											item.body3 = buffer;
+											break;
+										default:
+											item.body0 = buffer;
 									}
 								});
 							});
@@ -252,16 +268,51 @@ Meteor.methods({
 						});
 						f.once('end', function() {
 							imap.end();
-
-							fut.return(items);
+							fut.return(item);
 						});
-
 					});
 				});
 			});
 			imap.connect();
-		});
-		return fut.wait();
-	}
 
+			var res = fut.wait();
+			if (res.attr.struct.length === 1){
+				fut1.return(res);
+			} else {
+				imap = new Imap(connParams);
+				imap.once('ready', function() {
+					imap.openBox('INBOX', true, function(err, box) {
+						imap.search(['ALL', ['UID', id]], function(err, results) {
+							if (err) throw err;
+							var f = imap.fetch(results, {
+								bodies: ['2'],
+								struct: true
+							});
+							f.on('message', function(msg, seqno) {
+								msg.on('body', function(stream, info) {
+									var buffer = '';
+									stream.on('data', function(chunk) {
+										buffer += chunk.toString('utf8');
+									});
+									stream.once('end', function() {
+										switch (info.which) {
+											case '2':
+												res.body2 = buffer;
+												break;
+										}
+									});
+								});
+							});
+							f.once('end', function() {
+								imap.end();
+								fut1.return(res);
+							});
+						});
+					});
+				});
+				imap.connect();
+			}
+		});
+		return fut1.wait();
+	}
 });

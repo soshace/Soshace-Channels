@@ -37,36 +37,40 @@
 
 	YandexPlugin.prototype.getRepoCommits = function(getCommits, getEmails) {
 		Meteor.call('getYandexMessages', serviceData.token, function(error, results) {
-			_.map(results, function(item){
+			_.map(results, function(item) {
 				item.channelId = channelId;
 			});
-			console.log(results);
-			getCommits(results);
+
+			getCommits(results.reverse());
 		});
 	};
 
-	YandexPlugin.prototype.getSingleBlock = function(getOneEmailCallback, id) {
+	YandexPlugin.prototype.getSingleBlock = function(getOneEmailCallback, uid) {
 		var request;
 
 		if (!isGuest) {
-			Meteor.call('getOneMessage', serviceData.token, id, function(error, results) {
-				_.map(results, function(item){
-					item.channelId = channelId;
-				});
-				console.log(results);
-			});
-			// request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha;
-			// $.getJSON(request, {
-			// 	access_token: serviceData.token
-			// }, function(data) {
-			// 	parsePatches(data);
-			// 	getCommitCallback(data);
-			// });
-		} else {
-			request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha + '?access_token=';
-			Meteor.call('getDataForGuest', request, channelId, function(error, results) {
-				parsePatches(results.data);
-				getCommitCallback(results ? results.data : {});
+			Meteor.call('getOneMessage', serviceData.token, uid, function(error, results) {
+				// _.map(results, function(item){
+				// 	item.channelId = channelId;
+				// });
+				var struct = results.attr.struct;
+				if (struct.length === 1) {
+					if (struct[0].encoding === 'base64'){
+						results.body = b64DecodeUnicode(results.body1);						
+					} else{
+						results.body = results.body0;
+					}
+				}
+
+				if (struct.length >=2) {
+					if (results.attr.struct[1][0].encoding === 'base64') {
+						results.body = b64DecodeUnicode(results.body2);
+					} else {
+						results.body = results.body2;
+					}
+				}
+
+				getOneEmailCallback(results);
 			});
 		}
 	};
@@ -75,8 +79,7 @@
 		setDefaultChannelName = func;
 	};
 
-	YandexPlugin.prototype.getSettings = function(func) {
-	};
+	YandexPlugin.prototype.getSettings = function(func) {};
 
 	//Private methods
 	function getRepoContributors(getEmails) {
@@ -99,7 +102,12 @@
 		});
 	};
 
-	function getEmails() {
+	function getEmails() {};
+
+	function b64DecodeUnicode(str) {
+		return decodeURIComponent(Array.prototype.map.call(atob(str), function(c) {
+			return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+		}).join(''));
 	};
 
 	Template.yandexSettingsTemplate.events({
