@@ -63,7 +63,7 @@
                   First Name:
                 </label>
                 <div class="col-md-8">
-                  <input class="form-control f-s-14" type="text" name="first-name" id="first-name-field" value="{{currentUser.profile.firstName}}" placeholder="Enter First Name">
+                  <input class="form-control f-s-14" type="text" name="first-name" id="first-name-field" value="{{currentUser.personalData.firstName}}" placeholder="Enter First Name">
                 </div>
               </div>
 
@@ -72,45 +72,67 @@
                   Last Name:
                 </label>
                 <div class="col-md-8">
-                  <input class="form-control f-s-14" type="text" name="last-name" id="last-name-field" value="{{currentUser.profile.lastName}}" placeholder="Enter Last Name">
-                </div>
-              </div>
-
-              <!-- <div class="form-group">
-                <label class="col-md-4 control-label f-w-600" for="last-name-field">
-                  Telephone:
-                </label>
-                <div class="col-md-8">
-                  <input class="form-control f-s-14" type="text" name="last-name" id="last-name-field" value="{{currentUser.profile.lastName}}" placeholder="Enter Last Name">
+                  <input class="form-control f-s-14" type="text" name="last-name" id="last-name-field" value="{{currentUser.personalData.lastName}}" placeholder="Enter Last Name">
                 </div>
               </div>
 
               <div class="form-group">
-                <label class="col-md-4 control-label f-w-600" for="last-name-field">
+                <label class="col-md-4 control-label f-w-600" for="gender-field">
+                  Gender:
+                </label>
+                <div class="col-md-8">
+                  <!-- <input class="form-control f-s-14" type="text" name="gender" id="gender-field" value="{{currentUser.personalData.gender}}" placeholder="Select Gender"> -->
+                  <select class="form-control f-s-14" name="gender" id="gender-field" value="{{currentUser.personalData.gender}}" placeholder="Select Gender">
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-md-4 control-label f-w-600" for="bday-field">
+                  Birthday:
+                </label>
+                <div class="col-md-8">
+                  <input class="form-control f-s-14" type="date" name="bday" id="bday-field" value="{{currentUser.personalData.bday}}" placeholder="Enter Birthday">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-md-4 control-label f-w-600" for="phone-field">
+                  Phone:
+                </label>
+                <div class="col-md-8">
+                  <input class="form-control f-s-14" type="tel" name="phone" id="phone-field" value="{{currentUser.personalData.phone}}" placeholder="Enter Phone Number">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-md-4 control-label f-w-600" for="skype-field">
                   Skype:
                 </label>
                 <div class="col-md-8">
-                  <input class="form-control f-s-14" type="text" name="last-name" id="last-name-field" value="{{currentUser.profile.lastName}}" placeholder="Enter Last Name">
+                  <input class="form-control f-s-14" type="text" name="skype" id="skype-field" value="{{currentUser.personalData.skype}}" placeholder="Enter Skype Login">
                 </div>
               </div>
 
               <div class="form-group">
-                <label class="col-md-4 control-label f-w-600" for="last-name-field">
+                <label class="col-md-4 control-label f-w-600" for="country-field">
                   Country:
                 </label>
                 <div class="col-md-8">
-                  <input class="form-control f-s-14" type="text" name="last-name" id="last-name-field" value="{{currentUser.profile.lastName}}" placeholder="Enter Last Name">
+                  <input class="form-control f-s-14" type="text" name="country" id="country-field" value="{{currentUser.personalData.country}}" placeholder="Enter Country">
                 </div>
               </div>
 
               <div class="form-group">
-                <label class="col-md-4 control-label f-w-600" for="last-name-field">
+                <label class="col-md-4 control-label f-w-600" for="city-field">
                   City:
                 </label>
                 <div class="col-md-8">
-                  <input class="form-control f-s-14" type="text" name="last-name" id="last-name-field" value="{{currentUser.profile.lastName}}" placeholder="Enter Last Name">
+                  <input class="form-control f-s-14" type="text" name="city" id="city-field" value="{{currentUser.personalData.city}}" placeholder="Enter City">
                 </div>
-              </div> -->
+              </div>
 
               <div class="col-md-offset-4 col-md-4">
                 <input class="btn btn-sm btn-primary" type="submit" value="Save">
@@ -126,7 +148,7 @@
             <h4 class="panel-title">Services</h4>
           </div>
           <div class="panel-body">
-            {{#each currentUser.profile.serviceTokens}}
+            {{#each currentUser.serviceTokens}}
             <div class="row">
               {{#if token}}
                 <div class="col-xs-3">

@@ -7,11 +7,14 @@ Accounts.onCreateUser(function(options, user) {
   user._id = Random.id();
 
   // Use provided profile in options, or create an empty object
-  user.profile = options.profile || {};
+  //user.profile = options.profile || {};
 
   // Assigns 'contacts'/'channels'  to the newly created user object
-  user.profile.contacts = [];
-  user.profile.channels = [];
+  //user.profile.contacts = [];
+  //user.profile.channels = [];
+  user.contacts = [];
+  user.channels = [];
+  user.serviceTokens = [];
 
   // Check if user come with invite
   if (options.invited) {
@@ -23,14 +26,15 @@ Accounts.onCreateUser(function(options, user) {
       contactStatus: 'accepted'
     };
     // Add inviter to contact list
-    user.profile.contacts.push(inviterContact);
+    //user.profile.contacts.push(inviterContact);
+    user.contacts.push(inviterContact);
 
     // Add new user to inviter contacts
     Meteor.users.update({
       _id: options.contacts
     }, {
       $addToSet: {
-        'profile.contacts': {
+        'contacts': {
           contactId: user._id,
           contactStatus: 'accepted'
         }
@@ -44,7 +48,7 @@ Accounts.onCreateUser(function(options, user) {
 
 
 Meteor.methods({
-  'saveUserName': function(firstName, lastName) {
+  'saveUserData': function(userData) {
     var currentUser = this.userId;
 
     // TODO: сделать более точное сравнение
@@ -55,17 +59,23 @@ Meteor.methods({
 
     Meteor.users.update(currentUser, {
       $set: {
-        'profile.firstName': firstName,
-        'profile.lastName': lastName
+        'personalData.firstName': userData.firstName,
+        'personalData.lastName': userData.lastName,
+        'personalData.gender': userData.gender,
+        'personalData.bday': userData.bday,
+        'personalData.phone': userData.phone,
+        'personalData.skype': userData.skype,
+        'personalData.country': userData.country,
+        'personalData.city': userData.city
       }
     });
   },
 
   'signOutService': function(serviceName) {
-    Meteor.users.update({_id: this.userId, 'profile.serviceTokens.serviceName': serviceName}, {
+    Meteor.users.update({_id: this.userId, 'serviceTokens.serviceName': serviceName}, {
       $set: {
-        'profile.serviceTokens.$.token': '',
-        'profile.serviceTokens.$.refreshToken': ''
+        'serviceTokens.$.token': '',
+        'serviceTokens.$.refreshToken': ''
       }
     });
   },
@@ -83,7 +93,7 @@ Meteor.methods({
 
     var currentUserContacts = Meteor.users.findOne({
       _id: currentUserId
-    }).profile.contacts;
+    }).contacts;
 
     var isUserInList = _.findWhere(currentUserContacts, {
         contactId: newContactId
@@ -115,12 +125,12 @@ Meteor.methods({
 
     setContactStatus(currentUserId,contactId,'rejected');
     setContactStatus(contactId,currentUserId,'rejected');
-    removeContactFromUserChannels(contactId,currentUserId);    
+    removeContactFromUserChannels(contactId,currentUserId);
   },
 
   'addToken': function(serviceData) {
     var currentUserId = Meteor.userId(),
-        userTokens = Meteor.user().profile.serviceTokens;
+        userTokens = Meteor.user().serviceTokens;
 
     if (userTokens){
       var tokenIndex = -1;
@@ -131,16 +141,16 @@ Meteor.methods({
       });
       if (tokenIndex > -1){
         userTokens[tokenIndex] = serviceData;
-      }else{
+      } else {
         userTokens.push(serviceData);
       }
-    }else{
-      userTokens = [serviceData]
+    } else {
+      userTokens = [serviceData];
     }
 
     Meteor.users.update({_id: currentUserId}, {
       $set: {
-        'profile.serviceTokens': userTokens
+        'serviceTokens': userTokens
       }
     }, function(error, results) {
       if (error) {
@@ -171,10 +181,10 @@ Meteor.methods({
 var setContactStatus = function(userId,contactId,status){
   Meteor.users.update({
     _id: userId,
-    'profile.contacts.contactId': contactId
+    'contacts.contactId': contactId
   }, {
     $set: {
-      'profile.contacts.$.contactStatus': status
+      'contacts.$.contactStatus': status
     }
   }, function(error, results) {
     if (error) {
@@ -183,14 +193,14 @@ var setContactStatus = function(userId,contactId,status){
       console.log(results);
     }
   });
-}
+};
 
 var addContactStatus = function(userId,contactId,status){
   Meteor.users.update({
     _id: userId
   }, {
     $addToSet: {
-      'profile.contacts': {
+      'contacts': {
         contactId: contactId,
         contactStatus: status
       }
@@ -202,7 +212,7 @@ var addContactStatus = function(userId,contactId,status){
       console.log(results);
     }
   });
-}
+};
 
 var removeContactFromUserChannels = function(contactId,userId){
   var channels = Channels.find({createdBy: userId}).fetch();
@@ -216,7 +226,7 @@ var removeContactFromUserChannels = function(contactId,userId){
       }
     });
   });
-}
+};
 
 // var removeObjectFromArray = function(array, name) {
 //   return _.reject(array, function(item) {

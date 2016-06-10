@@ -48,19 +48,19 @@ Schema.UserProfile = new SimpleSchema({
         //regEx: /^[a-zA-Z]{2,25}$/,
         optional: true
     },
-    tel: {
+    phone: {
         type: String,
         //regEx: /^[a-zA-Z]{2,25}$/,
         optional: true
     },
     skype: {
         type: String,
-        //regEx: /^[a-zA-Z]{2,25}$/,
+        regEx: /^[a-z]{2,25}$/,
         optional: true
     },
     country: {
         type: String,
-        //regEx: /^[a-zA-Z]{2,25}$/,
+        regEx: /^[a-zA-Z]{2,25}$/,
         optional: true
     },
     city: {
@@ -112,18 +112,6 @@ Schema.User = new SimpleSchema({
       type: [Schema.PluginService],
       optional: true
     }
-    // ,
-    // // Add `roles` to your schema if you use the meteor-roles package.
-    // // Note that when using this package, you must also specify the
-    // // `Roles.GLOBAL_GROUP` group whenever you add a user to a role.
-    // // Roles.addUsersToRoles(userId, ["admin"], Roles.GLOBAL_GROUP);
-    // // You can't mix and match adding with and without a group since
-    // // you will fail validation in some cases.
-    // roles: {
-    //     type: Object,
-    //     optional: true,
-    //     blackbox: true
-    // }
 });
 
 Meteor.users.attachSchema(Schema.User);
