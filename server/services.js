@@ -8,6 +8,10 @@ Meteor.methods({
 			url = 'https://bitbucket.org/site/oauth2/access_token';
 		}
 
+		if (service === 'yandex') {
+			url = 'https://oauth.yandex.ru/token';
+		}
+
 		return Meteor.http.post(url, {
 			params: {
 				client_id: Meteor.settings.public[service + '_client_id'],
@@ -97,5 +101,167 @@ Meteor.methods({
 		}
 		url = url + token;
 		return Meteor.http.get(url, options);
+	},
+
+	'getYandexMessages': function(token) {
+		var url = 'https://login.yandex.ru/info?oauth_token=' + token;
+		options = {
+			headers: {
+				'User-Agent': 'node.js'
+			}
+		};
+
+		var Future = Npm.require('fibers/future');
+
+		var fut = new Future();
+		Meteor.http.get(url, options, function(err, results) {
+			var login = results.data.login;
+
+			var Imap = Npm.require('imap');
+			var s = 'user=' + login + '\001auth=Bearer ' + token + '\001\001';
+			var t = new Buffer(s).toString('base64');
+			var connParams = {
+				id: 13,
+				xoauth2: t,
+				host: 'imap.yandex.com',
+				port: 993,
+				tls: 1,
+				// debug: console.log
+			};
+
+			connParams.tlsOptions = {
+				rejectUnauthorized: false
+			};
+
+			var items = [],
+				uids = [];
+			imap = new Imap(connParams);
+			imap.once('ready', function() {
+				imap.openBox('INBOX', true, function(err, box) {
+					var f = imap.seq.fetch((box.messages.total - 10) + ':' + box.messages.total, {
+						bodies: ['HEADER'],
+						struct: true
+					});
+					f.on('message', function(msg, seqno) {
+						var prefix = '(#' + seqno + ') ';
+						msg.on('body', function(stream, info) {
+							var buffer = '',
+								count = 0;
+							stream.on('data', function(chunk) {
+								count += chunk.length;
+								buffer += chunk.toString('utf8');
+							});
+							stream.once('end', function() {
+								if (info.which !== 'TEXT') {
+									var item = Imap.parseHeader(buffer);
+									items.push(item);
+								} else {
+									bodies.push(buffer);
+								}
+							});
+						});
+						msg.on('attributes', function(attrs) {
+							uids.push(attrs.uid);
+						});
+					});
+					f.once('error', function(err) {
+						console.log('Fetch error: ' + err);
+					});
+					f.once('end', function() {
+						imap.end();
+						var emails = [];
+						_.map(items, function(item, index) {
+							emails.push({
+								from: item.from[0],
+								// body: bodies[index],
+								date: item.date[0],
+								subject: item.subject[0],
+								hash: uids[index]
+							});
+						});
+
+						fut.return(emails);
+					});
+				});
+			});
+			imap.connect();
+		});
+		return fut.wait();
+	},
+
+	'getOneMessage': function(token, id) {
+		var url = 'https://login.yandex.ru/info?oauth_token=' + token;
+		options = {
+			headers: {
+				'User-Agent': 'node.js'
+			}
+		};
+
+		var Future = Npm.require('fibers/future');
+
+		var fut = new Future();
+		Meteor.http.get(url, options, function(err, results) {
+			var login = results.data.login;
+
+			var Imap = Npm.require('imap');
+			var s = 'user=' + login + '\001auth=Bearer ' + token + '\001\001';
+			var t = new Buffer(s).toString('base64');
+			var connParams = {
+				id: 13,
+				xoauth2: t,
+				host: 'imap.yandex.com',
+				port: 993,
+				tls: 1,
+				// debug: console.log
+			};
+
+			connParams.tlsOptions = {
+				rejectUnauthorized: false
+			};
+
+			var items = [];
+			imap = new Imap(connParams);
+			imap.once('ready', function() {
+				imap.openBox('INBOX', true, function(err, box) {
+					console.log(id);
+					imap.search(['ALL', ['UID', id]], function(err, results) {
+						if (err) throw err;
+						var f = imap.seq.fetch(results, {
+							bodies: ''
+						});
+						console.log(results[0]);
+						f.on('message', function(msg, seqno) {
+							var prefix = '(#' + seqno + ') ';
+							msg.on('body', function(stream, info) {
+								var buffer = '',
+									count = 0;
+								stream.on('data', function(chunk) {
+									count += chunk.length;
+									buffer += chunk.toString('utf8');
+								});
+								stream.once('end', function() {
+									console.log(info);
+									if (info.which !== 'TEXT') {} else {
+										items.push(buffer);
+									}
+								});
+							});
+						});
+						f.once('error', function(err) {
+							console.log('Fetch error: ' + err);
+						});
+						f.once('end', function() {
+							imap.end();
+
+							fut.return(items);
+						});
+
+					});
+				});
+			});
+			imap.connect();
+		});
+		return fut.wait();
 	}
+
 });

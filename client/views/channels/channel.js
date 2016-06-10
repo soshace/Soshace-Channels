@@ -145,6 +145,9 @@ Template.channel.helpers({
       case 'bitbucket':
         return Template['bitbucketPreviewTemplate'];
         break;
+      case 'yandex':
+        return Template['yandexPreviewTemplate'];
+        break;
     }
   },
 
@@ -175,6 +178,9 @@ Template.channel.updateData = function(channelId) {
   }
   if (channelData.serviceType === 'github') {
     plugin = new GithubPlugin();
+  }
+  if (channelData.serviceType === 'yandex') {
+    plugin = new YandexPlugin();
   }
 
   plugin.setParameters(serviceData, channelData.serviceResource, !userIsHost, channelId);

@@ -61,6 +61,11 @@ Template.addChannel.events({
     selectService('bitbucket');
   },
 
+  'click .yandex': function(event) {
+    event.preventDefault();
+    selectService('yandex');
+  },
+
   'keyup .channel-add__name-field': function(event) {
     event.preventDefault();
     defaultChannelName = false;
@@ -80,6 +85,8 @@ Template.addChannel.events({
 
     var channelName = newChannelName.val(),
       resourceId = plugin.resourceId;
+
+      console.log(plugin);
 
     Meteor.call('createNewChannel', channelName, selectedService, resourceId, function(error, results) {
       if (error) {
@@ -123,6 +130,13 @@ Template.addChannel.onRendered(function() {
         params.refreshToken = results.data.refresh_token;
       }
 
+      if (selectedService === 'yandex' && !error) {
+        if (results.statusCode !== 200) {
+          return;
+        }
+        params.token = results.data.access_token;
+      }
+
       Meteor.call('addToken', params, function(error, results) {
         if (!error) {
           selectService(selectedService);
@@ -156,7 +170,6 @@ function selectService(service) {
 
   selectedService = service;
   localStorage.setItem('selectedService', service);
-
   newChannelName.val(service);
   switch (service) {
     case 'github':
@@ -165,13 +178,16 @@ function selectService(service) {
     case 'bitbucket':
       plugin = new BitbucketPlugin();
       break;
+    case 'yandex':
+      plugin = new YandexPlugin();
+      break;
     case 'trello':
       break;
   };
 
   if (serviceData && serviceData.token) {
     plugin.setParameters(serviceData);
-    plugin.getUserRepos(getDataforSettingsCallback);
+    plugin.getSettings(getDataforSettingsCallback);
     plugin.setDefaultChannelName(setDefaultName);
   }
 
