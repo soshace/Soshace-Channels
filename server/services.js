@@ -202,8 +202,7 @@ Meteor.methods({
 				imap.search(['ALL', ['UID', id]], function(err, results) {
 					if (err) throw err;
 					var f = imap.fetch(results, {
-						// bodies: ['HEADER', struct > 1 ? 2 : 1],
-						bodies: ['HEADER', '', '1', '2', 'TEXT'],
+						bodies: ['HEADER', struct > 1 ? 2 : 1],
 						struct: true
 					});
 					f.on('message', function(msg, seqno) {
@@ -213,28 +212,24 @@ Meteor.methods({
 						msg.on('body', function(stream, info) {
 							var buffer = '';
 							stream.on('data', function(chunk) {
-								buffer += chunk.toString('utf8');
+								buffer += chunk;
 							});
 							stream.once('end', function() {
-								console.log(info.which);
 								switch (info.which) {
 									case 'HEADER':
+										buffer = buffer.toString('utf8');
 										var i = Imap.parseHeader(buffer);
 										item.from = i.from[0];
 										item.subject = i.subject[0];
 										item.date = i.date[0];
 										break;
 									case '1':
-										item.body1 = buffer;
+										item.body = buffer;
 										break;
 									case '2':
-										item.body2 = buffer;
+										item.body = buffer.split('=\r\n').join('');
+										item.body = item.body.split('=3D"').join('="');
 										break;
-									case 'TEXT':
-										item.text = buffer;
-										break;
-									default:
-										item.defaultText = buffer;
 								}
 							});
 						});
@@ -244,6 +239,10 @@ Meteor.methods({
 					});
 					f.once('end', function() {
 						imap.end();
+						if (item.attr.struct[0].encoding === 'base64' || item.attr.struct[1][0].encoding === 'base64'){
+							var b = new Buffer(item.body, 'base64');
+							item.body = b.toString();
+						}
 						fut.return(item);
 					});
 				});

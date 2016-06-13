@@ -51,25 +51,6 @@
 		var request;
 		if (!isGuest) {
 			Meteor.call('getOneMessage', serviceData, uid, messageStruct, function(error, results) {
-				var struct = results.attr.struct;
-				console.log(results);
-				if (messageStruct === '1') {
-					if (struct[0].encoding === 'base64') {
-						results.body = b64DecodeUnicode(results.body1);
-					} else {
-						results.body = results.body0;
-					}
-				}
-
-				if (messageStruct >= 2) {
-					if (results.attr.struct[1][0].encoding === 'base64') {
-						results.body = b64DecodeUnicode(results.body2);
-					} else {
-						results.body = results.body2;
-					}
-					console.log(results.body);
-					results.body = results.body.split('3D').join('');
-				}
 				getOneEmailCallback(results);
 			});
 		}
