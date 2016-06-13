@@ -167,130 +167,90 @@ Meteor.methods({
 		return fut.wait();
 	},
 
-	'getOneMessage': function(token, id) {
-		var url = 'https://login.yandex.ru/info?oauth_token=' + token;
-		var options = {
-			headers: {
-				'User-Agent': 'node.js'
-			}
-		};
+	'getOneMessage': function(params, id, struct) {
+		// var url = 'https://login.yandex.ru/info?oauth_token=' + token;
+		// var options = {
+		// 	headers: {
+		// 		'User-Agent': 'node.js'
+		// 	}
+		// };
 
 		var Future = Npm.require('fibers/future');
 
-		var fut = new Future(),
-			fut1 = new Future();
-		Meteor.http.get(url, options, function(err, results) {
-			var login = results.data.login;
-			var Imap = Npm.require('imap');
-			var s = 'user=' + login + '\001auth=Bearer ' + token + '\001\001';
-			var t = new Buffer(s).toString('base64');
-			var connParams = {
-				// id: 13,
-				xoauth2: t,
-				host: 'imap.yandex.com',
-				port: 993,
-				tls: 1,
-				// debug: console.log
-			};
+		var fut = new Future();
+		// fut1 = new Future();
+		// Meteor.http.get(url, options, function(err, results) {
+		var login = params.login;
+		var Imap = Npm.require('imap');
+		var s = 'user=' + login + '\001auth=Bearer ' + params.token + '\001\001';
+		var t = new Buffer(s).toString('base64');
+		var connParams = {
+			xoauth2: t,
+			host: 'imap.yandex.com',
+			port: 993,
+			tls: 1
+		};
 
-			connParams.tlsOptions = {
-				rejectUnauthorized: false
-			};
+		connParams.tlsOptions = {
+			rejectUnauthorized: false
+		};
 
-			var item = {};
-			imap = new Imap(connParams);
-			imap.once('ready', function() {
-				console.log(123);
-				imap.openBox('INBOX', true, function(err, box) {
-					imap.search(['ALL', ['UID', id]], function(err, results) {
-						if (err) throw err;
-						var f = imap.fetch(results, {
-							bodies: ['HEADER', '1'],
-							struct: true
+		var item = {};
+		imap = new Imap(connParams);
+		imap.once('ready', function() {
+			imap.openBox('INBOX', true, function(err, box) {
+				imap.search(['ALL', ['UID', id]], function(err, results) {
+					if (err) throw err;
+					var f = imap.fetch(results, {
+						// bodies: ['HEADER', struct > 1 ? 2 : 1],
+						bodies: ['HEADER', '', '1', '2', 'TEXT'],
+						struct: true
+					});
+					f.on('message', function(msg, seqno) {
+						msg.on('attributes', function(attrs) {
+							item.attr = attrs;
 						});
-						f.on('message', function(msg, seqno) {
-							msg.on('attributes', function(attrs) {
-								item.attr = attrs;
+						msg.on('body', function(stream, info) {
+							var buffer = '';
+							stream.on('data', function(chunk) {
+								buffer += chunk.toString('utf8');
 							});
-							msg.on('body', function(stream, info) {
-								var buffer = '';
-								stream.on('data', function(chunk) {
-									buffer += chunk.toString('utf8');
-								});
-								stream.once('end', function() {
-									switch (info.which) {
-										case 'HEADER':
-											var i = Imap.parseHeader(buffer);
-											item.from = i.from[0];
-											item.subject = i.subject[0];
-											item.date = i.date[0];
-											break;
-										case '1':
-											item.body1 = buffer;
-											break;
-										case '2':
-											item.body2 = buffer;
-											break;
-										case 'TEXT':
-											item.body3 = buffer;
-											break;
-										default:
-											item.body0 = buffer;
-									}
-								});
+							stream.once('end', function() {
+								console.log(info.which);
+								switch (info.which) {
+									case 'HEADER':
+										var i = Imap.parseHeader(buffer);
+										item.from = i.from[0];
+										item.subject = i.subject[0];
+										item.date = i.date[0];
+										break;
+									case '1':
+										item.body1 = buffer;
+										break;
+									case '2':
+										item.body2 = buffer;
+										break;
+									case 'TEXT':
+										item.text = buffer;
+										break;
+									default:
+										item.defaultText = buffer;
+								}
 							});
 						});
-						f.once('error', function(err) {
-							console.log('Fetch error: ' + err);
-						});
-						f.once('end', function() {
-							imap.end();
-							fut.return(item);
-						});
+					});
+					f.once('error', function(err) {
+						console.log('Fetch error: ' + err);
+					});
+					f.once('end', function() {
+						imap.end();
+						fut.return(item);
 					});
 				});
 			});
-			imap.connect();
-
-			var res = fut.wait();
-			if (res.attr.struct.length === 1) {
-				fut1.return(res);
-			} else {
-				imap = new Imap(connParams);
-				imap.once('ready', function() {
-					imap.openBox('INBOX', true, function(err, box) {
-						imap.search(['ALL', ['UID', id]], function(err, results) {
-							if (err) throw err;
-							var f = imap.fetch(results, {
-								bodies: ['2'],
-								struct: true
-							});
-							f.on('message', function(msg, seqno) {
-								msg.on('body', function(stream, info) {
-									var buffer = '';
-									stream.on('data', function(chunk) {
-										buffer += chunk.toString('utf8');
-									});
-									stream.once('end', function() {
-										switch (info.which) {
-											case '2':
-												res.body2 = buffer;
-												break;
-										}
-									});
-								});
-							});
-							f.once('end', function() {
-								imap.end();
-								fut1.return(res);
-							});
-						});
-					});
-				});
-				imap.connect();
-			}
 		});
-		return fut1.wait();
+		imap.connect();
+		return fut.wait();
 	},
 
 	'addToken': function(serviceData) {

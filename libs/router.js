@@ -109,7 +109,7 @@ Router.route('/channel/:_id', {
   }
 });
 
-Router.route('/channel/:_id/block/:_blockid', {
+Router.route('/channel/:_id/block/:_blockid/:_struct', {
   name: 'channelBlock',
   template: 'channelBlock',
   data: function() {
@@ -120,7 +120,7 @@ Router.route('/channel/:_id/block/:_blockid', {
   onBeforeAction: function() {
     var currentUser = Meteor.userId();
     if (currentUser) {
-      Template.channelBlock.updateData(this.params._id, this.params._blockid);
+      Template.channelBlock.updateData(this.params._id, this.params._blockid, this.params._struct);
       this.next();
     } else {
       this.render('login');

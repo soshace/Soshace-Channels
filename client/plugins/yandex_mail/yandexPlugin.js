@@ -6,7 +6,8 @@
 		loading, // Boolean variable that triggers if loading through server wasn't finished yet
 		getUserEmailsCallback,
 		self,
-		login;
+		login,
+		messageStruct;
 
 	// Constructor
 	this.YandexPlugin = function() {
@@ -28,16 +29,16 @@
 	// 	getRepositories();
 	// };
 
-	YandexPlugin.prototype.setParameters = function(serviceD, resId, isGst, cnlId) {
+	YandexPlugin.prototype.setParameters = function(serviceD, resId, isGst, cnlId, structType) {
 		serviceData = serviceD;
 		resourceId = resId;
 		isGuest = isGst;
 		channelId = cnlId;
+		messageStruct = structType || 1;
 	};
 
 	YandexPlugin.prototype.getRepoCommits = function(getCommits, getEmails) {
 		Meteor.call('getYandexMessages', serviceData, function(error, results) {
-		// Meteor.call('getOneMessage', serviceData.token, 216, function(error, results) {
 			_.map(results, function(item) {
 				item.channelId = channelId;
 			});
@@ -48,30 +49,27 @@
 
 	YandexPlugin.prototype.getSingleBlock = function(getOneEmailCallback, uid) {
 		var request;
-
 		if (!isGuest) {
-			Meteor.call('getOneMessage', serviceData.token, uid, function(error, results) {
-				// _.map(results, function(item){
-				// 	item.channelId = channelId;
-				// });
+			Meteor.call('getOneMessage', serviceData, uid, messageStruct, function(error, results) {
 				var struct = results.attr.struct;
-				if (struct.length === 1) {
-					if (struct[0].encoding === 'base64'){
-						results.body = b64DecodeUnicode(results.body1);						
-					} else{
+				console.log(results);
+				if (messageStruct === '1') {
+					if (struct[0].encoding === 'base64') {
+						results.body = b64DecodeUnicode(results.body1);
+					} else {
 						results.body = results.body0;
 					}
 				}
 
-				if (struct.length >=2) {
+				if (messageStruct >= 2) {
 					if (results.attr.struct[1][0].encoding === 'base64') {
 						results.body = b64DecodeUnicode(results.body2);
 					} else {
 						results.body = results.body2;
 					}
+					console.log(results.body);
+					results.body = results.body.split('3D').join('');
 				}
-
-				console.log(results);
 				getOneEmailCallback(results);
 			});
 		}
