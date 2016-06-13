@@ -50,7 +50,7 @@ Template.channelBlock.updateData = function(channelId, blockId) {
 
   var channelIsGuest = channelData.createdBy !== Meteor.userId(); // Determine if current user is guest on this channel
 
-  var userTokens = Meteor.user().profile.serviceTokens,
+  var userTokens = Meteor.user().serviceTokens,
     channelToken = userTokens ? _.findWhere(userTokens, {
       serviceName: channelData.serviceType
     }) : '';
@@ -75,7 +75,7 @@ function getSingleBlockCallback(data) {
   singleBlock = data;
   loadComments();
   deps.changed();
-}
+};
 
 function loadComments() {
   var messages = channelData.messages;
@@ -89,7 +89,7 @@ function loadComments() {
       singleBlock.messages.push(messages[i]);
     }
   }
-}
+};
 
 function addComment(resourceBlockId) {
   var message = _commentTextArea.value;
@@ -98,4 +98,4 @@ function addComment(resourceBlockId) {
     Meteor.call('addComment', message, channelData._id, singleBlock.hash, Meteor.userId());
     _commentTextArea.value = '';
   }
-}
+};

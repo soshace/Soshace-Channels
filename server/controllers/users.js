@@ -75,7 +75,8 @@ Meteor.methods({
     Meteor.users.update({_id: this.userId, 'serviceTokens.serviceName': serviceName}, {
       $set: {
         'serviceTokens.$.token': '',
-        'serviceTokens.$.refreshToken': ''
+        'serviceTokens.$.refreshToken': '',
+        'serviceTokens.$.login': ''
       }
     });
   },
@@ -126,39 +127,6 @@ Meteor.methods({
     setContactStatus(currentUserId,contactId,'rejected');
     setContactStatus(contactId,currentUserId,'rejected');
     removeContactFromUserChannels(contactId,currentUserId);
-  },
-
-  'addToken': function(serviceData) {
-    var currentUserId = Meteor.userId(),
-        userTokens = Meteor.user().serviceTokens;
-
-    if (userTokens){
-      var tokenIndex = -1;
-      _.map(userTokens, function(data, index){
-        if (data.serviceName === serviceData.serviceName){
-          tokenIndex = index;
-        }
-      });
-      if (tokenIndex > -1){
-        userTokens[tokenIndex] = serviceData;
-      } else {
-        userTokens.push(serviceData);
-      }
-    } else {
-      userTokens = [serviceData];
-    }
-
-    Meteor.users.update({_id: currentUserId}, {
-      $set: {
-        'serviceTokens': userTokens
-      }
-    }, function(error, results) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log(results);
-      }
-    });
   },
 
   'sendVerificationLink': function() {

@@ -103,96 +103,73 @@ Meteor.methods({
 		return Meteor.http.get(url, options);
 	},
 
-	'getYandexMessages': function(token) {
-		var url = 'https://login.yandex.ru/info?oauth_token=' + token;
-		options = {
-			headers: {
-				'User-Agent': 'node.js'
-			}
-		};
-
-		var Future = Npm.require('fibers/future');
-
-		var fut = new Future();
-		Meteor.http.get(url, options, function(err, results) {
-			var login = results.data.login;
-			var Imap = Npm.require('imap');
-			var s = 'user=' + login + '@yandex.ru\001auth=Bearer ' + token + '\001\001';
-			console.log(s);
-			var t = new Buffer(s).toString('base64');
-			var connParams = {
-				id: 13,
+	'getYandexMessages': function(params) {
+		var Future = Npm.require('fibers/future'),
+			fut = new Future(),
+			Imap = Npm.require('imap'),
+			s = 'user=' + params.login + '@yandex.ru\001auth=Bearer ' + params.token + '\001\001',
+			t = new Buffer(s).toString('base64'),
+			connParams = {
 				xoauth2: t,
 				host: 'imap.yandex.com',
 				port: 993,
-				tls: 1,
-				// debug: console.log
+				tls: 1
 			};
 
-			connParams.tlsOptions = {
-				rejectUnauthorized: false
-			};
+		connParams.tlsOptions = {
+			rejectUnauthorized: false
+		};
 
-			var items = [],
-				uids = [];
-			imap = new Imap(connParams);
-			imap.once('ready', function() {
-				imap.openBox('INBOX', true, function(err, box) {
-					var f = imap.seq.fetch((box.messages.total - 10) + ':' + box.messages.total, {
-						bodies: ['HEADER'],
-						// struct: true
-					});
-					f.on('message', function(msg, seqno) {
-						var prefix = '(#' + seqno + ') ';
-						msg.on('body', function(stream, info) {
-							var buffer = '',
-								count = 0;
-							stream.on('data', function(chunk) {
-								count += chunk.length;
-								buffer += chunk.toString('utf8');
-							});
-							stream.once('end', function() {
-								if (info.which !== 'TEXT') {
-									var item = Imap.parseHeader(buffer);
-									items.push(item);
-								} else {
-									bodies.push(buffer);
-								}
-							});
+		var items = [],
+			uids = [];
+		imap = new Imap(connParams);
+		imap.once('ready', function() {
+			imap.openBox('INBOX', true, function(err, box) {
+				var f = imap.seq.fetch((box.messages.total - 10) + ':' + box.messages.total, {
+					bodies: ['HEADER'],
+					struct: true
+				});
+				f.on('message', function(msg, seqno) {
+					msg.on('body', function(stream, info) {
+						var buffer = '';
+						stream.on('data', function(chunk) {
+							buffer += chunk.toString('utf8');
 						});
-						msg.on('attributes', function(attrs) {
-							uids.push(attrs);
+						stream.once('end', function() {
+							var item = Imap.parseHeader(buffer);
+							items.push(item);
 						});
 					});
-					f.once('error', function(err) {
-						console.log('Fetch error: ' + err);
-					});
-					f.once('end', function() {
-						imap.end();
-						var emails = [];
-						_.map(items, function(item, index) {
-							emails.push({
-								from: item.from ? item.from[0] : '',
-								// body: bodies[index],
-								date: item.date ? item.date[0] : '',
-								subject: item.subject ? item.subject[0] : 'No subject' ,
-								// hash: uids[index].uid,
-								attr: uids[index]
-							});
-						});
-
-						fut.return(emails);
+					msg.on('attributes', function(attrs) {
+						uids.push(attrs);
 					});
 				});
+				f.once('error', function(err) {
+					console.log('Fetch error: ' + err);
+				});
+				f.once('end', function() {
+					imap.end();
+					var emails = [];
+					_.each(items, function(item, index) {
+						emails.push({
+							from: item.from ? item.from[0] : '',
+							date: item.date ? item.date[0] : '',
+							subject: item.subject ? item.subject[0] : 'No subject',
+							attr: uids[index]
+						});
+					});
+
+					fut.return(emails);
+				});
 			});
-			imap.connect();
 		});
+		imap.connect();
 		return fut.wait();
 	},
 
 	'getOneMessage': function(token, id) {
 		var url = 'https://login.yandex.ru/info?oauth_token=' + token;
-		options = {
+		var options = {
 			headers: {
 				'User-Agent': 'node.js'
 			}
@@ -204,7 +181,6 @@ Meteor.methods({
 			fut1 = new Future();
 		Meteor.http.get(url, options, function(err, results) {
 			var login = results.data.login;
-
 			var Imap = Npm.require('imap');
 			var s = 'user=' + login + '\001auth=Bearer ' + token + '\001\001';
 			var t = new Buffer(s).toString('base64');
@@ -224,6 +200,7 @@ Meteor.methods({
 			var item = {};
 			imap = new Imap(connParams);
 			imap.once('ready', function() {
+				console.log(123);
 				imap.openBox('INBOX', true, function(err, box) {
 					imap.search(['ALL', ['UID', id]], function(err, results) {
 						if (err) throw err;
@@ -276,7 +253,7 @@ Meteor.methods({
 			imap.connect();
 
 			var res = fut.wait();
-			if (res.attr.struct.length === 1){
+			if (res.attr.struct.length === 1) {
 				fut1.return(res);
 			} else {
 				imap = new Imap(connParams);
@@ -314,5 +291,85 @@ Meteor.methods({
 			}
 		});
 		return fut1.wait();
+	},
+
+	'addToken': function(serviceData) {
+		var currentUserId = Meteor.userId(),
+			userTokens = Meteor.user().serviceTokens;
+
+		if (serviceData.serviceName === 'yandex') {
+			var url = 'https://login.yandex.ru/info?oauth_token=' + serviceData.token;
+			options = {
+				headers: {
+					'User-Agent': 'node.js'
+				}
+			};
+
+			Meteor.http.get(url, options, function(err, results) {
+				serviceData.login = results.data.login;
+				console.log(results.data.login);
+				if (userTokens) {
+					var tokenIndex = -1;
+					_.each(userTokens, function(data, index) {
+						if ((data.serviceName === serviceData.serviceName) && (data.login === serviceData.login)) {
+							tokenIndex = index;
+						}
+					});
+					if (tokenIndex > -1) {
+						userTokens[tokenIndex] = serviceData;
+					} else {
+						userTokens.push(serviceData);
+					}
+				} else {
+					userTokens = [serviceData];
+				}
+
+				Meteor.users.update({
+					_id: currentUserId
+				}, {
+					$set: {
+						'serviceTokens': userTokens
+					}
+				}, function(error, results) {
+					if (error) {
+						console.log(error);
+					} else {
+						console.log(results);
+					}
+				});
+			});
+			return;
+		}
+
+
+		if (userTokens) {
+			var tokenIndex = -1;
+			_.each(userTokens, function(data, index) {
+				if (data.serviceName === serviceData.serviceName) {
+					tokenIndex = index;
+				}
+			});
+			if (tokenIndex > -1) {
+				userTokens[tokenIndex] = serviceData;
+			} else {
+				userTokens.push(serviceData);
+			}
+		} else {
+			userTokens = [serviceData];
+		}
+
+		Meteor.users.update({
+			_id: currentUserId
+		}, {
+			$set: {
+				'serviceTokens': userTokens
+			}
+		}, function(error, results) {
+			if (error) {
+				console.log(error);
+			} else {
+				console.log(results);
+			}
+		});
 	}
 });

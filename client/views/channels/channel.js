@@ -102,7 +102,7 @@ Template.channel.events({
 
 Template.channel.helpers({
   contacts: function() {
-    var allContacts = Meteor.user().profile.contacts;
+    var allContacts = Meteor.user().contacts;
     var acceptedUsers = _.where(allContacts, {
       contactStatus: 'accepted'
     });
@@ -168,7 +168,7 @@ Template.channel.updateData = function(channelId) {
 
   userIsHost = channelData.createdBy === Meteor.userId();
 
-  var userTokens = Meteor.user().profile.serviceTokens,
+  var userTokens = Meteor.user().serviceTokens,
     serviceData = userTokens ? _.findWhere(userTokens, {
       serviceName: channelData.serviceType
     }) : '';

@@ -13,6 +13,10 @@ Schema.PluginService = new SimpleSchema({
   refreshToken:{
     type: String,
     optional: true
+  },
+  login: {
+    type: String,
+    optional: true
   }
 });
 

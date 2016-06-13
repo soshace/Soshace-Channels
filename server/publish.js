@@ -20,6 +20,17 @@ Meteor.publish('selectedChannel', function(channelId) {
 // 	return Meteor.users.find();
 // });
 
+Meteor.publish(null, function() {
+  return Meteor.users.find({
+    _id: this.userId
+  }, {
+    fields: {
+      personalData: 1,
+      serviceTokens: 1
+    }
+  });
+});
+
 Meteor.publish('publicUserData', function(userId) {
 	return Meteor.users.find({
 		_id: this.userId

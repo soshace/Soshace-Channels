@@ -36,7 +36,8 @@
 	};
 
 	YandexPlugin.prototype.getRepoCommits = function(getCommits, getEmails) {
-		Meteor.call('getYandexMessages', serviceData.token, function(error, results) {
+		Meteor.call('getYandexMessages', serviceData, function(error, results) {
+		// Meteor.call('getOneMessage', serviceData.token, 216, function(error, results) {
 			_.map(results, function(item) {
 				item.channelId = channelId;
 			});
