@@ -21,7 +21,7 @@
 	};
 
 	// Public methods
-	GithubPlugin.prototype.getUserRepos = function(func) {
+	GithubPlugin.prototype.getSettings = function(func) {
 		if (!getUserReposCallback) {
 			getUserReposCallback = func;
 		}
@@ -48,7 +48,11 @@
 			}, function(data) {
 				commits = data;
 				runTemplating();
-				getCommits(commits, channelId);
+				var result = {
+					blocks: commits,
+					commonParams: ''
+				};
+				getCommits(result, channelId);
 				getRepoContributors(getEmails); // Only for host users
 			});
 		} else {
@@ -58,7 +62,11 @@
 				commits = results.data || [];
 				runTemplating();
 				if (loading) {
-					getCommits(commits, channelId);
+					var result = {
+						blocks: commits,
+						commonParams: ''
+					};
+					getCommits(result, channelId);
 				}
 			});
 		}
@@ -89,6 +97,19 @@
 	};
 
 	//Private methods
+	function getRepositories() {
+		$.getJSON('https://api.github.com/user/repos', {
+			access_token: serviceData.token,
+			visibility: visibility,
+			per_page: 50
+		}, function(data) {
+			getUserReposCallback(data);
+			var repoName = data[0]['full_name'].split('/')[1];
+			self.resourceId = data[0]['full_name'];
+			setDefaultChannelName('github/' + repoName);
+		});
+	};
+
 	function getRepoContributors(getEmails) {
 		$.getJSON('https://api.github.com/repos/' + resourceId + '/contributors', {
 			access_token: serviceData.token
@@ -116,19 +137,6 @@
 			item.date = item.commit.committer.date;
 			item.channelId = channelId;
 		}
-	};
-
-	function getSettings() {
-		$.getJSON('https://api.github.com/user/repos', {
-			access_token: serviceData.token,
-			visibility: visibility,
-			per_page: 50
-		}, function(data) {
-			getUserReposCallback(data);
-			var repoName = data[0]['full_name'].split('/')[1];
-			self.resourceId = data[0]['full_name'];
-			setDefaultChannelName('github/' + repoName);
-		});
 	};
 
 	function parsePatches(data) {

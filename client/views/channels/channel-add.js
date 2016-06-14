@@ -86,8 +86,6 @@ Template.addChannel.events({
     var channelName = newChannelName.val(),
       resourceId = plugin.resourceId;
 
-      console.log(plugin);
-
     Meteor.call('createNewChannel', channelName, selectedService, resourceId, function(error, results) {
       if (error) {
         console.log(error.reason);
