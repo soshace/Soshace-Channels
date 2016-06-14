@@ -280,21 +280,30 @@ code {
 .user-avatar {
   position: relative;
 
-  width: 180px;
-  height: 180px;
+  height: 486px;
+  padding: 30px;
   margin: 0 auto;
   border-radius: 4px;
   overflow: hidden;
-  border: 2px solid #E2E7EB;
   background: white;
 }
 
 .user-avatar__link {
+  display: block;
+  overflow: hidden;
+  height: 100%;
 }
 
-.user-avatar img {
-  max-width: 100%;
-  max-height: 100%;
+.user-avatar__img {
+  max-width: 80%;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+
+  border: 2px solid #E2E7EB;
 }
 
 .user-avatar:hover .user-avatar__edit {
@@ -319,4 +328,70 @@ code {
 
 .user-avatar__edit:hover {
   background: rgba(0, 0, 0, 0.6);
+}
+
+.profile-edit-btn {
+  transition: 0.3s ease;
+}
+
+.profile-edit-close {
+  display: none;
+}
+
+.profile input {
+  border: none;
+}
+
+.profile select {
+  border: none;
+}
+
+.profile .user-info-edit {
+  display: none;
+}
+
+.profile-edit .user-info-edit {
+  display: block;
+}
+
+.profile-edit .profile-edit-close {
+  display: block;
+}
+
+.profile-edit .table-profile {
+  display: none;
+}
+
+.profile-edit input {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.profile-edit select {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.profile-edit .profile-edit-btn {
+  display: none;
+}
+
+.delete-user {
+  margin-top: 2px;
+}
+
+.service-name {
+  color: black;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.services-table td div{
+  padding: 10px;
+}
+
+.services-table .service-name {
+  padding-top: 20px;
+}
+
+.services-table .service-action {
+  padding-top: 11px;
 }

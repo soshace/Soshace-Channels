@@ -1,9 +1,10 @@
 Template.profile.events({
-  'submit .user-info': function(event) {
+  'submit .user-info-edit': function(event) {
     event.preventDefault();
 
     // Get data
-    var form = $('.user-info'),
+    var form = $('.user-info-edit'),
+        profileBlock = $('.profile');
         userData = {
           firstName: $('[name=first-name]').val(),
           lastName: $('[name=last-name]').val(),
@@ -19,6 +20,7 @@ Template.profile.events({
       if (error) {
         Bert.alert(error.reason, 'warning');
       } else {
+        profileBlock.removeClass('profile-edit');
         Bert.alert('Successfully changed.', 'success');
       }
     });
@@ -60,5 +62,17 @@ Template.profile.events({
         Bert.alert('Service token was deleted.', 'success');
       }
     });
+  },
+
+  'click .profile-edit-btn': function(event) {
+    event.preventDefault();
+    var profileContainer = $('.profile');
+    profileContainer.addClass('profile-edit');
+  },
+
+  'click .profile-edit-close': function(event) {
+    event.preventDefault();
+    var profileContainer = $('.profile');
+    profileContainer.removeClass('profile-edit');
   }
 });

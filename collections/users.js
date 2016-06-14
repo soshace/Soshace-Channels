@@ -64,12 +64,12 @@ Schema.UserProfile = new SimpleSchema({
     },
     country: {
         type: String,
-        regEx: /^[a-zA-Z]{2,25}$/,
+        //regEx: /^[a-zA-Z]{2,25}$/,
         optional: true
     },
     city: {
         type: String,
-        regEx: /^[a-zA-Z]{2,25}$/,
+        //regEx: /^[a-zA-Z]{2,25}$/,
         optional: true
     }
 });
