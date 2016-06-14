@@ -262,6 +262,53 @@ Meteor.methods({
 		return fut.wait();
 	},
 
+	'replyEmail': function(params) {
+		var login = params.login,
+			s = 'user=' + login + '\001auth=Bearer ' + params.token + '\001\001',
+			t = new Buffer(s).toString('base64'),
+			connParams = {
+				// host: 'smtp.yandex.com',
+				// port: 465,
+				// secure: true,
+				service: 'yandex',
+				auth: {
+					// user: login,
+					// pass: 'jhg%^sk23'
+					xoauth2: t
+				}
+			};
+
+		console.log(s);
+		var nodemailer = new Npm.require('nodemailer');
+		var xoauth2 = new Npm.require('xoauth2');
+		// var transporter = nodemailer.createTransport(connParams);
+		var transporter = nodemailer.createTransport({
+			service: 'yandex',
+			auth: {
+				xoauth2: xoauth2.createXOAuth2Generator({
+					user: login,
+					clientId: Meteor.settings.public.yandex_client_id,
+					clientSecret: Meteor.settings.private.yandex_client_secret,
+					// refreshToken: '{refresh-token}',
+					accessToken: params.token
+				})
+			}
+		});
+		var mailOptions = {
+			from: login, // sender address
+			to: 'zhukov-vit@yandex.ru', // list of receivers
+			subject: 'SSI test', // Subject line
+			text: 'This is test message', // plaintext body
+			html: '<b>Hello world</b>' // html body
+		};
+		transporter.sendMail(mailOptions, function(error, info) {
+			if (error) {
+				return console.log(error);
+			}
+			console.log('Message sent: ' + info.response);
+		});
+	},
+
 	'addToken': function(serviceData) {
 		var currentUserId = Meteor.userId(),
 			userTokens = Meteor.user().serviceTokens;

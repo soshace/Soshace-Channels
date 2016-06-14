@@ -101,12 +101,13 @@
 
 	function getEmails() {};
 
-	Template.yandexSettingsTemplate.events({
-		'change select[name=resource-id]': function(event) {
-			var selectedValue = event.target.value;
-			self.resourceId = selectedValue;
-			var repoName = selectedValue.split('/')[1];
-			setDefaultChannelName('github/' + repoName);
-		},
+	Template.yandexDetailsTemplate.events({
+		'click .channel-block__send-email': function(event) {
+			console.log(123);
+			var body = '';
+			Meteor.call('replyEmail', serviceData, body, function(error, results) {
+
+			});
+		}
 	});
 })();
