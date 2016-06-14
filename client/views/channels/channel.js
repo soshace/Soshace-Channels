@@ -98,6 +98,16 @@ Template.channel.events({
   'click .channel__add-contact-to-channel': function(event, template) {
     Meteor.call('addMember', channelData._id, event.target.id);
   },
+
+  'click .previous-link': function(event, template) {
+    plugin.setPreviousPage();
+    plugin.getRepoCommits(getBlocksCallback, getEmailsCallback);
+  },
+
+  'click .next-link': function(event, template) {
+    plugin.setNextPage();
+    plugin.getRepoCommits(getBlocksCallback, getEmailsCallback);
+  }
 });
 
 Template.channel.helpers({
@@ -132,6 +142,11 @@ Template.channel.helpers({
     return blocks;
   },
 
+  paginationData: function() {
+    deps.depend();
+    return pagination;
+  },
+
   emails: function() {
     deps.depend();
     return associatedEmails;
@@ -158,6 +173,12 @@ Template.channel.helpers({
 });
 
 Template.channel.updateData = function(channelId) {
+  if (channelData) {
+    if (channelData._id === channelId) {
+      return;
+    }
+  }
+
   channelData = Channels.findOne({
     _id: channelId
   });
@@ -188,9 +209,8 @@ Template.channel.updateData = function(channelId) {
 };
 
 function getBlocksCallback(data, resourceId) {
-  blocks = data;
+  blocks = data.blocks;
   deps.changed();
-}
+};
 
-function getEmailsCallback(data) {
-}
+function getEmailsCallback(data) {};

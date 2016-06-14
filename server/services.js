@@ -114,7 +114,8 @@ Meteor.methods({
 				host: 'imap.yandex.com',
 				port: 993,
 				tls: 1
-			};
+			},
+			currentPage = params.currentPage;
 
 		connParams.tlsOptions = {
 			rejectUnauthorized: false
@@ -125,10 +126,13 @@ Meteor.methods({
 		imap = new Imap(connParams);
 		imap.once('ready', function() {
 			imap.openBox('INBOX', true, function(err, box) {
-				var f = imap.seq.fetch((box.messages.total - 10) + ':' + box.messages.total, {
-					bodies: ['HEADER'],
-					struct: true
-				});
+				var total = box.messages.total,
+					start = total - 9 * currentPage,
+					end = total - 9 * (currentPage - 1),
+					f = imap.seq.fetch(start + ':' + end, {
+						bodies: ['HEADER'],
+						struct: true
+					});
 				f.on('message', function(msg, seqno) {
 					msg.on('body', function(stream, info) {
 						var buffer = '';
@@ -159,7 +163,10 @@ Meteor.methods({
 						});
 					});
 
-					fut.return(emails);
+					fut.return({
+						items: emails,
+						box: box
+					});
 				});
 			});
 		});

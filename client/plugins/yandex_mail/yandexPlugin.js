@@ -30,6 +30,7 @@
 	// };
 
 	YandexPlugin.prototype.setParameters = function(serviceD, resId, isGst, cnlId, structType) {
+		serviceD.currentPage = serviceData ? serviceData.currentPage : 1;
 		serviceData = serviceD;
 		resourceId = resId;
 		isGuest = isGst;
@@ -37,13 +38,25 @@
 		messageStruct = structType || 1;
 	};
 
-	YandexPlugin.prototype.getRepoCommits = function(getCommits, getEmails) {
+	YandexPlugin.prototype.setNextPage = function() {
+		serviceData.currentPage += 1;
+	};
+
+	YandexPlugin.prototype.setPreviousPage = function() {
+		serviceData.currentPage -= 1;
+		serviceData.currentPage = serviceData.currentPage < 0 ? 0 : serviceData.currentPage;
+	};
+
+	YandexPlugin.prototype.getRepoCommits = function(getEmailsData, getEmails) {
 		Meteor.call('getYandexMessages', serviceData, function(error, results) {
-			_.map(results, function(item) {
+			_.map(results.items, function(item) {
 				item.channelId = channelId;
 			});
 
-			getCommits(results.reverse());
+			getEmailsData({
+				blocks: results.items.reverse(),
+				commonParams: results.box
+			});
 		});
 	};
 
@@ -84,12 +97,6 @@
 	};
 
 	function getEmails() {};
-
-	function b64DecodeUnicode(str) {
-		return decodeURIComponent(Array.prototype.map.call(atob(str), function(c) {
-			return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-		}).join(''));
-	};
 
 	Template.yandexSettingsTemplate.events({
 		'change select[name=resource-id]': function(event) {
