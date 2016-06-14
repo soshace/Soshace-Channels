@@ -168,28 +168,19 @@ Meteor.methods({
 	},
 
 	'getOneMessage': function(params, id, struct) {
-		// var url = 'https://login.yandex.ru/info?oauth_token=' + token;
-		// var options = {
-		// 	headers: {
-		// 		'User-Agent': 'node.js'
-		// 	}
-		// };
-
 		var Future = Npm.require('fibers/future');
 
-		var fut = new Future();
-		// fut1 = new Future();
-		// Meteor.http.get(url, options, function(err, results) {
-		var login = params.login;
-		var Imap = Npm.require('imap');
-		var s = 'user=' + login + '\001auth=Bearer ' + params.token + '\001\001';
-		var t = new Buffer(s).toString('base64');
-		var connParams = {
-			xoauth2: t,
-			host: 'imap.yandex.com',
-			port: 993,
-			tls: 1
-		};
+		var fut = new Future(),
+			login = params.login,
+			Imap = Npm.require('imap'),
+			s = 'user=' + login + '\001auth=Bearer ' + params.token + '\001\001',
+			t = new Buffer(s).toString('base64'),
+			connParams = {
+				xoauth2: t,
+				host: 'imap.yandex.com',
+				port: 993,
+				tls: 1
+			};
 
 		connParams.tlsOptions = {
 			rejectUnauthorized: false
@@ -223,12 +214,8 @@ Meteor.methods({
 										item.subject = i.subject[0];
 										item.date = i.date[0];
 										break;
-									case '1':
+									default:
 										item.body = buffer;
-										break;
-									case '2':
-										item.body = buffer.split('=\r\n').join('');
-										item.body = item.body.split('=3D"').join('="');
 										break;
 								}
 							});
@@ -239,9 +226,24 @@ Meteor.methods({
 					});
 					f.once('end', function() {
 						imap.end();
-						if (item.attr.struct[0].encoding === 'base64' || item.attr.struct[1][0].encoding === 'base64'){
+
+						if (item.attr.struct.length === 1) {
+							encoding = item.attr.struct[0].encoding;
+						}
+						if (item.attr.struct.length === 2) {
+							encoding = item.attr.struct[1][0].encoding;
+						}
+						if (item.attr.struct.length === 3) {
+							encoding = item.attr.struct[2][0].encoding;
+						}
+
+						if (encoding === 'base64') {
 							var b = new Buffer(item.body, 'base64');
 							item.body = b.toString();
+						}
+						if (encoding === 'quoted-printable') {
+							var mimeLib = Npm.require('mimelib');
+							item.body = mimeLib.decodeQuotedPrintable(item.body);
 						}
 						fut.return(item);
 					});
