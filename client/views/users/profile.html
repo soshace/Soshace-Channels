@@ -4,60 +4,104 @@
     Profile
   </h1>
 
-
+  <div class="profile">
     <div class="row">
 
-      <div class="col-md-4 text-center">
-        <div class="user-avatar m-b-20">
+      <div class="col-md-4">
+        <div class="user-avatar text-center m-b-20">
           <a href="" class="user-avatar__link">
-            <img src="/images/user.png" alt="User avatar">
-            <span class="user-avatar__edit">Change photo</span>
-            <!-- /images/user.png -->
-            <!-- http://cs629231.vk.me/v629231001/c535/Aolq7Qohi2o.jpg -->
+            <img class="user-avatar__img" src="/images/user.png" alt="User avatar">
+            <span class="user-avatar__edit">Change Picture</span>
           </a>
         </div>
 
-        <div class="panel panel-inverse p-t-20 p-b-20">
-
-          <!-- <div class="panel-heading">
-            <h4 class="panel-title">Base info</h4>
-          </div> -->
-
-          <div class="panel-body f-s-14 text-center">
-            <p class="row m-b-20">
-              <div class="col-sm-4 col-md-4 text-right f-w-600">ID:</div>
-              <div class="col-sm-8 col-md-8">{{currentUser.username}}</div>
-            </p>
-
-            <p class="row">
-              <div class="col-sm-4 col-md-4 text-right f-w-600">E-mail: </div>
-              <div class="col-sm-8 col-md-8">{{currentUser.emails.[0].address}}</div>
-              {{#unless currentUser.emails.[0].verified}}
-                <div class="col-sm-offset-4 col-sm-8 col-md-offset-4 col-md-8">
-                  <span class="label label-warning">Need to verify</span>
-                </div>
-                <div class="col-sm-offset-4 col-sm-8 col-md-offset-4 col-md-8">
-                  <a class="resend-verification-link btn btn-link f-s-12" href="#">Resend verification link</a>
-                </div>
-              {{else}}
-                <div class="col-md-offset-4 col-md-8">
-                  <span class="label label-success">Verified</span>
-                </div>
-              {{/unless}}
-            </p>
-          </div>
-
-        </div>
       </div>
 
-      <div class="col-md-4">
-        <div class="panel panel-inverse">
-          <div class="panel-heading">
-            <h4 class="panel-title">Additional info (click to edit)</h4>
-          </div>
-          <div class="panel-body">
+      <div class="col-md-6">
+        <div class="panel">
 
-            <form class="user-info form-horizontal f-s-14">
+          <div class="panel-body">
+            <div class="clearfix">
+              <a href="#" class="profile-edit-btn btn btn-link pull-right">Edit</a>
+              <a href="#" class="profile-edit-close btn btn-link pull-right">Close without saving</a>
+            </div>
+
+            <table class="table table-profile">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>
+                    <h4>{{currentUser.personalData.firstName}} {{currentUser.personalData.lastName}}</h4>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="field">ID</td>
+                  <td><i class="fa fa-user fa-lg m-r-5"></i>{{currentUser.username}}</td>
+                </tr>
+                <tr class="highlight">
+                  <td class="field">Contact Info</td>
+                  <td></td>
+                </tr>
+                <tr class="divider">
+                  <td colspan="2"></td>
+                </tr>
+                <tr>
+                  <td class="field">E-mail:</td>
+                  <td>
+                    <i class="fa fa-at fa-lg m-r-5"></i>
+                    <a href="mailto:{{currentUser.emails.[0].address}}">{{currentUser.emails.[0].address}}</a>
+                    {{#unless currentUser.emails.[0].verified}}
+                    <span class="label label-warning">Need to verify</span>
+                    <a class="resend-verification-link btn btn-link f-s-12" href="#">Resend verification link</a>
+                    {{else}}
+                    <span class="label label-success">Verified</span>
+                    {{/unless}}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="field">Phone</td>
+                  <td><i class="fa fa-phone fa-lg m-r-5"></i> {{currentUser.personalData.phone}}</td>
+                </tr>
+                <tr>
+                  <td class="field">Skype</td>
+                  <td><i class="fa fa-skype fa-lg m-r-5"></i> <a href="skype:{{currentUser.personalData.skype}}">{{currentUser.personalData.skype}}</a></td>
+                </tr>
+                <tr class="divider">
+                  <td colspan="2"></td>
+                </tr>
+                <tr class="highlight">
+                  <td class="field">Personal Info</td>
+                  <td></td>
+                </tr>
+                <tr class="divider">
+                  <td colspan="2"></td>
+                </tr>
+                <tr>
+                  <td class="field">Country/Region</td>
+                  <td>{{currentUser.personalData.country}}</td>
+                </tr>
+                <tr>
+                  <td class="field">City</td>
+                  <td>{{currentUser.personalData.city}}</td>
+                </tr>
+                <!-- <tr>
+                  <td class="field">Website</td>
+                  <td><a href="#">Add Webpage</a></td>
+                </tr> -->
+                <tr>
+                  <td class="field">Gender</td>
+                  <td>{{currentUser.personalData.gender}}</td>
+                </tr>
+                <tr>
+                  <td class="field">Birthdate</td>
+                  <td>{{currentUser.personalData.bday}}</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <form class="user-info-edit form-horizontal f-s-14">
               <div class="form-group">
                 <label class="col-md-4 control-label f-w-600" for="first-name-field">
                   First Name:
@@ -81,10 +125,9 @@
                   Gender:
                 </label>
                 <div class="col-md-8">
-                  <!-- <input class="form-control f-s-14" type="text" name="gender" id="gender-field" value="{{currentUser.personalData.gender}}" placeholder="Select Gender"> -->
                   <select class="form-control f-s-14" name="gender" id="gender-field" value="{{currentUser.personalData.gender}}" placeholder="Select Gender">
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
                   </select>
                 </div>
               </div>
@@ -100,7 +143,7 @@
 
               <div class="form-group">
                 <label class="col-md-4 control-label f-w-600" for="phone-field">
-                  Phone:
+                  Mobile:
                 </label>
                 <div class="col-md-8">
                   <input class="form-control f-s-14" type="tel" name="phone" id="phone-field" value="{{currentUser.personalData.phone}}" placeholder="Enter Phone Number">
@@ -134,62 +177,67 @@
                 </div>
               </div>
 
-              <div class="col-md-offset-4 col-md-4">
-                <input class="btn btn-sm btn-primary" type="submit" value="Save">
+              <div class="col-md-offset-4 col-md-8">
+                <input class="btn btn-primary" type="submit" value="Save">
+                <a href="#" class="delete-user btn btn-sm btn-danger pull-right">Delete account</a>
               </div>
             </form>
           </div>
         </div>
       </div>
 
-      <div class="col-md-4">
+    </div>
+
+    <div class="row">
+      <div class="col-md-10">
         <div class="panel panel-inverse">
           <div class="panel-heading">
             <h4 class="panel-title">Services</h4>
           </div>
+
           <div class="panel-body">
-            {{#each currentUser.serviceTokens}}
-            <div class="row">
-              {{#if token}}
-                <div class="col-xs-3">
-                  <div class="alert alert-success fade in">
-                    <span class="f-w-600">ON</span>
-                   </div>
-                </div>
-                <div class="col-xs-6 p-t-5">
-                  <button type="button" id="{{serviceName}}" class="sign-out-service btn btn-white">
-                    Disconnect {{serviceName}}
-                  </button>
-                </div>
-              {{else}}
-                <div class="col-xs-3">
-                  <div class="alert alert-info fade in">
-                    <span class="f-w-600">OFF</span>
-                  </div>
-                </div>
-                <div class="col-xs-6 p-t-5">
-                  <a class="btn btn-white" href="{{pathFor route='addchannel'}}">Connect service and create new channel</a>
-                </div>
-              {{/if}}
-              </div>
-            {{/each}}
+
+            <table class="table services-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each currentUser.serviceTokens}}
+                <tr>
+                  <td class="service-name">{{serviceName}}</td>
+                  <td class="service-status">
+                    {{#if token}}
+                    <div class="alert alert-success fade in text-center">
+                      <span class="f-w-600">ON</span>
+                     </div>
+                    {{else}}
+                    <div class="alert alert-info fade in text-center">
+                      <span class="f-w-600">OFF</span>
+                    </div>
+                    {{/if}}
+                  </td>
+                  <td class="service-action">
+                    {{#if token}}
+                    <button type="button" id="{{serviceName}}" class="sign-out-service btn btn-white">
+                      Disconnect "{{serviceName}}"
+                    </button>
+                    {{else}}
+                    <a class="btn btn-white" href="{{pathFor route='addchannel'}}">Connect service and create new channel</a>
+                    {{/if}}
+                </td>
+                </tr>
+                {{/each}}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-
     </div>
 
-
-    <!-- <h4>Services</h4>
-
-    <div class="row">
-      <div class="col-md-6">
-
-      </div>
-    </div> -->
-
-    <div class="row">
-      <a href="#" class="delete-user btn btn-danger pull-right">Delete account</a>
-    </div>
+  </div>
 
 </template>
