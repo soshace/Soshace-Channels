@@ -1,11 +1,9 @@
 <template name="yandexPreviewTemplate">
 	<a href="/channel/{{channelId}}/block/{{attr.uid}}/{{attr.struct.length}}">
 		<div class="p-10">
-			<p class="f-s-15 f-w-600">{{subject}}</p>
+			<p class="f-s-15 {{class}}">{{subject}}</p>
 			<em class="grey-text">From: {{from}}</em>
-			<div>
-				<em class="grey-text">Received: {{date}}</em>				
-			</div>
+			<em class="grey-text pull-right">{{formatDateTime date}}</em>				
 		</div>
 	</a>
 </template>

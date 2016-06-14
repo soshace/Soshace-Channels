@@ -34,6 +34,10 @@
   background-image:url(/images/bitbucket.png);
 }
 
+.yandex{
+  background-image:url(/images/yandex.png);
+}
+
 .service-link{
     cursor:pointer;
     background-size:contain;
@@ -139,6 +143,10 @@
 
 .commit__grey-line {
   background-color: #f4f7fb;;
+}
+
+.message__unseen {
+  font-weight: 600;
 }
 
 .tabulation {

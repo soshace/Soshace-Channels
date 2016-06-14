@@ -124,7 +124,7 @@ Meteor.methods({
 		var items = [],
 			uids = [];
 		imap = new Imap(connParams);
-		imap.once('ready', function() {
+		imap.on('ready', function() {
 			imap.openBox('INBOX', true, function(err, box) {
 				var total = box.messages.total,
 					start = total - 9 * currentPage,
@@ -196,12 +196,13 @@ Meteor.methods({
 		var item = {};
 		imap = new Imap(connParams);
 		imap.once('ready', function() {
-			imap.openBox('INBOX', true, function(err, box) {
+			imap.openBox('INBOX', false, function(err, box) {
 				imap.search(['ALL', ['UID', id]], function(err, results) {
 					if (err) throw err;
 					var f = imap.fetch(results, {
 						bodies: ['HEADER', struct > 1 ? 2 : 1],
-						struct: true
+						struct: true,
+						markSeen: true
 					});
 					f.on('message', function(msg, seqno) {
 						msg.on('attributes', function(attrs) {
@@ -275,7 +276,6 @@ Meteor.methods({
 
 			Meteor.http.get(url, options, function(err, results) {
 				serviceData.login = results.data.login;
-				console.log(results.data.login);
 				if (userTokens) {
 					var tokenIndex = -1;
 					_.each(userTokens, function(data, index) {

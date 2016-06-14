@@ -3,6 +3,6 @@ Template.registerHelper('formatDateTime', function(dt) {
   return `${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}  ${date.getHours()}:${date.getMinutes()}`;
 });
 
-Template.registerHelper('equals', function(a, b) {
-  return (a === b);
-});
+// Template.registerHelper('equals', function(a, b) {
+//   return (a === b);
+// });

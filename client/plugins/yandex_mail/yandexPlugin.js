@@ -51,6 +51,9 @@
 		Meteor.call('getYandexMessages', serviceData, function(error, results) {
 			_.map(results.items, function(item) {
 				item.channelId = channelId;
+				if (item.attr.flags.indexOf('\\Seen') === -1) {
+					item.class=' message__unseen';
+				}
 			});
 
 			getEmailsData({
