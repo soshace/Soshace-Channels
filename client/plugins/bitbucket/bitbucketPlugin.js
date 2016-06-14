@@ -44,7 +44,11 @@
 				.done(function(data) {
 					commits = data.values;
 					runTemplating(commits);
-					getCommits(commits, channelId);
+					var result = {
+						blocks: commits,
+						commonParams: ''
+					};
+					getCommits(result, channelId);
 				})
 				.fail(function(error) {
 					if (error.status === 401) {
@@ -58,7 +62,11 @@
 								.done(function(data) {
 									commits = data.values;
 									runTemplating(commits);
-									getCommits(commits, channelId);
+									var result = {
+										blocks: commits,
+										commonParams: ''
+									};
+									getCommits(result, channelId);
 								});
 							Meteor.call('addToken', serviceData);
 						});
@@ -76,7 +84,11 @@
 				commits = results.data.values;
 				runTemplating(commits);
 				if (loading) {
-					getCommits(commits, channelId);
+					var result = {
+						blocks: commits,
+						commonParams: ''
+					};
+					getCommits(result, channelId);
 				}
 			});
 		}
@@ -117,17 +129,7 @@
 		setDefaultChannelName = func;
 	};
 
-	// Private methods
-	function runTemplating(commits) {
-		_.map(commits, function(commit) {
-			commit.name = commit.author.user.display_name;
-			commit.avatar = commit.author.user.links.avatar.href;
-			commit.date = commit.date;
-			commit.channelId = channelId;
-		});
-	};
-
-	function getSettings() {
+	BitbucketPlugin.prototype.getSettings = function(getUserReposCallback) {
 		$.getJSON('https://api.bitbucket.org/2.0/repositories', {
 				role: 'member',
 				access_token: serviceData.token,
@@ -152,6 +154,16 @@
 					});
 				}
 			});
+	};
+
+	// Private methods
+	function runTemplating(commits) {
+		_.map(commits, function(commit) {
+			commit.name = commit.author.user.display_name;
+			commit.avatar = commit.author.user.links.avatar.href;
+			commit.date = commit.date;
+			commit.channelId = channelId;
+		});
 	};
 
 	function parseDiff(data, commitData, getCommitCallback) {

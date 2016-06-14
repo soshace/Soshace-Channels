@@ -168,8 +168,6 @@ function selectService(service) {
       serviceName: service
     });
 
-  console.log(currentUser);
-
   selectedService = service;
   localStorage.setItem('selectedService', service);
   newChannelName.val(service);
