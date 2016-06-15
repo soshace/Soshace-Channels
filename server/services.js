@@ -283,13 +283,15 @@ Meteor.methods({
 				to: message.receiver,
 				subject: message.subject,
 				text: message.body,
-				html: message.bodyHtml
+				html: message.bodyHtml,
+				bcc: login
 			};
 
 		transporter.sendMail(mailOptions, function(error, info) {
 			if (error) {
 				return console.log(error);
 			}
+			appendMessageToSentFolder(params);
 		});
 	},
 
@@ -371,3 +373,36 @@ Meteor.methods({
 		});
 	}
 });
+
+function appendMessageToSentFolder(params) {
+	var login = params.login,
+		Imap = Npm.require('imap'),
+		s = 'user=' + login + '\001auth=Bearer ' + params.token + '\001\001',
+		t = new Buffer(s).toString('base64'),
+		connParams = {
+			xoauth2: t,
+			host: 'imap.yandex.com',
+			port: 993,
+			tls: 1,
+			tlsOptions: {
+				rejectUnauthorized: false
+			}
+		};
+
+	imap = new Imap(connParams);
+	imap.once('ready', function() {
+		imap.getBoxes(function(err, boxes) {
+		});
+		imap.openBox('INBOX', false, function(err, box) {
+			imap.search(['ALL', ['FROM', login]], function(err, results) {
+				if (err) throw err;
+				var f = imap.move(results, 'Отправленные', function(error) {
+					console.log(error);
+				});
+				imap.end();
+			});
+		});
+	});
+	imap.connect();
+	return;
+};
