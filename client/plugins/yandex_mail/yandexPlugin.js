@@ -7,7 +7,8 @@
 		getUserEmailsCallback,
 		self,
 		login,
-		messageStruct;
+		messageStruct,
+		currentBlock;
 
 	// Constructor
 	this.YandexPlugin = function() {
@@ -67,6 +68,7 @@
 		var request;
 		if (!isGuest) {
 			Meteor.call('getOneMessage', serviceData, uid, messageStruct, function(error, results) {
+				currentBlock = results;
 				getOneEmailCallback(results);
 			});
 		}
@@ -101,13 +103,26 @@
 
 	function getEmails() {};
 
+	function replyEmail() {
+		var message = {
+			body: $('.email__reply-textarea').val(),
+			receiver: currentBlock.from,
+			subject: currentBlock.subject
+		};
+		Meteor.call('replyEmail', serviceData, message);
+	};
+
 	Template.yandexDetailsTemplate.events({
 		'click .channel-block__send-email': function(event) {
-			console.log(123);
-			var body = '';
-			Meteor.call('replyEmail', serviceData, body, function(error, results) {
+			event.preventDefault();
+			replyEmail();
+		},
 
-			});
+		'keyup .email__reply-textarea': function(event) {
+		  event.preventDefault();
+		  if ((event.keyCode === 13) && (event.ctrlKey)) {
+		  	replyEmail();
+		  }
 		}
 	});
 })();
