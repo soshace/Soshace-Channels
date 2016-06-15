@@ -1,7 +1,8 @@
 var deps = new Deps.Dependency(),
   plugin,
-  singleBlock, // The content of this block shown in details at this page
-  channelData;
+  singleBlock = {}, // The content of this block shown in details at this page
+  channelData,
+  userIsHost;
 
 Template.channelBlock.events({
   'click .channel-block__add-comment-button': function(event) {
@@ -31,6 +32,7 @@ Template.channelBlock.helpers({
 
   selectedBlock: function() {
     deps.depend();
+    singleBlock.userIsChannelCreator = userIsHost;
     return singleBlock;
   }
 });
@@ -48,12 +50,11 @@ Template.channelBlock.updateData = function(channelId, blockId, structType) {
     return;
   }
 
-  var channelIsGuest = channelData.createdBy !== Meteor.userId(); // Determine if current user is guest on this channel
+  userIsHost = channelData.createdBy === Meteor.userId();
 
-  var userTokens = Meteor.user().serviceTokens,
-    channelToken = userTokens ? _.findWhere(userTokens, {
-      serviceName: channelData.serviceType
-    }) : '';
+  var serviceData = userIsHost ? _.findWhere(Meteor.user().serviceTokens, {
+    serviceName: channelData.serviceType
+  }) : {};
 
   switch (channelData.serviceType) {
     case 'github':
@@ -67,7 +68,7 @@ Template.channelBlock.updateData = function(channelId, blockId, structType) {
       break;
   }
 
-  plugin.setParameters(channelToken, channelData.serviceResource, channelIsGuest, channelData._id, structType);
+  plugin.setParameters(serviceData, channelData.serviceResource, !userIsHost, channelData._id, structType);
   plugin.getSingleBlock(getSingleBlockCallback, blockId);
 };
 

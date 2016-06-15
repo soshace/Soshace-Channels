@@ -17,12 +17,14 @@
 			{{{body}}}
 		</div>
 
+		{{#if userIsChannelCreator}}
 		<div class="email__reply-block">
 			<textarea class="form-control m-b-15 email__reply-textarea" placeholder="Reply..." rows="20"></textarea>
 			<button class="btn btn-primary btn-lg channel-block__send-email">
 			Send
 			</button>
 		</div>
+		{{/if}}
 	</div>
 
 <!-- 	<div class="panel-body">

@@ -189,19 +189,20 @@ Template.channel.updateData = function(channelId) {
 
   userIsHost = channelData.createdBy === Meteor.userId();
 
-  var userTokens = Meteor.user().serviceTokens,
-    serviceData = userTokens ? _.findWhere(userTokens, {
-      serviceName: channelData.serviceType
-    }) : '';
+  var serviceData = userIsHost ? _.findWhere(Meteor.user().serviceTokens, {
+    serviceName: channelData.serviceType
+  }) : {};
 
-  if (channelData.serviceType === 'bitbucket') {
-    plugin = new BitbucketPlugin();
-  }
-  if (channelData.serviceType === 'github') {
-    plugin = new GithubPlugin();
-  }
-  if (channelData.serviceType === 'yandex') {
-    plugin = new YandexPlugin();
+  switch (channelData.serviceType) {
+    case 'github':
+      plugin = new GithubPlugin();
+      break;
+    case 'bitbucket':
+      plugin = new BitbucketPlugin();
+      break;
+    case 'yandex':
+      plugin = new YandexPlugin();
+      break;
   }
 
   plugin.setParameters(serviceData, channelData.serviceResource, !userIsHost, channelId);

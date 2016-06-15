@@ -49,11 +49,15 @@
 	};
 
 	YandexPlugin.prototype.getRepoCommits = function(getEmailsData, getEmails) {
+		if (!serviceData.token && isGuest) {
+			serviceData.channelId = channelId;
+			serviceData.isGuest = true;
+		}
 		Meteor.call('getYandexMessages', serviceData, function(error, results) {
 			_.map(results.items, function(item) {
 				item.channelId = channelId;
 				if (item.attr.flags.indexOf('\\Seen') === -1) {
-					item.class=' message__unseen';
+					item.class = ' message__unseen';
 				}
 			});
 
@@ -65,13 +69,14 @@
 	};
 
 	YandexPlugin.prototype.getSingleBlock = function(getOneEmailCallback, uid) {
-		var request;
-		if (!isGuest) {
-			Meteor.call('getOneMessage', serviceData, uid, messageStruct, function(error, results) {
-				currentBlock = results;
-				getOneEmailCallback(results);
-			});
+		if (!serviceData.token && isGuest) {
+			serviceData.channelId = channelId;
+			serviceData.isGuest = true;
 		}
+		Meteor.call('getOneMessage', serviceData, uid, messageStruct, function(error, results) {
+			currentBlock = results;
+			getOneEmailCallback(results);
+		});
 	};
 
 	YandexPlugin.prototype.setDefaultChannelName = function(func) {
@@ -79,27 +84,6 @@
 	};
 
 	YandexPlugin.prototype.getSettings = function(func) {};
-
-	//Private methods
-	function getRepoContributors(getEmails) {
-		$.getJSON('https://api.github.com/repos/' + resourceId + '/contributors', {
-			access_token: serviceData.token
-		}, function(data) {
-			var contributors = data;
-			var counter = contributors.length;
-			for (var contributor of contributors) {
-				(function(contributor) {
-					$.getJSON('https://api.github.com/users/' + contributor.login, function(data) {
-						counter--; // This counter is used to determine if we took checked contributors for email.
-						contributor.email = data.email || 'private';
-						if (counter === 0) {
-							getEmails(contributors);
-						}
-					});
-				})(contributor);
-			}
-		});
-	};
 
 	function getEmails() {};
 
@@ -119,10 +103,10 @@
 		},
 
 		'keyup .email__reply-textarea': function(event) {
-		  event.preventDefault();
-		  if ((event.keyCode === 13) && (event.ctrlKey)) {
-		  	replyEmail();
-		  }
+			event.preventDefault();
+			if ((event.keyCode === 13) && (event.ctrlKey)) {
+				replyEmail();
+			}
 		}
 	});
 })();

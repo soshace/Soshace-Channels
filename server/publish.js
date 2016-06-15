@@ -26,7 +26,8 @@ Meteor.publish(null, function() {
   }, {
     fields: {
       personalData: 1,
-      serviceTokens: 1
+      serviceTokens: 1,
+      contacts: 1
     }
   });
 });

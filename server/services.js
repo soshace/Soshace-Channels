@@ -104,6 +104,18 @@ Meteor.methods({
 	},
 
 	'getYandexMessages': function(params) {
+		if (params.isGuest) {
+			var hostId = Channels.findOne({
+				_id: params.channelId
+			}).createdBy;
+			var host = Meteor.users.findOne(hostId),
+				serviceTokens = host.serviceTokens,
+				data = _.findWhere(serviceTokens, {
+					serviceName: 'yandex'
+				});
+			params.login = data.login;
+			params.token = data.token;
+		}
 		var Future = Npm.require('fibers/future'),
 			fut = new Future(),
 			Imap = Npm.require('imap'),
@@ -175,9 +187,20 @@ Meteor.methods({
 	},
 
 	'getOneMessage': function(params, id, struct) {
-		var Future = Npm.require('fibers/future');
-
-		var fut = new Future(),
+		if (params.isGuest) {
+			var hostId = Channels.findOne({
+					_id: params.channelId
+				}).createdBy,
+				host = Meteor.users.findOne(hostId),
+				serviceTokens = host.serviceTokens,
+				data = _.findWhere(serviceTokens, {
+					serviceName: 'yandex'
+				});
+			params.login = data.login;
+			params.token = data.token;
+		}
+		var Future = Npm.require('fibers/future'),
+			fut = new Future(),
 			login = params.login,
 			Imap = Npm.require('imap'),
 			s = 'user=' + login + '\001auth=Bearer ' + params.token + '\001\001',
@@ -202,7 +225,7 @@ Meteor.methods({
 					var f = imap.fetch(results, {
 						bodies: ['HEADER', struct > 1 ? 2 : 1],
 						struct: true,
-						markSeen: true
+						markSeen: !params.isGuest
 					});
 					f.on('message', function(msg, seqno) {
 						msg.on('attributes', function(attrs) {
@@ -391,8 +414,7 @@ function appendMessageToSentFolder(params) {
 
 	imap = new Imap(connParams);
 	imap.once('ready', function() {
-		imap.getBoxes(function(err, boxes) {
-		});
+		imap.getBoxes(function(err, boxes) {});
 		imap.openBox('INBOX', false, function(err, box) {
 			imap.search(['ALL', ['FROM', login]], function(err, results) {
 				if (err) throw err;
