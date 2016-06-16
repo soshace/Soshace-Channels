@@ -31,6 +31,22 @@ Router.route('/profile', {
   }
 });
 
+Router.route('/uploadpic', {
+  template: 'profileImage',
+  waitOn: function() {
+    return [
+      Meteor.subscribe('items'),
+      Meteor.subscribe('uploads')
+    ];
+  },
+  data: function() {
+    return {
+      item: Items.findOne(),
+      uploads: Uploads.find()
+    }
+  }
+});
+
 Router.route('/contacts', {
   template: 'contacts',
   onBeforeAction: function() {
