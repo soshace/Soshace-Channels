@@ -56,7 +56,7 @@ Meteor.methods({
     // if (!currentUser) {
     //   throw new Meteor.Error('not-logged-in', 'You are not logged-in.');
     // }
-    console.log(userData);
+
     Meteor.users.update(currentUser, {
       $set: {
         'personalData.firstName': userData.firstName,
