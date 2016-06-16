@@ -21,15 +21,6 @@
 		self = this;
 	};
 
-	// Public methods
-	// YandexPlugin.prototype.getUserEmails = function(func) {
-	// 	if (!getUserEmailsCallback) {
-	// 		getUserEmailsCallback = func;
-	// 	}
-
-	// 	getRepositories();
-	// };
-
 	YandexPlugin.prototype.setParameters = function(serviceD, resId, isGst, cnlId, structType) {
 		serviceD.currentPage = serviceData ? serviceData.currentPage : 1;
 		serviceData = serviceD;
@@ -49,12 +40,7 @@
 	};
 
 	YandexPlugin.prototype.getRepoCommits = function(getEmailsData, getEmails) {
-		if (!serviceData.token && isGuest) {
-			serviceData.channelId = channelId;
-			serviceData.isGuest = true;
-		}
-		serviceData.channelId = channelId;
-		Meteor.call('getYandexMessages', serviceData, function(error, results) {
+		Meteor.call('getYandexMessages', channelId, serviceData.currentPage, function(error, results) {
 			_.map(results.items, function(item) {
 				item.channelId = channelId;
 				if (item.attr.flags.indexOf('\\Seen') === -1) {
@@ -70,11 +56,7 @@
 	};
 
 	YandexPlugin.prototype.getSingleBlock = function(getOneEmailCallback, uid) {
-		if (!serviceData.token && isGuest) {
-			serviceData.isGuest = true;
-		}
-		serviceData.channelId = channelId;
-		Meteor.call('getOneMessage', serviceData, uid, messageStruct, function(error, results) {
+		Meteor.call('getOneMessage', channelId, uid, messageStruct, function(error, results) {
 			currentBlock = results;
 			getOneEmailCallback(results);
 		});

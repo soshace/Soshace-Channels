@@ -12,4 +12,5 @@ Meteor.startup(function(){
 	// 		console.log('user tokens updated');
 	// 	}
 	// })
+	console.log('Meteor started');
 });

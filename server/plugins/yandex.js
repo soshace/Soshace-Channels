@@ -5,14 +5,11 @@
 		login,
 		token;
 
-	this.YandexPlugin = function(channelId, isHost) {
+	this.YandexPlugin = function(channelId) {
 		var channel = Channels.findOne(channelId),
-
 			hostId = channel.createdBy,
-			// login = channel.login,
-			host = Meteor.users.findOne(hostId);
-		accessParams = _.findWhere(host.serviceTokens, {
-				// login: login,
+			host = Meteor.users.findOne(hostId),
+			accessParams = _.findWhere(host.serviceTokens, {
 				serviceName: 'yandex'
 			});
 
@@ -27,7 +24,7 @@
 			items = [],
 			uids = [];
 
-		imap.on('ready', function() {
+		if (imap.state === 'authenticated') {
 			imap.openBox('INBOX', true, function(err, box) {
 				var total = box.messages.total,
 					start = total - 9 * page,
@@ -54,8 +51,8 @@
 				f.once('error', function(err) {
 					console.log('Fetch error: ' + err);
 				});
-				f.once('end', function() {
-					imap.end();
+				f.on('end', function() {
+					// imap.end();
 					var emails = [];
 					_.each(items, function(item, index) {
 						emails.push({
@@ -72,7 +69,7 @@
 					});
 				});
 			});
-		});
+		}
 		return fut.wait();
 	};
 
@@ -81,70 +78,67 @@
 			fut = new Future(),
 			item = {};
 
-		imap.once('ready', function() {
-			imap.openBox('INBOX', false, function(err, box) {
-				imap.search(['ALL', ['UID', id]], function(err, results) {
-					if (err) throw err;
-					var f = imap.fetch(results, {
-						bodies: ['HEADER', struct > 1 ? 2 : 1],
-						struct: true,
-						markSeen: false
+		imap.openBox('INBOX', false, function(err, box) {
+			imap.search(['ALL', ['UID', id]], function(err, results) {
+				if (err) throw err;
+				var f = imap.fetch(results, {
+					bodies: ['HEADER', struct > 1 ? 2 : 1],
+					struct: true,
+					markSeen: false
+				});
+				f.on('message', function(msg, seqno) {
+					msg.on('attributes', function(attrs) {
+						item.attr = attrs;
 					});
-					f.on('message', function(msg, seqno) {
-						msg.on('attributes', function(attrs) {
-							item.attr = attrs;
+					msg.on('body', function(stream, info) {
+						var buffer = '';
+						stream.on('data', function(chunk) {
+							buffer += chunk;
 						});
-						msg.on('body', function(stream, info) {
-							var buffer = '';
-							stream.on('data', function(chunk) {
-								buffer += chunk;
-							});
-							stream.once('end', function() {
-								switch (info.which) {
-									case 'HEADER':
-										buffer = buffer.toString('utf8');
-										var i = Imap.parseHeader(buffer);
-										item.from = i.from[0];
-										item.subject = i.subject[0];
-										item.date = i.date[0];
-										break;
-									default:
-										item.body = buffer;
-										break;
-								}
-							});
+						stream.once('end', function() {
+							switch (info.which) {
+								case 'HEADER':
+									buffer = buffer.toString('utf8');
+									var i = Imap.parseHeader(buffer);
+									item.from = i.from[0];
+									item.subject = i.subject[0];
+									item.date = i.date[0];
+									break;
+								default:
+									item.body = buffer;
+									break;
+							}
 						});
 					});
-					f.once('error', function(err) {
-						console.log('Fetch error: ' + err);
-					});
-					f.once('end', function() {
-						imap.end();
+				});
+				f.once('error', function(err) {
+					console.log('Fetch error: ' + err);
+				});
+				f.once('end', function() {
+					var encoding;
 
-						if (item.attr.struct.length === 1) {
-							encoding = item.attr.struct[0].encoding;
-						}
-						if (item.attr.struct.length === 2) {
-							encoding = item.attr.struct[1][0].encoding;
-						}
-						if (item.attr.struct.length === 3) {
-							encoding = item.attr.struct[2][0].encoding;
-						}
+					if (item.attr.struct.length === 1) {
+						encoding = item.attr.struct[0].encoding;
+					}
+					if (item.attr.struct.length === 2) {
+						encoding = item.attr.struct[1][0].encoding;
+					}
+					if (item.attr.struct.length === 3) {
+						encoding = item.attr.struct[2][0].encoding;
+					}
 
-						if (encoding === 'base64') {
-							var b = new Buffer(item.body, 'base64');
-							item.body = b.toString();
-						}
-						if (encoding === 'quoted-printable') {
-							var mimeLib = Npm.require('mimelib');
-							item.body = mimeLib.decodeQuotedPrintable(item.body);
-						}
-						fut.return(item);
-					});
+					if (encoding === 'base64') {
+						var b = new Buffer(item.body, 'base64');
+						item.body = b.toString();
+					}
+					if (encoding === 'quoted-printable') {
+						var mimeLib = Npm.require('mimelib');
+						item.body = mimeLib.decodeQuotedPrintable(item.body);
+					}
+					fut.return(item);
 				});
 			});
 		});
-		imap.connect();
 		return fut.wait();
 	};
 
@@ -181,8 +175,20 @@
 					rejectUnauthorized: false
 				}
 			};
+
+		var Future = Npm.require('fibers/future'),
+			fut = new Future();
+
+
 		imap = new Imap(connParams);
+		imap.on('error', function(error) {
+			console.log(error);
+		});
+		imap.on('ready', function(error) {
+			fut.return();
+		});
 		imap.connect();
+		return fut.wait();
 	};
 
 	function initSmtp() {

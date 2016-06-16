@@ -1,4 +1,4 @@
-var plugin;
+var plugins = {};
 
 Meteor.methods({
 	'postCodeToService': function(code, service) {
@@ -105,52 +105,22 @@ Meteor.methods({
 		return Meteor.http.get(url, options);
 	},
 
-	'getYandexMessages': function(params) {
-		if (!plugin){
-			plugin = new YandexPlugin(params.channelId, !params.isGuest);			
+	'getYandexMessages': function(channelId, page) {
+		if (!plugins[this.userId]){
+			plugins[this.userId] = new YandexPlugin(channelId);			
 		}
-		return plugin.getInboxMessages(1);
+		return plugins[this.userId].getInboxMessages(page);
 	},
 
-	'getOneMessage': function(params, id, struct) {
-		if (!plugin){
-			plugin = new YandexPlugin(params.channelId, !params.isGuest);			
+	'getOneMessage': function(channelId, id, struct) {
+		if (!plugins[this.userId]){
+			plugins[this.userId] = new YandexPlugin(channelId);			
 		}
-		return plugin.getMessage(id, struct);
+		return plugins[this.userId].getMessage(id, struct);
 	},
 
 	'replyEmail': function(params, message) {
 		plugin.replyEmail(message);
-		// var login = params.login,
-		// 	nodemailer = new Npm.require('nodemailer'),
-		// 	xoauth2 = new Npm.require('xoauth2'),
-		// 	transporter = nodemailer.createTransport({
-		// 		service: 'yandex',
-		// 		auth: {
-		// 			xoauth2: xoauth2.createXOAuth2Generator({
-		// 				user: login,
-		// 				clientId: Meteor.settings.public.yandex_client_id,
-		// 				clientSecret: Meteor.settings.private.yandex_client_secret,
-		// 				// refreshToken: '{refresh-token}',
-		// 				accessToken: params.token
-		// 			})
-		// 		}
-		// 	}),
-		// 	mailOptions = {
-		// 		from: login,
-		// 		to: message.receiver,
-		// 		subject: message.subject,
-		// 		text: message.body,
-		// 		html: message.bodyHtml,
-		// 		bcc: login
-		// 	};
-
-		// transporter.sendMail(mailOptions, function(error, info) {
-		// 	if (error) {
-		// 		return console.log(error);
-		// 	}
-		// 	appendMessageToSentFolder(params);
-		// });
 	},
 
 	'addToken': function(serviceData) {
@@ -229,5 +199,9 @@ Meteor.methods({
 				console.log(results);
 			}
 		});
+	},
+
+	'clearSession': function() {
+		delete plugins[this.userId]
 	}
 });

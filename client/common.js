@@ -6,3 +6,7 @@ Template.registerHelper('formatDateTime', function(dt) {
 // Template.registerHelper('equals', function(a, b) {
 //   return (a === b);
 // });
+
+Meteor.startup(function(){
+	Meteor.call('clearSession');
+});
