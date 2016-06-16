@@ -53,6 +53,7 @@
 			serviceData.channelId = channelId;
 			serviceData.isGuest = true;
 		}
+		serviceData.channelId = channelId;
 		Meteor.call('getYandexMessages', serviceData, function(error, results) {
 			_.map(results.items, function(item) {
 				item.channelId = channelId;
@@ -70,9 +71,9 @@
 
 	YandexPlugin.prototype.getSingleBlock = function(getOneEmailCallback, uid) {
 		if (!serviceData.token && isGuest) {
-			serviceData.channelId = channelId;
 			serviceData.isGuest = true;
 		}
+		serviceData.channelId = channelId;
 		Meteor.call('getOneMessage', serviceData, uid, messageStruct, function(error, results) {
 			currentBlock = results;
 			getOneEmailCallback(results);
