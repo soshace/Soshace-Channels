@@ -87,30 +87,37 @@
 			item = _.findWhere(messages, {
 				uid: Number(uid)
 			}),
-			parser = new MailParser();
+			parser = new MailParser(),
+			bodies = [''];
 
 		if (!item) {
-			return;
+			bodies.push('HEADER');
+			item = {};
 		}
 
 		imap.openBox('INBOX', false, function(err, box) {
 			imap.search(['ALL', ['UID', uid]], function(err, results) {
 				if (err) throw err;
 				var f = imap.fetch(results, {
-					bodies: '',
+					bodies: bodies,
 					markSeen: false
 				});
 				f.on('message', function(msg, seqno) {
 					msg.on('body', function(stream) {
 						stream.on('data', function(chunk) {
-							parser.write(chunk.toString("utf8"));
+							parser.write(chunk.toString('utf8'));
 						});
 					});
 					msg.once('end', function() {
 						parser.end();
 					});
+					parser.on('headers', function(result) {
+						console.log(result);
+						item.from = result ? result.from : '';
+						item.subject = result ? result.subject : '';
+						item.date = result ? result.date : '';
+					});
 					parser.on('end', function(result) {
-
 						item.body = result.html;
 						fut.return(item);
 					});
