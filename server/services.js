@@ -112,15 +112,15 @@ Meteor.methods({
 		return plugins[this.userId].getInboxMessages(page);
 	},
 
-	'getOneMessage': function(channelId, id, struct) {
+	'getOneMessage': function(channelId, id) {
 		if (!plugins[this.userId]){
 			plugins[this.userId] = new YandexPlugin(channelId);			
 		}
-		return plugins[this.userId].getMessage(id, struct);
+		return plugins[this.userId].getMessage(id);
 	},
 
 	'replyEmail': function(params, message) {
-		plugin.replyEmail(message);
+		plugins[this.userId].replyEmail(message);
 	},
 
 	'addToken': function(serviceData) {
