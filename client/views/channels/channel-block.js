@@ -41,7 +41,7 @@ Template.channelBlock.onRendered(function() {
   _commentTextArea = document.getElementsByClassName('channel-block__add-comment-area')[0];
 });
 
-Template.channelBlock.updateData = function(channelId, blockId, structType) {
+Template.channelBlock.updateData = function(channelId, blockId) {
   channelData = Channels.findOne({
     _id: channelId
   });
@@ -68,7 +68,7 @@ Template.channelBlock.updateData = function(channelId, blockId, structType) {
       break;
   }
 
-  plugin.setParameters(serviceData, channelData.serviceResource, !userIsHost, channelData._id, structType);
+  plugin.setParameters(serviceData, channelData.serviceResource, !userIsHost, channelData._id);
   plugin.getSingleBlock(getSingleBlockCallback, blockId);
 };
 

@@ -21,13 +21,12 @@
 		self = this;
 	};
 
-	YandexPlugin.prototype.setParameters = function(serviceD, resId, isGst, cnlId, structType) {
+	YandexPlugin.prototype.setParameters = function(serviceD, resId, isGst, cnlId) {
 		serviceD.currentPage = serviceData ? serviceData.currentPage : 1;
 		serviceData = serviceD;
 		resourceId = resId;
 		isGuest = isGst;
 		channelId = cnlId;
-		messageStruct = structType || 1;
 	};
 
 	YandexPlugin.prototype.setNextPage = function() {
@@ -56,7 +55,7 @@
 	};
 
 	YandexPlugin.prototype.getSingleBlock = function(getOneEmailCallback, uid) {
-		Meteor.call('getOneMessage', channelId, uid, messageStruct, function(error, results) {
+		Meteor.call('getOneMessage', channelId, uid, function(error, results) {
 			currentBlock = results;
 			getOneEmailCallback(results);
 		});
