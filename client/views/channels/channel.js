@@ -173,11 +173,11 @@ Template.channel.helpers({
 });
 
 Template.channel.updateData = function(channelId) {
-  if (channelData) {
-    if (channelData._id === channelId) {
-      return;
-    }
-  }
+  // if (channelData) {
+  //   if (channelData._id === channelId) {
+  //     return;
+  //   }
+  // }
 
   channelData = Channels.findOne({
     _id: channelId

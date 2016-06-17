@@ -7,7 +7,8 @@
 		smtp,
 		login,
 		token,
-		messages;
+		messages,
+		userIsHost = false;
 
 	this.YandexPlugin = function(channelId) {
 		var channel = Channels.findOne(channelId),
@@ -17,6 +18,7 @@
 				serviceName: 'yandex'
 			});
 
+		userIsHost = Meteor.userId() === channel.createdBy;
 		token = accessParams.token;
 		login = accessParams.login;
 		initImap();
@@ -84,11 +86,16 @@
 
 	YandexPlugin.prototype.getMessage = function(uid) {
 		var fut = new Future(),
-			item = _.findWhere(messages, {
-				uid: Number(uid)
-			}),
+			item,
 			parser = new MailParser(),
 			bodies = [''];
+
+		_.each(messages, function(i, index) {
+			if (i.uid === Number(uid)) {
+				item = i;
+				messages[index].attr.flags.push('\\Seen');
+			}
+		});
 
 		if (!item) {
 			bodies.push('HEADER');
@@ -100,7 +107,7 @@
 				if (err) throw err;
 				var f = imap.fetch(results, {
 					bodies: bodies,
-					markSeen: false
+					markSeen: userIsHost
 				});
 				f.on('message', function(msg, seqno) {
 					msg.on('body', function(stream) {
@@ -112,7 +119,6 @@
 						parser.end();
 					});
 					parser.on('headers', function(result) {
-						console.log(result);
 						item.from = result ? result.from : '';
 						item.subject = result ? result.subject : '';
 						item.date = result ? result.date : '';

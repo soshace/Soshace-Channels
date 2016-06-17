@@ -35,7 +35,7 @@
 
 	YandexPlugin.prototype.setPreviousPage = function() {
 		serviceData.currentPage -= 1;
-		serviceData.currentPage = serviceData.currentPage < 0 ? 0 : serviceData.currentPage;
+		serviceData.currentPage = serviceData.currentPage <= 0 ? 1 : serviceData.currentPage;
 	};
 
 	YandexPlugin.prototype.getRepoCommits = function(getEmailsData, getEmails) {
