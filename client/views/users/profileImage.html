@@ -1,32 +1,49 @@
 <template name="profileImage">
 
   <h1 class="page-header">User Picture Uploading</h1>
-  <div class="row">
-    <!-- {{> upload_bootstrap }} -->
-    {{> upload_bootstrap fileTypes='image/*' formData=myFormData}}
-  </div>
 
   <div class="row">
-    {{> uploadedInfo uploads }}
-  </div>
+    <div class="col-md-10">
 
-</template>
+      <div class="panel panel-inverse">
 
+        <div class="panel-heading">Current picture:</div>
 
+        <div class="panel-body text-center">
+          {{#unless currentUser.personalData.picPath}}
+          <img src="/images/user.png" width="150" alt="User Picture">
+          {{else}}
+          <img src="/upload/{{currentUser.personalData.picPath}}" width="100" alt="User Picture">
+          {{/unless}}
+        </div>
+      </div>
 
-<template name="uploadedInfo">
-    <div class="documentList">
-        <ul class="list-inline">
-            {{#each this}}
-                <li class="documentItem">
-                    <a href="/upload/{{path}}"><img src="{{src}}"></a><br/>
-                    <label>{{ name }}</label> <br/>
-                    {{ size }} B<br>
-                    {{#if _id}}
-                        <a class="btn btn-danger deleteUpload">Delete</a>
-                    {{/if}}
-                </li>
-            {{/each}}
-        </ul>
     </div>
+
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <div class="panel panel-inverse">
+
+        <div class="panel-heading">Upload new picture:</div>
+
+        <div class="panel-body">
+          {{> upload_bootstrap fileTypes='image/*' formData=myFormData}}
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="panel panel-inverse">
+
+        <div class="panel-heading">Delete picture:</div>
+
+        <div class="panel-body text-center">
+          <button id="deleteUserPic" class="delete-user btn btn-danger">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </template>

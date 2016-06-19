@@ -10,7 +10,11 @@
       <div class="col-md-4">
         <div class="user-avatar text-center m-b-20">
           <a href="{{pathFor route='uploadpic'}}" class="user-avatar__link">
-            <img class="user-avatar__img" src="/images/user.png" alt="User avatar">
+            {{#unless currentUser.personalData.picPath}}
+            <img class="user-avatar__img" src="/images/user.png" alt="User Picture">
+            {{else}}
+            <img class="user-avatar__img" src="/upload/{{currentUser.personalData.picPath}}" alt="User Picture">
+            {{/unless}}
             <span class="user-avatar__edit">Change Picture</span>
           </a>
         </div>
@@ -48,7 +52,7 @@
                   <td colspan="2"></td>
                 </tr>
                 <tr>
-                  <td class="field">E-mail:</td>
+                  <td class="field">E-mail</td>
                   <td>
                     <i class="fa fa-at fa-lg m-r-5"></i>
                     <a href="mailto:{{currentUser.emails.[0].address}}">{{currentUser.emails.[0].address}}</a>

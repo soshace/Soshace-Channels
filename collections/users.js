@@ -32,6 +32,10 @@ Schema.Contact = new SimpleSchema({
 });
 
 Schema.UserProfile = new SimpleSchema({
+    picPath: {
+      type: String,
+      optional: true
+    },
     firstName: {
         type: String,
         regEx: /^[a-zA-Z]{2,25}$/,

@@ -10,11 +10,11 @@ Accounts.onCreateUser(function(options, user) {
   //user.profile = options.profile || {};
 
   // Assigns 'contacts'/'channels'  to the newly created user object
-  //user.profile.contacts = [];
-  //user.profile.channels = [];
   user.contacts = [];
   user.channels = [];
   user.serviceTokens = [];
+  user.personalData = {};
+  user.personalData.picPath = '';
 
   // Check if user come with invite
   if (options.invited) {
