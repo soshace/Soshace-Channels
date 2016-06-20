@@ -5,7 +5,8 @@ var deps = new Deps.Dependency(),
   channelData,
   channelMembers, // List of this channel members
   userIsHost,
-  contacts; // Users contacts to determine who is not in channel yet
+  contacts, // Users contacts to determine who is not in channel yet
+  loading = true;
 
 Template.channel.events({
   'click .channel__delete': function(event) {
@@ -144,11 +145,13 @@ Template.channel.helpers({
 
   paginationData: function() {
     deps.depend();
+    loading = true;
     return pagination;
   },
 
   emails: function() {
     deps.depend();
+    loading = false;
     return associatedEmails;
   },
 
@@ -169,15 +172,22 @@ Template.channel.helpers({
   userIsChannelCreator: function() {
     deps.depend();
     return userIsHost;
+  },
+
+  contentLoaded: function() {
+    deps.depend();
+    return !loading;
   }
 });
 
 Template.channel.updateData = function(channelId) {
+  loading = true;
+
   channelData = Channels.findOne({
     _id: channelId
   });
 
-  if (!channelData) { // This fix is for avoiding removed channel updating
+  if (!channelData) {
     return;
   }
 
@@ -206,6 +216,7 @@ Template.channel.updateData = function(channelId) {
 
 function getBlocksCallback(data, resourceId) {
   blocks = data.blocks;
+  loading = false;
   deps.changed();
 };
 

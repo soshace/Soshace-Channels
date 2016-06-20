@@ -2,7 +2,8 @@ var deps = new Deps.Dependency(),
   plugin,
   singleBlock = {}, // The content of this block shown in details at this page
   channelData,
-  userIsHost;
+  userIsHost,
+  loading;
 
 Template.channelBlock.events({
   'click .channel-block__add-comment-button': function(event) {
@@ -34,6 +35,11 @@ Template.channelBlock.helpers({
     deps.depend();
     singleBlock.userIsChannelCreator = userIsHost;
     return singleBlock;
+  },
+
+  contentLoaded: function() {
+    deps.depend();
+    return !loading;
   }
 });
 
@@ -42,6 +48,7 @@ Template.channelBlock.onRendered(function() {
 });
 
 Template.channelBlock.updateData = function(channelId, blockId) {
+  loading = true;
   channelData = Channels.findOne({
     _id: channelId
   });
@@ -75,6 +82,7 @@ Template.channelBlock.updateData = function(channelId, blockId) {
 function getSingleBlockCallback(data) {
   singleBlock = data;
   loadComments();
+  loading = false;
   deps.changed();
 };
 
