@@ -9,7 +9,6 @@ Meteor.startup(function () {
     tmpDir: process.env.PWD + '/.upload/tmp',
     uploadDir: process.env.PWD + '/.upload/',
     checkCreateDirectories: true,
-    crop: true,
     getDirectory: function(fileInfo, formData) {
       if (formData && formData.directoryName != null) {
         return formData.directoryName + '/';
@@ -18,7 +17,7 @@ Meteor.startup(function () {
     },
     getFileName: function(fileInfo, formData) {
       if (formData && formData.user != null) {
-        return formData.user + '_' + fileInfo.name;
+        return formData.user + '_' + 'pic';
       }
       return fileInfo.name;
     },
@@ -26,6 +25,26 @@ Meteor.startup(function () {
       // double slash bug because of 'getDirectory' method
       fileInfo.path = fileInfo.path.replace("images//", "images/");
       fileInfo.url = fileInfo.url.replace("images//", "images/");
+
+      console.log('fileinfo:');
+      console.log(fileInfo);
+      console.log('_______');
+
+      //var features = Imagemagick.identify(process.env.PWD + '/.upload/' + fileInfo.path);
+      //var features = Imagemagick.identify(process.env.PWD + '/.upload/' + fileInfo.path);
+
+      // console.log('features imagemagick:');
+      // console.log(features);
+      // console.log('_______');
+
+      Imagemagick.resize({
+        srcPath: process.env.PWD + '/.upload/' + fileInfo.path,
+        dstPath: process.env.PWD + '/.upload/' + fileInfo.path,
+        width: 300,
+        height: 300
+      });
+
+      // fileInfo.path = fileInfo.path + '.' + (features.format).toLowerCase();
 
       if (formData && formData.user != null) {
         var isUserHavePic = Uploads.findOne({ _id: formData.user});

@@ -32,7 +32,15 @@ Router.route('/profile', {
 });
 
 Router.route('/uploadpic', {
-  template: 'profileImage'
+  template: 'profileImage',
+  onBeforeAction: function() {
+    var currentUser = Meteor.userId();
+    if (currentUser) {
+      this.next();
+    } else {
+      this.render('login');
+    }
+  }
 });
 
 Router.route('/contacts', {
