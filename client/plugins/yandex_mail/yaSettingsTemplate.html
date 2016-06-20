@@ -1,16 +1,25 @@
 <template name="yandexSettingsTemplate">
-
-	<div class="row m-b-10">
-
-		<div class="m-b-10 hidden github__external-name">
-		  <div class="row text-center lead m-b-10">
-		    <span>Enter repository name:</span>
-		  </div>
-
-		  <div class="p-l-40 p-r-40">
-		    <input class="form-control input-lg m-auto github__name-field" type="text">
-		  </div>
+<div class="row m-b-10">
+	<div class="m-b-10">
+		<div class="row text-center lead m-b-10">
+			<span>Select account:</span>
+		</div>
+		<div class="p-l-40 p-r-40">
+			<select class="form-control input-lg m-auto yandex__accounts-list">
+				{{#each settingsData}}
+				<option value="{{login}}">{{this}}</option>
+				{{/each}}
+				<option value="new">New...</option>
+			</select>
 		</div>
 	</div>
-
+	<div class="p-l-40 p-r-40 hidden yandex__new-account-container">
+<!-- 		<div class="m-b-10">
+			<input class="form-control input-lg m-auto yandex__new-account" type="text" placeholder="Enter email you want connect to...">			
+		</div> -->
+		<div class="row text-center">
+			{{> yandexAuthTemplate}}
+		</div>
+	</div>
+</div>
 </template>

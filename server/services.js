@@ -106,16 +106,15 @@ Meteor.methods({
 	},
 
 	'getYandexMessages': function(channelId, page) {
-		if (!plugins[this.userId]){
-			console.log(this.userId);
-			plugins[this.userId] = new YandexPlugin(channelId);			
+		if (!plugins[this.userId] || !(channelId === plugins[this.userId].channelId)) {
+			plugins[this.userId] = new YandexPlugin(channelId);
 		}
 		return plugins[this.userId].getInboxMessages(page);
 	},
 
 	'getOneMessage': function(channelId, id) {
-		if (!plugins[this.userId]){
-			plugins[this.userId] = new YandexPlugin(channelId);			
+		if (!plugins[this.userId]) {
+			plugins[this.userId] = new YandexPlugin(channelId);
 		}
 		return plugins[this.userId].getMessage(id);
 	},
@@ -138,6 +137,10 @@ Meteor.methods({
 
 			Meteor.http.get(url, options, function(err, results) {
 				serviceData.login = results.data.login;
+				if (serviceData.login.indexOf('@') === -1) {
+
+				}
+
 				if (userTokens) {
 					var tokenIndex = -1;
 					_.each(userTokens, function(data, index) {

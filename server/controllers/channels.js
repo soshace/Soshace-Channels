@@ -1,29 +1,22 @@
 // Methods working with 'Channels' collection
 
 Meteor.methods({
-  'createNewChannel': function(channelName, channelType, resourceId) {
-    var currentUser = this.userId;
-    //check(channelName, String);
-    //check(channelType, String);
+  'createNewChannel': function(newChannel) {
+    var currentUserId = this.userId,
+      data = {
+        name: newChannel.name,
+        serviceType: newChannel.service,
+        serviceResource: newChannel.resourceId,
+        login: newChannel.login,
+        createdBy: currentUserId,
+        createdAt: new Date(),
+        members: [],
+        messages: []
+      };
 
-    if (!channelName) {
-      channelName = defaultName(currentUser);
-    }
-
-    var data = {
-      name: channelName,
-      createdBy: currentUser,
-      createdAt: new Date(),
-      members: [],
-      serviceType: channelType,
-      serviceResource: resourceId,
-      messages: []
-    };
-
-    if (!currentUser) {
+    if (!currentUserId) {
       throw new Meteor.Error('not-logged-in', 'You are not logged-in.');
     }
-    console.log(data);
     return Channels.insert(data);
   },
 

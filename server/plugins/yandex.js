@@ -10,20 +10,24 @@
 		messages,
 		mailBox,
 		userIsHost = false,
-		currentPage = 0;
+		currentPage;
 
 	this.YandexPlugin = function(channelId) {
-		console.log('pluginCreated');
 		var channel = Channels.findOne(channelId),
 			hostId = channel.createdBy,
 			host = Meteor.users.findOne(hostId),
 			accessParams = _.findWhere(host.serviceTokens, {
-				serviceName: 'yandex'
+				serviceName: 'yandex',
+				login: channel.login
 			});
+
+
+		this.channelId = channelId;
+		currentPage = 0;
 
 		userIsHost = Meteor.userId() === channel.createdBy;
 		token = accessParams.token;
-		login = accessParams.login;
+		login = accessParams.login + '@yandex.ru';
 		initImap();
 	};
 
@@ -45,16 +49,16 @@
 
 		imap.openBox('INBOX', true, function(err, box) {
 			var total = box.messages.total,
-				start = total - 9 * page,
-				end = total - 9 * (page - 1),
+				end = total - 10 * (page - 1) > 0 ? total - 10 * (page - 1) : total - 10 * (page - 1),
+				start = (total - 10 * page) + 1> 0 ? (total - 10 * page + 1) : 1,
 				f = imap.seq.fetch(start + ':' + end, {
 					bodies: ['HEADER'],
 					struct: true
 				});
 
 			f.on('message', function(msg, seqno) {
-				var buffer = '';
-				var item = {};
+				var buffer = '',
+					item = {};
 				msg.on('attributes', function(attrs) {
 					item.attr = attrs;
 					item.uid = attrs.uid;
@@ -69,9 +73,9 @@
 							case 'HEADER':
 								buffer = buffer.toString('utf8');
 								var i = Imap.parseHeader(buffer);
-								item.from = i.from[0];
-								item.subject = i.subject[0];
-								item.date = i.date[0];
+								item.from = i.from ? i.from[0] : '';
+								item.subject = i.subject ? i.subject[0] : 'No subject';
+								item.date = i.date ? i.date[0] : '';
 								break;
 							default:
 								item.body = buffer;
@@ -193,8 +197,6 @@
 
 		var Future = Npm.require('fibers/future'),
 			fut = new Future();
-
-
 		imap = new Imap(connParams);
 		imap.on('error', function(error) {
 			console.log(error);

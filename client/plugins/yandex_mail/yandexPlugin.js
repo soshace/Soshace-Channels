@@ -15,7 +15,6 @@
 		this.settingsTemplateName = 'yandexSettingsTemplate';
 		this.previewTemplateName = 'yandexPreviewTemplate';
 		this.authTemplate = 'yandexAuthTemplate';
-		this.clientKey = Meteor.settings.public.yandex_client_id;
 		this.resourceId = 'yandex';
 
 		self = this;
@@ -65,7 +64,29 @@
 		setDefaultChannelName = func;
 	};
 
-	YandexPlugin.prototype.getSettings = function(func) {};
+	YandexPlugin.prototype.setDefaultChannelName = function(func) {
+		setDefaultChannelName = func;
+	};
+
+	YandexPlugin.prototype.getSettings = function(func) {
+		var tokens = Meteor.user().serviceTokens,
+			logins = [];
+		if (tokens) {
+			_.each(tokens, function(item) {
+				if (item.serviceName === 'yandex') {
+					logins.push(item.login);
+				}
+			});
+		}
+		if (logins.length > 0) {
+			login = logins[0];
+		}
+		func(logins);
+	};
+
+	YandexPlugin.prototype.getLogin = function() {
+		return login;
+	};
 
 	function getEmails() {};
 
@@ -91,4 +112,22 @@
 			}
 		}
 	});
+
+	Template.yandexSettingsTemplate.events({
+		'change .yandex__accounts-list': function(event) {
+			login = event.target.value;
+			if (this.login === 'new') {
+				$('.yandex__new-account-container').removeClass('hidden');
+			} else {
+				$('.yandex__new-account-container').addClass('hidden');
+			}
+		}
+	});
+
+	Template.yandexAuthTemplate.helpers({
+		clientId: function() {
+			return Meteor.settings.public.yandex_client_id;
+		},
+	});
+
 })();

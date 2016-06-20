@@ -173,12 +173,6 @@ Template.channel.helpers({
 });
 
 Template.channel.updateData = function(channelId) {
-  // if (channelData) {
-  //   if (channelData._id === channelId) {
-  //     return;
-  //   }
-  // }
-
   channelData = Channels.findOne({
     _id: channelId
   });
@@ -190,7 +184,8 @@ Template.channel.updateData = function(channelId) {
   userIsHost = channelData.createdBy === Meteor.userId();
 
   var serviceData = userIsHost ? _.findWhere(Meteor.user().serviceTokens, {
-    serviceName: channelData.serviceType
+    serviceName: channelData.serviceType,
+    login: channelData.login
   }) : {};
 
   switch (channelData.serviceType) {

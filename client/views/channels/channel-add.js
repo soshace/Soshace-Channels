@@ -83,10 +83,14 @@ Template.addChannel.events({
   'click .channel-add__button-create': function(event) {
     event.preventDefault();
 
-    var channelName = newChannelName.val(),
-      resourceId = plugin.resourceId;
+    var newChannel = {
+      name: newChannelName.val(),
+      service: selectedService,
+      resourceId: plugin.resourceId,
+      login: plugin.getLogin()
+    };
 
-    Meteor.call('createNewChannel', channelName, selectedService, resourceId, function(error, results) {
+    Meteor.call('createNewChannel', newChannel, function(error, results) {
       if (error) {
         console.log(error.reason);
       } else {
@@ -162,7 +166,7 @@ function getDataforSettingsCallback(data) {
 
 function selectService(service) {
   var currentUser = Meteor.user(),
-    serviceData = _.findWhere(currentUser.serviceTokens, {
+    serviceData = _.where(currentUser.serviceTokens, {
       serviceName: service
     });
 
@@ -183,10 +187,11 @@ function selectService(service) {
       break;
   }
 
-  if (serviceData && serviceData.token) {
+  if (serviceData) {
+    serviceData = serviceData[0];
     plugin.setParameters(serviceData);
-    plugin.getSettings(getDataforSettingsCallback);
     plugin.setDefaultChannelName(setDefaultName);
+    plugin.getSettings(getDataforSettingsCallback);
   }
 
   displayAuthButton(serviceData ? serviceData.token : false);

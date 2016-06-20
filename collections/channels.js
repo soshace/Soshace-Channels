@@ -42,6 +42,9 @@ Schemas.Channel = new SimpleSchema({
   serviceResource: {
     type: String
   },
+  login: {
+    type: String
+  },
   messages: {
     type: [Schemas.ChannelMessage]
   }
