@@ -8,9 +8,12 @@
 		login,
 		token,
 		messages,
-		userIsHost = false;
+		mailBox,
+		userIsHost = false,
+		currentPage = 0;
 
 	this.YandexPlugin = function(channelId) {
+		console.log('pluginCreated');
 		var channel = Channels.findOne(channelId),
 			hostId = channel.createdBy,
 			host = Meteor.users.findOne(hostId),
@@ -25,10 +28,21 @@
 	};
 
 	YandexPlugin.prototype.getInboxMessages = function(page) {
-		var Future = Npm.require('fibers/future'),
-			fut = new Future();
+		if (currentPage === page) {
+			return {
+				items: messages,
+				box: mailBox
+			};
+		}
+		currentPage = page;
+
+		var fut = new Future();
 
 		messages = [];
+		if (imap.state !== 'authenticated') {
+			imap.connect();
+		};
+
 		imap.openBox('INBOX', true, function(err, box) {
 			var total = box.messages.total,
 				start = total - 9 * page,
@@ -66,7 +80,6 @@
 					});
 				});
 				msg.on('end', function() {
-					if (item.attr) {}
 					messages.push(item);
 				});
 			});
@@ -75,6 +88,7 @@
 			});
 			f.once('end', function() {
 				// imap.end();
+				mailBox = box;
 				fut.return({
 					items: messages,
 					box: box
@@ -93,7 +107,9 @@
 		_.each(messages, function(i, index) {
 			if (i.uid === Number(uid)) {
 				item = i;
-				messages[index].attr.flags.push('\\Seen');
+				if (messages[index].attr.flags.indexOf('\\Seen') === -1) {
+					messages[index].attr.flags.push('\\Seen');
+				}
 			}
 		});
 
@@ -101,6 +117,10 @@
 			bodies.push('HEADER');
 			item = {};
 		}
+
+		if (imap.state !== 'authenticated') {
+			imap.connect();
+		};
 
 		imap.openBox('INBOX', false, function(err, box) {
 			imap.search(['ALL', ['UID', uid]], function(err, results) {
@@ -125,13 +145,13 @@
 					});
 					parser.on('end', function(result) {
 						item.body = result.html;
+						// imap.end();
 						fut.return(item);
 					});
 				});
 				f.once('error', function(err) {
 					console.log('Fetch error: ' + err);
 				});
-				f.once('end', function() {});
 			});
 		});
 		return fut.wait();

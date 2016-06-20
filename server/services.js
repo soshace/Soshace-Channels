@@ -107,6 +107,7 @@ Meteor.methods({
 
 	'getYandexMessages': function(channelId, page) {
 		if (!plugins[this.userId]){
+			console.log(this.userId);
 			plugins[this.userId] = new YandexPlugin(channelId);			
 		}
 		return plugins[this.userId].getInboxMessages(page);
