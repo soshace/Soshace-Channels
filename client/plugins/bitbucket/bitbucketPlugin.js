@@ -12,7 +12,7 @@
 		this.settingsTemplateName = 'bitbucketSettingsTemplate';
 		this.previewTemplateName = 'bitbucketPreviewTemplate';
 		this.authTemplate = 'bitbucketAuthTemplate';
-		this.clientKey = Meteor.settings.public.bitbucket_client_id;
+		// this.clientKey = Meteor.settings.public.bitbucket_client_id;
 
 		self = this;
 	};
@@ -280,4 +280,11 @@
 			setDefaultChannelName('bitbucket/' + repoName);
 		},
 	});
+
+	Template.bitbucketAuthTemplate.helpers({
+		clientId: function() {
+			return Meteor.settings.public.bitbucket_client_id;
+		},
+	});
+
 })();

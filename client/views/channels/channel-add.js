@@ -36,13 +36,13 @@ Template.addChannel.helpers({
     return selectedService;
   },
 
-  clientkey: function() {
-    deps.depend();
-    if (plugin) {
-      return plugin.clientKey;
-    }
-    return null;
-  }
+  // clientkey: function() {
+  //   deps.depend();
+  //   if (plugin) {
+  //     return plugin.clientKey;
+  //   }
+  //   return null;
+  // }
 });
 
 Template.addChannel.events({

@@ -14,7 +14,7 @@
 		this.settingsTemplateName = 'githubSettingsTemplate';
 		this.previewTemplateName = 'githubPreviewTemplate';
 		this.authTemplate = 'githubAuthTemplate';
-		this.clientKey = Meteor.settings.public.github_client_id;
+		// this.clientKey = Meteor.settings.public.github_client_id;
 
 		visibility = 'all';
 		self = this;
@@ -230,4 +230,11 @@
 			}
 		}
 	});
+
+	Template.githubAuthTemplate.helpers({
+		clientId: function() {
+			return Meteor.settings.public.github_client_id;
+		},
+	});
+
 })();
