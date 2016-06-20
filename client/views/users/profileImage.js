@@ -1,11 +1,16 @@
 Template.profileImage.helpers({
   myFormData: function() {
-    return { directoryName: 'images', prefix: this._id, _id: this._id }
+    // this.what = 'lol';
+    return { directoryName: 'images', user: Meteor.userId() }
   }
 });
 
-Meteor.startup(function() {
-  Uploader.finished = function(index, file) {
-    Uploads.insert(file);
+Template.profileImage.events({
+  'click #deleteUserPic': function(event) {
+    var userId = Meteor.userId();
+    if (confirm('Are you sure?')) {
+      Meteor.call('deleteFile', userId, true);
+      Router.go('profile');
+    }
   }
-});
+})

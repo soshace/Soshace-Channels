@@ -41,15 +41,16 @@ Template.profile.events({
 
   'click .delete-user': function(event) {
     event.preventDefault();
-
-    Meteor.call('deleteAccount', function(error) {
-      if (error) {
-        Bert.alert(error.reason, 'warning');
-      } else {
-        Router.go('register');
-        Bert.alert('Your account was deleted.', 'success');
-      }
-    });
+    if (confirm('Are you sure?')) {
+      Meteor.call('deleteAccount', function(error) {
+        if (error) {
+          Bert.alert(error.reason, 'warning');
+        } else {
+          Router.go('register');
+          Bert.alert('Your account was deleted.', 'success');
+        }
+      });
+    }
   },
 
   'click .sign-out-service': function(event) {

@@ -1,5 +1,5 @@
 settings.json
-upload/
+.upload/
 
 command.sh
 node_modules/

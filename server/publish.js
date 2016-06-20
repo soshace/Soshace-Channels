@@ -39,7 +39,8 @@ Meteor.publish('publicUserData', function(userId) {
 		fields: {
 			'username': 1,
 			'personalData.firstName': 1,
-			'personalData.lastName': 1
+			'personalData.lastName': 1,
+			'personalData.picPath': 1
 		}
 	});
 });
@@ -115,11 +116,3 @@ Meteor.publish('guestChannelCreators', function() {
 		}
 	});
 });
-
-Meteor.publish('items', function() {
-  return Items.find();
-});
-
-Meteor.publish('uploads', function() {
-  return Uploads.find();
-})
