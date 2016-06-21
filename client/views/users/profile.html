@@ -83,17 +83,9 @@
                   <td colspan="2"></td>
                 </tr>
                 <tr>
-                  <td class="field">Country/Region</td>
-                  <td>{{currentUser.personalData.country}}</td>
+                  <td class="field">Location</td>
+                  <td>{{currentUser.personalData.location}}</td>
                 </tr>
-                <tr>
-                  <td class="field">City</td>
-                  <td>{{currentUser.personalData.city}}</td>
-                </tr>
-                <!-- <tr>
-                  <td class="field">Website</td>
-                  <td><a href="#">Add Webpage</a></td>
-                </tr> -->
                 <tr>
                   <td class="field">Gender</td>
                   <td>{{currentUser.personalData.gender}}</td>
@@ -164,20 +156,12 @@
               </div>
 
               <div class="form-group">
-                <label class="col-md-4 control-label f-w-600" for="country-field">
-                  Country:
+                <label class="col-md-4 control-label f-w-600" for="location-field">
+                  Location:
                 </label>
                 <div class="col-md-8">
-                  <input class="form-control f-s-14" type="text" name="country" id="country-field" value="{{currentUser.personalData.country}}" placeholder="Enter Country">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="col-md-4 control-label f-w-600" for="city-field">
-                  City:
-                </label>
-                <div class="col-md-8">
-                  <input class="form-control f-s-14" type="text" name="city" id="city-field" value="{{currentUser.personalData.city}}" placeholder="Enter City">
+                  <input class="form-control f-s-14" id="location-field" type="text" name="location" value="{{currentUser.personalData.location}}">
+                  <div id="response"></div>
                 </div>
               </div>
 

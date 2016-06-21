@@ -69,6 +69,55 @@ Template.profile.events({
     event.preventDefault();
     var profileContainer = $('.profile');
     profileContainer.addClass('profile-edit');
+    //$("#location-field").placecomplete({});
+
+    // $("#location-field").placecomplete({
+    //   width: "element",
+    //   placeholderText: "Enter your location here"
+    // });
+
+    // var $el = $("#location-field"),
+    //     $responseEl = $("#response");
+    //
+    // $el.placecomplete({
+    //     width: "element"
+    // });
+
+    //var tmpl = Handlebars.compile($("#response-template").html());
+
+    // $el.on({
+    //     "placecomplete:selected": function(evt, placeResult) {
+    //         var data = JSON.stringify(placeResult, undefined, 2);
+    //
+    //         var context = {
+    //             eventType: evt.type,
+    //             dataTypeHTML: "<a href='https://developers.google.com/maps/documentation/javascript/reference#PlaceResult'>Google Maps API PlaceResult</a> augmented with display_text property",
+    //             data: data
+    //         };
+    //         $responseEl.html(tmpl(context));
+    //
+    //         // Add syntax highlighting via highlight.js
+    //         $responseEl.find("pre code").each(function(i, el) {
+    //             hljs.highlightBlock(el);
+    //         });
+    //     },
+    //     "placecomplete:cleared": function(evt) {
+    //         var context = {
+    //             eventType: evt.type
+    //         };
+    //         $responseEl.html(tmpl(context));
+    //     },
+    //     "placecomplete:error": function(evt, errorMsg) {
+    //         var context = {
+    //             eventType: evt.type,
+    //             dataTypeHTML: "<a href='https://developers.google.com/maps/documentation/javascript/reference#PlacesServiceStatus'>google.maps.places.PlacesServiceStatus</a>",
+    //             data: '"' + errorMsg + '"'
+    //         };
+    //         $responseEl.html(tmpl(context));
+    //     }
+    // });
+    // $el.select2("open", true);
+
   },
 
   'click .profile-edit-close': function(event) {
