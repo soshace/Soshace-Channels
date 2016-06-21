@@ -12,7 +12,7 @@
 		this.settingsTemplateName = 'bitbucketSettingsTemplate';
 		this.previewTemplateName = 'bitbucketPreviewTemplate';
 		this.authTemplate = 'bitbucketAuthTemplate';
-		this.clientKey = Meteor.settings.public.bitbucket_client_id;
+		// this.clientKey = Meteor.settings.public.bitbucket_client_id;
 
 		self = this;
 	};
@@ -32,7 +32,7 @@
 		channelId = cnlId;
 	};
 
-	BitbucketPlugin.prototype.getRepoCommits = function(getCommits, getEmails) {
+	BitbucketPlugin.prototype.getChannelBlocks = function(getCommits, getEmails) {
 		loading = false;
 		var request;
 		commits = [];
@@ -280,4 +280,11 @@
 			setDefaultChannelName('bitbucket/' + repoName);
 		},
 	});
+
+	Template.bitbucketAuthTemplate.helpers({
+		clientId: function() {
+			return Meteor.settings.public.bitbucket_client_id;
+		},
+	});
+
 })();

@@ -1,10 +1,15 @@
 <template name="channelBlock">
 <div class="channel__wrapper">
   <h1 class="page-header">Channel - {{name}}</h1>
+  {{#if contentLoaded}}
   <div class="row">
     <div class="channel__block-wrapper">
       {{> detailsTemplate selectedBlock}}
     </div>
   </div>
+  {{else}}
+    {{> loading}}
+  {{/if}}
+
 </div>
 </template>

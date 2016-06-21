@@ -4,8 +4,8 @@ var deps = new Deps.Dependency(),
   plugin,
   channelData,
   channelMembers, // List of this channel members
-  userIsHost,
-  contacts; // Users contacts to determine who is not in channel yet
+  contacts, // Users contacts to determine who is not in channel yet
+  loading = true;
 
 Template.channel.events({
   'click .channel__delete': function(event) {
@@ -101,12 +101,12 @@ Template.channel.events({
 
   'click .previous-link': function(event, template) {
     plugin.setPreviousPage();
-    plugin.getRepoCommits(getBlocksCallback, getEmailsCallback);
+    plugin.getChannelBlocks(getBlocksCallback, getEmailsCallback);
   },
 
   'click .next-link': function(event, template) {
     plugin.setNextPage();
-    plugin.getRepoCommits(getBlocksCallback, getEmailsCallback);
+    plugin.getChannelBlocks(getBlocksCallback, getEmailsCallback);
   }
 });
 
@@ -144,68 +144,64 @@ Template.channel.helpers({
 
   paginationData: function() {
     deps.depend();
+    loading = true;
     return pagination;
   },
 
   emails: function() {
     deps.depend();
+    loading = false;
     return associatedEmails;
   },
 
   previewTemplate: function() {
-    switch (channelData.serviceType) {
-      case 'github':
-        return Template['githubPreviewTemplate'];
-        break;
-      case 'bitbucket':
-        return Template['bitbucketPreviewTemplate'];
-        break;
-      case 'yandex':
-        return Template['yandexPreviewTemplate'];
-        break;
-    }
+    deps.depend();
+    return Template[plugin.previewTemplateName];
   },
 
   userIsChannelCreator: function() {
     deps.depend();
-    return userIsHost;
+    return channelData.userIsHost;
+  },
+
+  contentLoaded: function() {
+    deps.depend();
+    return !loading;
   }
 });
 
 Template.channel.updateData = function(channelId) {
+  loading = true;
+
   channelData = Channels.findOne({
     _id: channelId
   });
 
-  if (!channelData) { // This fix is for avoiding removed channel updating
+  if (!channelData) {
     return;
   }
 
-  userIsHost = channelData.createdBy === Meteor.userId();
+  channelData.userIsHost = channelData.createdBy === Meteor.userId();
 
-  var serviceData = userIsHost ? _.findWhere(Meteor.user().serviceTokens, {
-    serviceName: channelData.serviceType,
-    login: channelData.login
-  }) : {};
-
-  switch (channelData.serviceType) {
-    case 'github':
-      plugin = new GithubPlugin();
-      break;
-    case 'bitbucket':
-      plugin = new BitbucketPlugin();
-      break;
-    case 'yandex':
-      plugin = new YandexPlugin();
-      break;
+  if (!plugin || (channelData._id !== plugin.channelId)) {
+    switch (channelData.serviceType) {
+      case 'github':
+        plugin = new GithubPlugin(channelData);
+        break;
+      case 'bitbucket':
+        plugin = new BitbucketPlugin(channelData);
+        break;
+      case 'yandex':
+        plugin = new YandexPlugin(channelData);
+        break;
+    }
   }
-
-  plugin.setParameters(serviceData, channelData.serviceResource, !userIsHost, channelId);
-  plugin.getRepoCommits(getBlocksCallback, getEmailsCallback);
+  plugin.getChannelBlocks(getBlocksCallback, getEmailsCallback);
 };
 
 function getBlocksCallback(data, resourceId) {
   blocks = data.blocks;
+  loading = false;
   deps.changed();
 };
 

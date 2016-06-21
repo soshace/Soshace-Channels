@@ -5,6 +5,7 @@ var deps = new Deps.Dependency(),
   settingsDiv,
   selectedService = '',
   defaultChannelName = true,
+  channelData,
   plugin;
 
 Template.addChannel.helpers({
@@ -35,14 +36,6 @@ Template.addChannel.helpers({
     deps.depend();
     return selectedService;
   },
-
-  clientkey: function() {
-    deps.depend();
-    if (plugin) {
-      return plugin.clientKey;
-    }
-    return null;
-  }
 });
 
 Template.addChannel.events({
@@ -166,35 +159,37 @@ function getDataforSettingsCallback(data) {
 
 function selectService(service) {
   var currentUser = Meteor.user(),
-    serviceData = _.where(currentUser.serviceTokens, {
+    tokenParams = _.where(currentUser.serviceTokens, {
       serviceName: service
-    });
+    }),
+    channelData = {
+      serviceType: service
+    };
 
   selectedService = service;
   localStorage.setItem('selectedService', service);
   newChannelName.val(service);
-  switch (service) {
-    case 'github':
-      plugin = new GithubPlugin();
-      break;
-    case 'bitbucket':
-      plugin = new BitbucketPlugin();
-      break;
-    case 'yandex':
-      plugin = new YandexPlugin();
-      break;
-    case 'trello':
-      break;
-  }
 
-  if (serviceData) {
-    serviceData = serviceData[0];
-    plugin.setParameters(serviceData);
+  if (tokenParams.length > 0) {
+    channelData.tokenParams = tokenParams[0];
+    switch (service) {
+      case 'github':
+        plugin = new GithubPlugin(channelData);
+        break;
+      case 'bitbucket':
+        plugin = new BitbucketPlugin(channelData);
+        break;
+      case 'yandex':
+        plugin = new YandexPlugin(channelData);
+        break;
+      case 'trello':
+        break;
+    }
     plugin.setDefaultChannelName(setDefaultName);
     plugin.getSettings(getDataforSettingsCallback);
   }
 
-  displayAuthButton(serviceData ? serviceData.token : false);
+  displayAuthButton(channelData.tokenParams.token);
   $('.channel-add__step-1').addClass('hidden');
   $('.channel-add__step-2').removeClass('hidden');
   deps.changed();
