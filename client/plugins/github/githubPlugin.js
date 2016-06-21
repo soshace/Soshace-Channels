@@ -7,14 +7,14 @@
 		loading, // Boolean variable that triggers if loading through server wasn't finished yet
 		visibility,
 		getUserReposCallback,
-		self;
+		self,
+		login;
 
 	// Constructor
 	this.GithubPlugin = function() {
 		this.settingsTemplateName = 'githubSettingsTemplate';
 		this.previewTemplateName = 'githubPreviewTemplate';
 		this.authTemplate = 'githubAuthTemplate';
-		// this.clientKey = Meteor.settings.public.github_client_id;
 
 		visibility = 'all';
 		self = this;
@@ -36,7 +36,7 @@
 		channelId = cnlId;
 	};
 
-	GithubPlugin.prototype.getRepoCommits = function(getCommits, getEmails) {
+	GithubPlugin.prototype.getChannelBlocks = function(getCommits, getEmails) {
 		loading = false;
 		var request;
 		commits = [];

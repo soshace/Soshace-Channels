@@ -57,25 +57,20 @@ Template.channelBlock.updateData = function(channelId, blockId) {
     return;
   }
 
-  userIsHost = channelData.createdBy === Meteor.userId();
-
-  var serviceData = userIsHost ? _.findWhere(Meteor.user().serviceTokens, {
-    serviceName: channelData.serviceType
-  }) : {};
-
-  switch (channelData.serviceType) {
-    case 'github':
-      plugin = new GithubPlugin();
-      break;
-    case 'bitbucket':
-      plugin = new BitbucketPlugin();
-      break;
-    case 'yandex':
-      plugin = new YandexPlugin();
-      break;
+  channelData.userIsHost = channelData.createdBy === Meteor.userId();
+  if (!plugin || (channelData._id !== plugin.channelId)) {
+    switch (channelData.serviceType) {
+      case 'github':
+        plugin = new GithubPlugin(channelData);
+        break;
+      case 'bitbucket':
+        plugin = new BitbucketPlugin(channelData);
+        break;
+      case 'yandex':
+        plugin = new YandexPlugin(channelData);
+        break;
+    }
   }
-
-  plugin.setParameters(serviceData, channelData.serviceResource, !userIsHost, channelData._id);
   plugin.getSingleBlock(getSingleBlockCallback, blockId);
 };
 

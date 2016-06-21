@@ -5,6 +5,7 @@ var deps = new Deps.Dependency(),
   settingsDiv,
   selectedService = '',
   defaultChannelName = true,
+  channelData,
   plugin;
 
 Template.addChannel.helpers({
@@ -35,14 +36,6 @@ Template.addChannel.helpers({
     deps.depend();
     return selectedService;
   },
-
-  // clientkey: function() {
-  //   deps.depend();
-  //   if (plugin) {
-  //     return plugin.clientKey;
-  //   }
-  //   return null;
-  // }
 });
 
 Template.addChannel.events({
@@ -165,39 +158,71 @@ function getDataforSettingsCallback(data) {
 }
 
 function selectService(service) {
-  var currentUser = Meteor.user(),
-    serviceData = _.where(currentUser.serviceTokens, {
-      serviceName: service
-    });
+  // var currentUser = Meteor.user(),
+  //   serviceData = _.where(currentUser.serviceTokens, {
+  //     serviceName: service
+  //   });
 
-  selectedService = service;
-  localStorage.setItem('selectedService', service);
-  newChannelName.val(service);
-  switch (service) {
-    case 'github':
-      plugin = new GithubPlugin();
-      break;
-    case 'bitbucket':
-      plugin = new BitbucketPlugin();
-      break;
-    case 'yandex':
-      plugin = new YandexPlugin();
-      break;
-    case 'trello':
-      break;
+  // selectedService = service;
+  // localStorage.setItem('selectedService', service);
+  // newChannelName.val(service);
+  // switch (service) {
+  //   case 'github':
+  //     plugin = new GithubPlugin();
+  //     break;
+  //   case 'bitbucket':
+  //     plugin = new BitbucketPlugin();
+  //     break;
+  //   case 'yandex':
+  //     plugin = new YandexPlugin();
+  //     break;
+  //   case 'trello':
+  //     break;
+  // }
+
+  // if (serviceData) {
+  //   serviceData = serviceData[0];
+  //   plugin.setParameters(serviceData);
+  //   plugin.setDefaultChannelName(setDefaultName);
+  //   plugin.getSettings(getDataforSettingsCallback);
+  // }
+
+  // displayAuthButton(serviceData ? serviceData.token : false);
+  // $('.channel-add__step-1').addClass('hidden');
+  // $('.channel-add__step-2').removeClass('hidden');
+  // deps.changed();
+
+  channelData = Channels.findOne({
+    _id: channelId
+  });
+
+  if (!channelData) {
+    return;
   }
 
-  if (serviceData) {
-    serviceData = serviceData[0];
-    plugin.setParameters(serviceData);
-    plugin.setDefaultChannelName(setDefaultName);
-    plugin.getSettings(getDataforSettingsCallback);
+  channelData.userIsHost = channelData.createdBy === Meteor.userId();
+  if (!plugin || (channelData._id !== plugin.channelId)) {
+    switch (channelData.serviceType) {
+      case 'github':
+        plugin = new GithubPlugin(channelData);
+        break;
+      case 'bitbucket':
+        plugin = new BitbucketPlugin(channelData);
+        break;
+      case 'yandex':
+        plugin = new YandexPlugin(channelData);
+        break;
+    }
   }
+
+  plugin.setDefaultChannelName(setDefaultName);
+  plugin.getSettings(getDataforSettingsCallback);
 
   displayAuthButton(serviceData ? serviceData.token : false);
   $('.channel-add__step-1').addClass('hidden');
   $('.channel-add__step-2').removeClass('hidden');
   deps.changed();
+
 }
 
 function setDefaultName(val) {

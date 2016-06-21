@@ -1,46 +1,33 @@
 (function() {
-	var commits = [],
-		serviceData,
-		isGuest,
-		channelId, // The id of channel
-		loading, // Boolean variable that triggers if loading through server wasn't finished yet
-		getUserEmailsCallback,
-		self,
+	var self,
 		login,
-		messageStruct,
-		currentBlock;
+		currentBlock,
+		currentPage;
 
-	// Constructor
-	this.YandexPlugin = function() {
+	this.YandexPlugin = function(channelData) {
 		this.settingsTemplateName = 'yandexSettingsTemplate';
 		this.previewTemplateName = 'yandexPreviewTemplate';
 		this.authTemplate = 'yandexAuthTemplate';
-		this.resourceId = 'yandex';
+		this.resourceId = 'INBOX';
 
+		currentPage = 1;
 		self = this;
-	};
-
-	YandexPlugin.prototype.setParameters = function(serviceD, resId, isGst, cnlId) {
-		serviceD.currentPage = serviceData ? serviceData.currentPage : 1;
-		serviceData = serviceD;
-		resourceId = resId;
-		isGuest = isGst;
-		channelId = cnlId;
+		this.channelId = channelData._id;
 	};
 
 	YandexPlugin.prototype.setNextPage = function() {
-		serviceData.currentPage += 1;
+		currentPage += 1;
 	};
 
 	YandexPlugin.prototype.setPreviousPage = function() {
-		serviceData.currentPage -= 1;
-		serviceData.currentPage = serviceData.currentPage <= 0 ? 1 : serviceData.currentPage;
+		currentPage -= 1;
+		currentPage = currentPage <= 0 ? 1 : currentPage;
 	};
 
-	YandexPlugin.prototype.getRepoCommits = function(getEmailsData, getEmails) {
-		Meteor.call('getYandexMessages', channelId, serviceData.currentPage, function(error, results) {
+	YandexPlugin.prototype.getChannelBlocks = function(getEmailsData, getEmails) {
+		Meteor.call('getYandexMessages', self.channelId, currentPage, function(error, results) {
 			_.map(results.items, function(item) {
-				item.channelId = channelId;
+				item.channelId = self.channelId;
 				if (item.attr.flags.indexOf('\\Seen') === -1) {
 					item.class = ' message__unseen';
 				}
@@ -54,14 +41,10 @@
 	};
 
 	YandexPlugin.prototype.getSingleBlock = function(getOneEmailCallback, uid) {
-		Meteor.call('getOneMessage', channelId, uid, function(error, results) {
+		Meteor.call('getOneMessage', self.channelId, uid, function(error, results) {
 			currentBlock = results;
 			getOneEmailCallback(results);
 		});
-	};
-
-	YandexPlugin.prototype.setDefaultChannelName = function(func) {
-		setDefaultChannelName = func;
 	};
 
 	YandexPlugin.prototype.setDefaultChannelName = function(func) {
@@ -87,8 +70,6 @@
 	YandexPlugin.prototype.getLogin = function() {
 		return login;
 	};
-
-	function getEmails() {};
 
 	function replyEmail() {
 		var message = {
@@ -116,7 +97,7 @@
 	Template.yandexSettingsTemplate.events({
 		'change .yandex__accounts-list': function(event) {
 			login = event.target.value;
-			if (this.login === 'new') {
+			if (login === 'new') {
 				$('.yandex__new-account-container').removeClass('hidden');
 			} else {
 				$('.yandex__new-account-container').addClass('hidden');

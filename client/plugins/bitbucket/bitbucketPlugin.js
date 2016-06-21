@@ -32,7 +32,7 @@
 		channelId = cnlId;
 	};
 
-	BitbucketPlugin.prototype.getRepoCommits = function(getCommits, getEmails) {
+	BitbucketPlugin.prototype.getChannelBlocks = function(getCommits, getEmails) {
 		loading = false;
 		var request;
 		commits = [];
