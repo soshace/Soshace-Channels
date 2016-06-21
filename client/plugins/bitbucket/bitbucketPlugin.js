@@ -1,20 +1,29 @@
 (function() {
-	var serviceData,
+	var tokenParams,
 		resourceId, // The name of repository
-		isGuest,
-		channelId, // The id of channel
 		loading, // Boolean variable that triggers if loading through server wasn't finished yet
 		getUserReposCallback,
-		self;
+		self,
+		channelData;
 
 	// Constructor
-	this.BitbucketPlugin = function() {
+	this.BitbucketPlugin = function(data) {
 		this.settingsTemplateName = 'bitbucketSettingsTemplate';
 		this.previewTemplateName = 'bitbucketPreviewTemplate';
 		this.authTemplate = 'bitbucketAuthTemplate';
-		// this.clientKey = Meteor.settings.public.bitbucket_client_id;
 
 		self = this;
+		
+		tokenParams = data.tokenParams;
+		resourceId = data.serviceResource;
+		channelData = data;
+
+		if (!tokenParams) {
+			var currentUser = Meteor.user();
+			tokenParams = _.findWhere(currentUser.serviceTokens, {
+				serviceName: channelData.serviceType
+			});
+		}
 	};
 
 	// Public methods
@@ -25,21 +34,18 @@
 		getRepositories();
 	};
 
-	BitbucketPlugin.prototype.setParameters = function(serviceD, resId, isGst, cnlId) {
-		serviceData = serviceD;
-		resourceId = resId;
-		isGuest = isGst;
-		channelId = cnlId;
+	BitbucketPlugin.prototype.getLogin = function() {
+		return 'bitbucket'; // TODO: Implement getting user login
 	};
 
 	BitbucketPlugin.prototype.getChannelBlocks = function(getCommits, getEmails) {
 		loading = false;
 		var request;
 		commits = [];
-		if (!isGuest) {
+		if (channelData.userIsHost) {
 			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commits';
 			$.getJSON(request, {
-					access_token: serviceData.token
+					access_token: tokenParams.token
 				})
 				.done(function(data) {
 					commits = data.values;
@@ -48,16 +54,16 @@
 						blocks: commits,
 						commonParams: ''
 					};
-					getCommits(result, channelId);
+					getCommits(result, channelData._id);
 				})
 				.fail(function(error) {
 					if (error.status === 401) {
-						Meteor.call('refreshBitbucketToken', serviceData.refreshToken, function(error, results) {
-							serviceData.token = results.data.access_token;
-							serviceData.refreshToken = results.data.refresh_token;
+						Meteor.call('refreshBitbucketToken', tokenParams.refreshToken, function(error, results) {
+							tokenParams.token = results.data.access_token;
+							tokenParams.refreshToken = results.data.refresh_token;
 
 							$.getJSON(request, {
-									access_token: serviceData.token
+									access_token: tokenParams.token
 								})
 								.done(function(data) {
 									commits = data.values;
@@ -66,25 +72,25 @@
 										blocks: commits,
 										commonParams: ''
 									};
-									getCommits(commits, channelId);
+									getCommits(commits, channelData._id);
 								});
-							Meteor.call('addToken', serviceData);
+							Meteor.call('addToken', tokenParams);
 						});
 					}
 				});
 		} else {
 			loading = true;
 			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commits?access_token=';
-			Meteor.call('getDataForGuest', request, channelId, function(error, results) {
+			Meteor.call('getDataForGuest', request, channelData._id, function(error, results) {
 				if (error.status === 401) {
-					Meteor.call('refreshBitbucketTokenByGuest', channelId, function(error, result) {
+					Meteor.call('refreshBitbucketTokenByGuest', channelData._id, function(error, result) {
 					});
 					return;
 				}
 				commits = results.data.values;
 				runTemplating(commits);
 				if (loading) {
-					getCommits(commits, channelId);
+					getCommits(commits, channelData._id);
 				}
 			});
 		}
@@ -92,16 +98,16 @@
 
 	BitbucketPlugin.prototype.getSingleBlock = function(getCommitCallback, sha) {
 		var request;
-		if (!isGuest) {
+		if (channelData.userIsHost) {
 			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commit/' + sha;
 			$.getJSON(request, {
-					access_token: serviceData.token
+					access_token: tokenParams.token
 				})
 				.done(function(data) {
 					var diffRequest = data.links.diff.href,
 						commitData = data;
 					$.get(diffRequest, {
-						access_token: serviceData.token
+						access_token: tokenParams.token
 					}, function(data) {
 						parseDiff(data, commitData, getCommitCallback);
 					});
@@ -111,10 +117,10 @@
 				});
 		} else {
 			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commit/' + sha + '?access_token=';
-			Meteor.call('getDataForGuest', request, channelId, function(error, results) {
+			Meteor.call('getDataForGuest', request, channelData._id, function(error, results) {
 				var diffRequest = results.data.links.diff.href,
 					commitData = results.data;
-				Meteor.call('getDataForGuest', diffRequest + '?access_token=', channelId, function(error, results) {
+				Meteor.call('getDataForGuest', diffRequest + '?access_token=', channelData._id, function(error, results) {
 					parseDiff(results.content, commitData, getCommitCallback);
 				});
 			});
@@ -131,14 +137,14 @@
 			commit.name = commit.author.user.display_name;
 			commit.avatar = commit.author.user.links.avatar.href;
 			commit.date = commit.date;
-			commit.channelId = channelId;
+			commit.channelId = channelData._id;
 		});
 	};
 
 	function getRepositories() {
 		$.getJSON('https://api.bitbucket.org/2.0/repositories', {
 				role: 'member',
-				access_token: serviceData.token,
+				access_token: tokenParams.token,
 				pagelen: 20
 			})
 			.done(function(data) {
@@ -150,11 +156,11 @@
 			})
 			.fail(function(error) {
 				if (error.status === 401) {
-					Meteor.call('refreshBitbucketToken', serviceData.refreshToken, function(error, results) {
-						serviceData.token = results.data.access_token;
-						serviceData.refreshToken = results.data.refresh_token;
+					Meteor.call('refreshBitbucketToken', tokenParams.refreshToken, function(error, results) {
+						tokenParams.token = results.data.access_token;
+						tokenParams.refreshToken = results.data.refresh_token;
 
-						Meteor.call('addToken', serviceData, function(error, results) {
+						Meteor.call('addToken', tokenParams, function(error, results) {
 							getRepositories();
 						});
 					});
@@ -286,5 +292,4 @@
 			return Meteor.settings.public.bitbucket_client_id;
 		},
 	});
-
 })();

@@ -17,7 +17,6 @@
 		visibility = 'all';
 		self = this;
 
-		// this.channelId = data._id;
 		tokenParams = data.tokenParams;
 		resourceId = data.serviceResource;
 		channelData = data;

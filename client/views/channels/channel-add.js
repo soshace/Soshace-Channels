@@ -26,8 +26,8 @@ Template.addChannel.helpers({
 
   authTemplate: function() {
     deps.depend();
-    if (plugin) {
-      return Template[plugin.authTemplate];
+    if (selectedService) {
+      return Template[selectedService + 'AuthTemplate'];
     }
     return null;
   },
@@ -189,7 +189,7 @@ function selectService(service) {
     plugin.getSettings(getDataforSettingsCallback);
   }
 
-  displayAuthButton(channelData.tokenParams.token);
+  displayAuthButton(channelData.tokenParams ? channelData.tokenParams.token : '');
   $('.channel-add__step-1').addClass('hidden');
   $('.channel-add__step-2').removeClass('hidden');
   deps.changed();
