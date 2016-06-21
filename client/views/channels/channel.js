@@ -196,7 +196,6 @@ Template.channel.updateData = function(channelId) {
         break;
     }
   }
-
   plugin.getChannelBlocks(getBlocksCallback, getEmailsCallback);
 };
 

@@ -1,23 +1,33 @@
 (function() {
 	var commits = [],
-		serviceData,
+		tokenParams,
 		resourceId, // The name of repository
-		isGuest,
-		channelId, // The id of channel
 		loading, // Boolean variable that triggers if loading through server wasn't finished yet
 		visibility,
 		getUserReposCallback,
 		self,
-		login;
+		channelData;
 
 	// Constructor
-	this.GithubPlugin = function() {
+	this.GithubPlugin = function(data) {
 		this.settingsTemplateName = 'githubSettingsTemplate';
 		this.previewTemplateName = 'githubPreviewTemplate';
 		this.authTemplate = 'githubAuthTemplate';
 
 		visibility = 'all';
 		self = this;
+
+		// this.channelId = data._id;
+		tokenParams = data.tokenParams;
+		resourceId = data.serviceResource;
+		channelData = data;
+
+		if (!tokenParams) {
+			var currentUser = Meteor.user();
+			tokenParams = _.findWhere(currentUser.serviceTokens, {
+				serviceName: channelData.serviceType
+			});
+		}
 	};
 
 	// Public methods
@@ -25,15 +35,11 @@
 		if (!getUserReposCallback) {
 			getUserReposCallback = func;
 		}
-
 		getRepositories();
 	};
 
-	GithubPlugin.prototype.setParameters = function(serviceD, resId, isGst, cnlId) {
-		serviceData = serviceD;
-		resourceId = resId;
-		isGuest = isGst;
-		channelId = cnlId;
+	GithubPlugin.prototype.getLogin = function() {
+		return 'github'; // TODO: Implement getting user login
 	};
 
 	GithubPlugin.prototype.getChannelBlocks = function(getCommits, getEmails) {
@@ -41,10 +47,10 @@
 		var request;
 		commits = [];
 
-		if (!isGuest) {
+		if (channelData.userIsHost) {
 			request = 'https://api.github.com/repos/' + resourceId + '/commits';
 			$.getJSON(request, {
-				access_token: serviceData.token
+				access_token: tokenParams.token
 			}, function(data) {
 				commits = data;
 				runTemplating();
@@ -52,13 +58,13 @@
 					blocks: commits,
 					commonParams: ''
 				};
-				getCommits(result, channelId);
+				getCommits(result, channelData._id);
 				getRepoContributors(getEmails); // Only for host users
 			});
 		} else {
 			loading = true;
 			request = 'https://api.github.com/repos/' + resourceId + '/commits?access_token=';
-			Meteor.call('getDataForGuest', request, channelId, function(error, results) {
+			Meteor.call('getDataForGuest', request, channelData._id, function(error, results) {
 				commits = results.data || [];
 				runTemplating();
 				if (loading) {
@@ -66,7 +72,7 @@
 						blocks: commits,
 						commonParams: ''
 					};
-					getCommits(result, channelId);
+					getCommits(result, channelData._id);
 				}
 			});
 		}
@@ -74,18 +80,17 @@
 
 	GithubPlugin.prototype.getSingleBlock = function(getCommitCallback, sha) {
 		var request;
-
-		if (!isGuest) {
+		if (channelData.userIsHost) {
 			request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha;
 			$.getJSON(request, {
-				access_token: serviceData.token
+				access_token: tokenParams.token
 			}, function(data) {
 				parsePatches(data);
 				getCommitCallback(data);
 			});
 		} else {
 			request = 'https://api.github.com/repos/' + resourceId + '/commits/' + sha + '?access_token=';
-			Meteor.call('getDataForGuest', request, channelId, function(error, results) {
+			Meteor.call('getDataForGuest', request, channelData._id, function(error, results) {
 				parsePatches(results.data);
 				getCommitCallback(results ? results.data : {});
 			});
@@ -99,7 +104,7 @@
 	//Private methods
 	function getRepositories() {
 		$.getJSON('https://api.github.com/user/repos', {
-			access_token: serviceData.token,
+			access_token: tokenParams.token,
 			visibility: visibility,
 			per_page: 50
 		}, function(data) {
@@ -112,7 +117,7 @@
 
 	function getRepoContributors(getEmails) {
 		$.getJSON('https://api.github.com/repos/' + resourceId + '/contributors', {
-			access_token: serviceData.token
+			access_token: tokenParams.token
 		}, function(data) {
 			var contributors = data;
 			var counter = contributors.length;
@@ -131,12 +136,12 @@
 	};
 
 	function runTemplating() {
-		for (let item of commits) {
+		_.map(commits, function(item) {
 			item.name = item.author ? item.author.login : item.commit.author.email;
 			item.avatar = item.author ? item.author.avatar_url : 'http://placehold.it/30x30';
 			item.date = item.commit.committer.date;
-			item.channelId = channelId;
-		}
+			item.channelId = channelData._id;
+		})
 	};
 
 	function parsePatches(data) {

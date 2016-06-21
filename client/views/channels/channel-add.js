@@ -158,51 +158,21 @@ function getDataforSettingsCallback(data) {
 }
 
 function selectService(service) {
-  // var currentUser = Meteor.user(),
-  //   serviceData = _.where(currentUser.serviceTokens, {
-  //     serviceName: service
-  //   });
+  var currentUser = Meteor.user(),
+    tokenParams = _.where(currentUser.serviceTokens, {
+      serviceName: service
+    }),
+    channelData = {
+      serviceType: service
+    };
 
-  // selectedService = service;
-  // localStorage.setItem('selectedService', service);
-  // newChannelName.val(service);
-  // switch (service) {
-  //   case 'github':
-  //     plugin = new GithubPlugin();
-  //     break;
-  //   case 'bitbucket':
-  //     plugin = new BitbucketPlugin();
-  //     break;
-  //   case 'yandex':
-  //     plugin = new YandexPlugin();
-  //     break;
-  //   case 'trello':
-  //     break;
-  // }
+  selectedService = service;
+  localStorage.setItem('selectedService', service);
+  newChannelName.val(service);
 
-  // if (serviceData) {
-  //   serviceData = serviceData[0];
-  //   plugin.setParameters(serviceData);
-  //   plugin.setDefaultChannelName(setDefaultName);
-  //   plugin.getSettings(getDataforSettingsCallback);
-  // }
-
-  // displayAuthButton(serviceData ? serviceData.token : false);
-  // $('.channel-add__step-1').addClass('hidden');
-  // $('.channel-add__step-2').removeClass('hidden');
-  // deps.changed();
-
-  channelData = Channels.findOne({
-    _id: channelId
-  });
-
-  if (!channelData) {
-    return;
-  }
-
-  channelData.userIsHost = channelData.createdBy === Meteor.userId();
-  if (!plugin || (channelData._id !== plugin.channelId)) {
-    switch (channelData.serviceType) {
+  if (tokenParams.length > 0) {
+    channelData.tokenParams = tokenParams[0];
+    switch (service) {
       case 'github':
         plugin = new GithubPlugin(channelData);
         break;
@@ -212,17 +182,17 @@ function selectService(service) {
       case 'yandex':
         plugin = new YandexPlugin(channelData);
         break;
+      case 'trello':
+        break;
     }
+    plugin.setDefaultChannelName(setDefaultName);
+    plugin.getSettings(getDataforSettingsCallback);
   }
 
-  plugin.setDefaultChannelName(setDefaultName);
-  plugin.getSettings(getDataforSettingsCallback);
-
-  displayAuthButton(serviceData ? serviceData.token : false);
+  displayAuthButton(channelData.tokenParams.token);
   $('.channel-add__step-1').addClass('hidden');
   $('.channel-add__step-2').removeClass('hidden');
   deps.changed();
-
 }
 
 function setDefaultName(val) {
