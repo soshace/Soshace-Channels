@@ -403,3 +403,7 @@ code {
 .services-table .service-action {
   padding-top: 11px;
 }
+
+.email__plain-text {
+  white-space: pre;
+}

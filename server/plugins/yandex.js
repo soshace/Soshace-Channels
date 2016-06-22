@@ -153,7 +153,8 @@
 						item.date = result ? result.date : '';
 					});
 					parser.on('end', function(result) {
-						item.body = result.html;
+						item.body = result.html || result.text;
+						// item.text = result.text;
 						// imap.end();
 						fut.return(item);
 					});
