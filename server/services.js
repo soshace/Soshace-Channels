@@ -123,12 +123,14 @@ Meteor.methods({
 		plugins[this.userId].replyEmail(message);
 	},
 
-	'addToken': function(serviceData) {
+	'addToken': function(params) {
 		var currentUserId = Meteor.userId(),
-			userTokens = Meteor.user().serviceTokens;
+			userTokens = Meteor.user().serviceTokens,
+			Future = Npm.require('fibers/future'),
+			fut = new Future();
 
-		if (serviceData.serviceName === 'yandex') {
-			var url = 'https://login.yandex.ru/info?oauth_token=' + serviceData.token;
+		if (params.serviceName === 'yandex') {
+			var url = 'https://login.yandex.ru/info?oauth_token=' + params.token;
 			options = {
 				headers: {
 					'User-Agent': 'node.js'
@@ -136,25 +138,24 @@ Meteor.methods({
 			};
 
 			Meteor.http.get(url, options, function(err, results) {
-				serviceData.login = results.data.login;
-				if (serviceData.login.indexOf('@') === -1) {
-
+				if (err) {
+					return;
 				}
-
+				params.login = results.data.login;
 				if (userTokens) {
 					var tokenIndex = -1;
 					_.each(userTokens, function(data, index) {
-						if ((data.serviceName === serviceData.serviceName) && (data.login === serviceData.login)) {
+						if ((data.serviceName === params.serviceName) && (data.login === params.login)) {
 							tokenIndex = index;
 						}
 					});
 					if (tokenIndex > -1) {
-						userTokens[tokenIndex] = serviceData;
+						userTokens[tokenIndex] = params;
 					} else {
-						userTokens.push(serviceData);
+						userTokens.push(params);
 					}
 				} else {
-					userTokens = [serviceData];
+					userTokens = [params];
 				}
 
 				Meteor.users.update({
@@ -166,43 +167,40 @@ Meteor.methods({
 				}, function(error, results) {
 					if (error) {
 						console.log(error);
-					} else {
-						console.log(results);
 					}
+					fut.return();
 				});
 			});
-			return;
-		}
-
-		if (userTokens) {
-			var tokenIndex = -1;
-			_.each(userTokens, function(data, index) {
-				if (data.serviceName === serviceData.serviceName) {
-					tokenIndex = index;
-				}
-			});
-			if (tokenIndex > -1) {
-				userTokens[tokenIndex] = serviceData;
-			} else {
-				userTokens.push(serviceData);
-			}
 		} else {
-			userTokens = [serviceData];
-		}
-
-		Meteor.users.update({
-			_id: currentUserId
-		}, {
-			$set: {
-				'serviceTokens': userTokens
-			}
-		}, function(error, results) {
-			if (error) {
-				console.log(error);
+			if (userTokens) {
+				var tokenIndex = -1;
+				_.each(userTokens, function(data, index) {
+					if (data.serviceName === params.serviceName) {
+						tokenIndex = index;
+					}
+				});
+				if (tokenIndex > -1) {
+					userTokens[tokenIndex] = params;
+				} else {
+					userTokens.push(params);
+				}
 			} else {
-				console.log(results);
+				userTokens = [params];
 			}
-		});
+			Meteor.users.update({
+				_id: currentUserId
+			}, {
+				$set: {
+					'serviceTokens': userTokens
+				}
+			}, function(error, results) {
+				if (error) {
+					console.log(error);
+				}
+				fut.return();
+			});
+		}
+		return fut.wait();
 	},
 
 	'clearSession': function() {

@@ -26,6 +26,10 @@
 
 	YandexPlugin.prototype.getChannelBlocks = function(getEmailsData, getEmails) {
 		Meteor.call('getYandexMessages', self.channelId, currentPage, function(error, results) {
+			if (error) {
+				console.log(error);
+				return;
+			}
 			_.map(results.items, function(item) {
 				item.channelId = self.channelId;
 				if (item.attr.flags.indexOf('\\Seen') === -1) {
@@ -110,5 +114,4 @@
 			return Meteor.settings.public.yandex_client_id;
 		},
 	});
-
 })();
