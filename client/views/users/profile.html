@@ -161,7 +161,6 @@
                 </label>
                 <div class="col-md-8">
                   <input class="form-control f-s-14" id="location-field" type="text" name="location" value="{{currentUser.personalData.location}}">
-                  <div id="response"></div>
                 </div>
               </div>
 
@@ -184,6 +183,10 @@
           </div>
 
           <div class="panel-body">
+
+            <div>
+              {{> example}}
+            </div>
 
             <table class="table services-table">
               <thead>

@@ -65,8 +65,7 @@ Meteor.methods({
         'personalData.bday': userData.bday,
         'personalData.phone': userData.phone,
         'personalData.skype': userData.skype,
-        'personalData.country': userData.country,
-        'personalData.city': userData.city
+        'personalData.location': userData.location
       }
     });
   },
