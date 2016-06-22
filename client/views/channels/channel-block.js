@@ -33,7 +33,7 @@ Template.channelBlock.helpers({
 
   selectedBlock: function() {
     deps.depend();
-    singleBlock.userIsChannelCreator = userIsHost;
+    singleBlock.userIsChannelCreator = channelData.userIsHost;
     return singleBlock;
   },
 

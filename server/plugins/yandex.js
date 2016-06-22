@@ -21,7 +21,6 @@
 				login: channel.login
 			});
 
-
 		this.channelId = channelId;
 		currentPage = 0;
 
@@ -32,6 +31,9 @@
 	};
 
 	YandexPlugin.prototype.getInboxMessages = function(page) {
+		if (!imap) {
+			return;
+		}
 		if (currentPage === page) {
 			return {
 				items: messages,
@@ -50,7 +52,7 @@
 		imap.openBox('INBOX', true, function(err, box) {
 			var total = box.messages.total,
 				end = total - 10 * (page - 1) > 0 ? total - 10 * (page - 1) : total - 10 * (page - 1),
-				start = (total - 10 * page) + 1> 0 ? (total - 10 * page + 1) : 1,
+				start = (total - 10 * page) + 1 > 0 ? (total - 10 * page + 1) : 1,
 				f = imap.seq.fetch(start + ':' + end, {
 					bodies: ['HEADER'],
 					struct: true
@@ -103,6 +105,9 @@
 	};
 
 	YandexPlugin.prototype.getMessage = function(uid) {
+		if (!imap) {
+			return;
+		}
 		var fut = new Future(),
 			item,
 			parser = new MailParser(),
