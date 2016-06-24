@@ -77,11 +77,15 @@
 
 	function replyEmail() {
 		var message = {
-			body: $('.email__reply-textarea').val(),
+			bodyHtml: $('.summernote').summernote('code'),
 			receiver: currentBlock.from,
 			subject: currentBlock.subject
 		};
-		Meteor.call('replyEmail', serviceData, message);
+		Meteor.call('replyEmail', message, function(error, results) {
+			if (!error) {
+				console.log('Message sent');
+			}
+		});
 	};
 
 	Template.yandexDetailsTemplate.events({
@@ -114,4 +118,12 @@
 			return Meteor.settings.public.yandex_client_id;
 		},
 	});
+
+	Template.yandexDetailsTemplate.onRendered(function() {
+		$('.summernote').summernote({
+			height: 300,
+			placeholder: 'Reply here...'
+		});
+	});
+
 })();

@@ -119,7 +119,7 @@ Meteor.methods({
 		return plugins[this.userId].getMessage(id);
 	},
 
-	'replyEmail': function(params, message) {
+	'replyEmail': function(message) {
 		plugins[this.userId].replyEmail(message);
 	},
 

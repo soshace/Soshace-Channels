@@ -407,3 +407,7 @@ code {
 .email__plain-text {
   white-space: pre;
 }
+
+.note-editor.note-frame.panel.panel-default {
+  border: none;
+}

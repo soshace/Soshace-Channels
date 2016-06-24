@@ -184,6 +184,7 @@
 			if (error) {
 				return console.log(error);
 			}
+			console.log(info);
 			appendMessageToSentFolder();
 		});
 	};
@@ -233,15 +234,13 @@
 	};
 
 	function appendMessageToSentFolder() {
-		imap.once('ready', function() {
-			// imap.getBoxes(function(err, boxes) {});
-			imap.openBox('INBOX', false, function(err, box) {
-				imap.search(['ALL', ['FROM', login]], function(err, results) {
-					if (err) throw err;
-					var f = imap.move(results, 'Отправленные', function(error) {
+		imap.openBox('INBOX', false, function(err, box) {
+			imap.search(['ALL', ['FROM', login]], function(err, results) {
+				if (err) throw err;
+				var f = imap.move(results, 'Отправленные', function(error) {
+					if (err) {
 						console.log(error);
-					});
-					imap.end();
+					}
 				});
 			});
 		});
