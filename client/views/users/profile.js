@@ -74,5 +74,39 @@ Template.profile.events({
     event.preventDefault();
     var profileContainer = $('.profile');
     profileContainer.removeClass('profile-edit');
+  },
+
+  'keyup #location-field': function(event) {
+    var input = $('#location-field')
+        str = input.val(),
+        addedCities = $('.location-result li'),
+        locationBlock = $('.location-result');
+
+    removeAddedCities(addedCities);
+    locationBlock.addClass('invisible');
+
+    $.get('http://api.openweathermap.org/data/2.5/find?q=' + str + '&type=like&mode=json&units=metric&appid=b28d0ac52d85fcb150a267da64e9776d', function(data) {
+      var cities = data.list;
+      if ($.isArray(cities)) {
+        locationBlock.removeClass('invisible');
+        cities.forEach(function(city) {
+          $('.location-result')
+            .append('<li>' + city.name + ', ' + city.sys.country + '</li>');
+        });
+
+        $('.location-result li').click(function() {
+          input.val($(this).text());
+          var addedCities = $('.location-result li');
+          removeAddedCities(addedCities);
+          locationBlock.addClass('invisible');
+        });
+      }
+    });
+
+    function removeAddedCities(cities) {
+      cities.each(function(i, item) {
+        $(item).remove();
+      });
+    }
   }
 });

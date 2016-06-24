@@ -160,8 +160,13 @@
                   Location:
                 </label>
                 <div class="col-md-8">
-                  <input class="form-control f-s-14" id="location-field" type="text" name="location" value="{{currentUser.personalData.location}}">
+                  <input class="form-control f-s-14" id="location-field" type="text" name="location" value="{{currentUser.personalData.location}}" autocomplete="off">
+                  <div class="location-result-wrapper">
+                    <ul class="location-result invisible">
+                    </ul>
+                  </div>
                 </div>
+
               </div>
 
               <div class="col-md-offset-4 col-md-8">
@@ -184,9 +189,9 @@
 
           <div class="panel-body">
 
-            <div>
+            <!-- <div>
               {{> example}}
-            </div>
+            </div> -->
 
             <table class="table services-table">
               <thead>
