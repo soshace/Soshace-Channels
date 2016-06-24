@@ -411,3 +411,35 @@ code {
 .note-editor.note-frame.panel.panel-default {
   border: none;
 }
+
+.location-result-wrapper {
+  position: relative;
+}
+
+.location-result {
+  position: absolute;
+	top: 0;
+	left: 0;
+  z-index: 2;
+
+  width: 100%;
+  margin: 0;
+  padding: 0;
+
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+  list-style: none;
+	text-align: left;
+  background-color: white;
+}
+
+.location-result li {
+  padding: 5px 10px;
+  display: block;
+  border-bottom: 1px solid #d3d3d3;
+  cursor: pointer;
+}
+
+.location-result li:hover {
+	background-color: #4DCACA;
+}
