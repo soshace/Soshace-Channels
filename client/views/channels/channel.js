@@ -150,7 +150,7 @@ Template.channel.helpers({
 
   emails: function() {
     deps.depend();
-    loading = false;
+    // loading = false;
     return associatedEmails;
   },
 
