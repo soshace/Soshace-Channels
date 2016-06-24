@@ -184,7 +184,6 @@
 			if (error) {
 				return console.log(error);
 			}
-			console.log(info);
 			appendMessageToSentFolder();
 		});
 	};
@@ -236,9 +235,13 @@
 	function appendMessageToSentFolder() {
 		imap.openBox('INBOX', false, function(err, box) {
 			imap.search(['ALL', ['FROM', login]], function(err, results) {
-				if (err) throw err;
+				if (err) {
+					console.log(err);
+					throw err;
+					return;
+				}
 				var f = imap.move(results, 'Отправленные', function(error) {
-					if (err) {
+					if (error) {
 						console.log(error);
 					}
 				});

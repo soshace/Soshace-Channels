@@ -21,12 +21,13 @@
 		</div>
 
 		{{#if userIsChannelCreator}}
-		<div class="email__reply-block">
-			<div class="summernote"></div>
-			<button class="btn btn-primary btn-lg channel-block__send-email">
-			Send
-			</button>
-		</div>
+			{{#if showReplyBlock}}
+				{{> replyBlock}}
+			{{else}}
+				<div class="email__show-reply">
+					Cick here to reply
+				</div>
+			{{/if}}
 		{{/if}}
 	</div>
 
@@ -35,4 +36,16 @@
 	</div>
  --></div>
 
+</template>
+
+<template name="replyBlock">
+	<a class="email__hide-reply" href="">
+		<i class="fa fa-times" aria-hidden="true"></i>
+	</a>
+	<div class="email__reply-block">
+		<div class="summernote"></div>
+		<button class="btn btn-primary btn-lg channel-block__send-email">
+		Send
+		</button>
+	</div>
 </template>

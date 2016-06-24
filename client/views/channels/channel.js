@@ -100,11 +100,15 @@ Template.channel.events({
   },
 
   'click .previous-link': function(event, template) {
+    loading = true;
+    deps.changed();
     plugin.setPreviousPage();
     plugin.getChannelBlocks(getBlocksCallback, getEmailsCallback);
   },
 
   'click .next-link': function(event, template) {
+    loading = true;
+    deps.changed();
     plugin.setNextPage();
     plugin.getChannelBlocks(getBlocksCallback, getEmailsCallback);
   }

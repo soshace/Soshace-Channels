@@ -2,7 +2,9 @@
 	var self,
 		login,
 		currentBlock,
-		currentPage;
+		currentPage,
+		showReplyBlock,
+		deps = new Deps.Dependency();
 
 	this.YandexPlugin = function(channelData) {
 		this.settingsTemplateName = 'yandexSettingsTemplate';
@@ -11,6 +13,7 @@
 		this.resourceId = 'INBOX';
 
 		currentPage = 1;
+		showReplyBlock = false,
 		self = this;
 		this.channelId = channelData._id;
 	};
@@ -81,10 +84,17 @@
 			receiver: currentBlock.from,
 			subject: currentBlock.subject
 		};
+		if (!message.bodyHtml) {
+			return;
+		}
 		Meteor.call('replyEmail', message, function(error, results) {
-			if (!error) {
-				console.log('Message sent');
+			if (error) {
+				console.log(error);
+				return;
 			}
+			Router.go('channel', {
+			  _id: self.channelId
+			});
 		});
 	};
 
@@ -94,12 +104,44 @@
 			replyEmail();
 		},
 
-		'keyup .email__reply-textarea': function(event) {
+		// 'keyup .email__reply-textarea': function(event) {
+		// 	event.preventDefault();
+		// 	if ((event.keyCode === 13) && (event.ctrlKey)) {
+		// 		replyEmail();
+		// 	}
+		// },
+
+		'click .email__show-reply': function(event) {
 			event.preventDefault();
-			if ((event.keyCode === 13) && (event.ctrlKey)) {
-				replyEmail();
-			}
-		}
+			showReplyBlock = !showReplyBlock;
+			deps.changed();
+		},
+	});
+
+	Template.replyBlock.events({
+		'click .email__show-reply': function(event) {
+			event.preventDefault();
+			showReplyBlock = !showReplyBlock;
+			deps.changed();
+		},
+	});
+
+	Template.replyBlock.onRendered(function() {
+		$('.summernote').summernote({
+			height: 300,
+			placeholder: 'Reply here...'
+		});
+	});
+
+	Template.yandexDetailsTemplate.helpers({
+		showReplyBlock: function() {
+			deps.depend();
+			$('.summernote').summernote({
+				height: 300,
+				placeholder: 'Reply here...'
+			});
+			return showReplyBlock;
+		},
 	});
 
 	Template.yandexSettingsTemplate.events({
@@ -117,13 +159,6 @@
 		clientId: function() {
 			return Meteor.settings.public.yandex_client_id;
 		},
-	});
-
-	Template.yandexDetailsTemplate.onRendered(function() {
-		$('.summernote').summernote({
-			height: 300,
-			placeholder: 'Reply here...'
-		});
 	});
 
 })();

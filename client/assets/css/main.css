@@ -412,6 +412,10 @@ code {
   border: none;
 }
 
+.email__show-reply {
+  cursor: pointer;
+}
+
 .location-result-wrapper {
   position: relative;
 }
