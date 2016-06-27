@@ -220,7 +220,7 @@
 			});
 		});
 	};
-
+	
 	function initImap() {
 		var s = 'user=' + login + '@yandex.ru\001auth=Bearer ' + token + '\001\001',
 			t = new Buffer(s).toString('base64'),

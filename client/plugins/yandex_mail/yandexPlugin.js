@@ -93,7 +93,7 @@
 				return;
 			}
 			Router.go('channel', {
-			  _id: self.channelId
+				_id: self.channelId
 			});
 		});
 	};
@@ -105,7 +105,7 @@
 				return;
 			}
 			Router.go('channel', {
-			  _id: self.channelId
+				_id: self.channelId
 			});
 		});
 	};
@@ -145,9 +145,17 @@
 
 	Template.replyBlock.onRendered(function() {
 		$('.summernote').summernote({
-			height: 300,
-			placeholder: 'Reply here...'
+			height: 300
 		});
+
+		var separator = '<br/><div class="email__separator">',
+			date = moment(Date.parse(currentBlock.date)),
+			body = '<div class="email__current-body">' + currentBlock.body + '</div>';
+
+		separator += date.format('MMMM Do YYYY, hh:mm,');
+		separator += currentBlock.from + ':</div>';
+
+		$('.summernote').summernote('code', separator + body);
 	});
 
 	Template.yandexDetailsTemplate.helpers({

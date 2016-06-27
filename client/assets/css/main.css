@@ -149,6 +149,24 @@
   font-weight: 600;
 }
 
+.email__plain-text {
+  white-space: pre;
+}
+
+.email__show-reply {
+  cursor: pointer;
+}
+
+.email__separator {
+  color: #CCCCCC;
+  font-style: italic;
+}
+
+.email__current-body {
+  padding-left: 10px;
+  border-left: Solid 2px #CCCCCC;
+}
+
 .tabulation {
   white-space: pre-wrap;
 }
@@ -404,16 +422,8 @@ code {
   padding-top: 11px;
 }
 
-.email__plain-text {
-  white-space: pre;
-}
-
 .note-editor.note-frame.panel.panel-default {
   border: none;
-}
-
-.email__show-reply {
-  cursor: pointer;
 }
 
 .location-result-wrapper {
