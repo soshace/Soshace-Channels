@@ -49,7 +49,7 @@
 			imap.connect();
 		};
 
-		imap.openBox('INBOX', true, function(err, box) {
+		imap.openBox('INBOX', false, function(err, box) {
 			var total = box.messages.total,
 				end = total - 10 * (page - 1) > 0 ? total - 10 * (page - 1) : total - 10 * (page - 1),
 				start = (total - 10 * page) + 1 > 0 ? (total - 10 * page + 1) : 1,
@@ -156,6 +156,7 @@
 						item.body = result.html || result.text;
 						// item.text = result.text;
 						// imap.end();
+
 						fut.return(item);
 					});
 				});
@@ -184,6 +185,7 @@
 			if (error) {
 				return console.log(error);
 			}
+			// setTimeout(appendMessageToSentFolder, 5000);
 			appendMessageToSentFolder();
 		});
 	};
@@ -225,7 +227,6 @@
 					user: login,
 					clientId: Meteor.settings.public.yandex_client_id,
 					clientSecret: Meteor.settings.private.yandex_client_secret,
-					// refreshToken: '{refresh-token}',
 					accessToken: token
 				})
 			}
@@ -234,18 +235,29 @@
 
 	function appendMessageToSentFolder() {
 		imap.openBox('INBOX', false, function(err, box) {
-			imap.search(['ALL', ['FROM', login]], function(err, results) {
-				if (err) {
-					console.log(err);
-					throw err;
-					return;
-				}
-				var f = imap.move(results, 'Отправленные', function(error) {
-					if (error) {
-						console.log(error);
+			var attemptsCount = 0;
+			var repeat = setInterval(function() {
+				attemptsCount++;
+				imap.search(['UNSEEN', ['HEADER', 'FROM', login]], function(err, results) {
+					if (err) {
+						console.log(err);
+						return;
+					}
+					if (results.length > 0) {
+						attemptsCount = 60;
+
+						var f2 = imap.addFlags(results, 'Seen');
+						var f1 = imap.move(results, 'Отправленные', function(err) {
+							if (err) {
+								console.log(err);
+							}
+						});
+					}
+					if (attemptsCount >= 60) {
+						clearInterval(repeat);
 					}
 				});
-			});
+			}, 1000);
 		});
 	};
 })();
