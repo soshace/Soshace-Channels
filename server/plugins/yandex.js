@@ -139,6 +139,10 @@
 					markSeen: userIsHost
 				});
 				f.on('message', function(msg, seqno) {
+					msg.on('attributes', function(attrs) {
+						item.attr = attrs;
+						item.uid = attrs.uid;
+					});
 					msg.on('body', function(stream) {
 						stream.on('data', function(chunk) {
 							parser.write(chunk.toString('utf8'));
@@ -187,6 +191,33 @@
 			}
 			// setTimeout(appendMessageToSentFolder, 5000);
 			appendMessageToSentFolder();
+		});
+	};
+
+	YandexPlugin.prototype.deleteMessage = function(uid) {
+		imap.openBox('INBOX', false, function(err, box) {
+			imap.search(['ALL', ['UID', uid]], function(err, results) {
+				if (err) {
+					console.log(err);
+					return;
+				}
+				if (results.length > 0) {
+					// var f2 = imap.addFlags(results, 'Deleted');
+					var f1 = imap.move(results, 'Удаленные', function(err) {
+						if (err) {
+							console.log(err);
+						}
+					});
+					// var f2 = imap.getBoxes(function(err,result){
+					// 	console.log(result);
+					// })
+				}
+				imap.closeBox(true, function(err) {
+					if (err) {
+						console.log(err);
+					}
+				});
+			});
 		});
 	};
 
@@ -260,4 +291,5 @@
 			}, 1000);
 		});
 	};
+
 })();

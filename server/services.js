@@ -123,6 +123,10 @@ Meteor.methods({
 		plugins[this.userId].replyEmail(message);
 	},
 
+	'deleteEmail': function(uid) {
+		plugins[this.userId].deleteMessage(uid);
+	},
+
 	'addToken': function(params) {
 		var currentUserId = Meteor.userId(),
 			userTokens = Meteor.user().serviceTokens,

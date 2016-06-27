@@ -13,7 +13,6 @@
 		this.resourceId = 'INBOX';
 
 		currentPage = 1;
-		showReplyBlock = false,
 		self = this;
 		this.channelId = channelData._id;
 	};
@@ -48,6 +47,7 @@
 	};
 
 	YandexPlugin.prototype.getSingleBlock = function(getOneEmailCallback, uid) {
+		showReplyBlock = false;
 		Meteor.call('getOneMessage', self.channelId, uid, function(error, results) {
 			currentBlock = results;
 			getOneEmailCallback(results);
@@ -98,6 +98,18 @@
 		});
 	};
 
+	function deleteEmail() {
+		Meteor.call('deleteEmail', currentBlock.uid, function(error, results) {
+			if (error) {
+				console.log(error);
+				return;
+			}
+			Router.go('channel', {
+			  _id: self.channelId
+			});
+		});
+	};
+
 	Template.yandexDetailsTemplate.events({
 		'click .channel-block__send-email': function(event) {
 			event.preventDefault();
@@ -116,6 +128,11 @@
 			showReplyBlock = !showReplyBlock;
 			deps.changed();
 		},
+
+		'click .channel-block__delete-email': function(event) {
+			event.preventDefault();
+			deleteEmail();
+		}
 	});
 
 	Template.replyBlock.events({
