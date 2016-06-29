@@ -13,12 +13,12 @@
 			Send by <span class="semi-bold">{{from}}</span> on {{formatDateTime date}}
 		</em>
 
-<!-- 		<div>
-			{{{body}}}
-		</div> -->
-		<div class="email__plain-text">
-			{{{body}}}
-		</div>
+			<div class="email__plain-text">
+				{{{plainText}}}
+			</div>
+			<div>
+				{{{htmlBody}}}
+			</div>
 
 		{{#if userIsChannelCreator}}
 			{{#if showReplyBlock}}
@@ -39,9 +39,9 @@
 </template>
 
 <template name="replyBlock">
-	<a class="email__hide-reply" href="">
+<!-- 	<a class="email__hide-reply" href="">
 		<i class="fa fa-times" aria-hidden="true"></i>
-	</a>
+	</a> -->
 	<div class="email__reply-block">
 		<div class="summernote"></div>
 		<button class="btn btn-primary btn-lg channel-block__send-email">

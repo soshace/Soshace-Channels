@@ -150,7 +150,7 @@
 
 		var separator = '<br/><div class="email__separator">',
 			date = moment(Date.parse(currentBlock.date)),
-			body = '<div class="email__current-body">' + currentBlock.body + '</div>';
+			body = '<div class="email__current-body">' + currentBlock.htmlBody || currentBlock.plainText + '</div>';
 
 		separator += date.format('MMMM Do YYYY, hh:mm,');
 		separator += currentBlock.from + ':</div>';

@@ -151,6 +151,9 @@
 
 .email__plain-text {
   white-space: pre;
+  overflow: auto;
+  position: relative;
+  width: 100%;
 }
 
 .email__show-reply {

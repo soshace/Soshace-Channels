@@ -157,7 +157,8 @@
 						item.date = result ? result.date : '';
 					});
 					parser.on('end', function(result) {
-						item.body = result.html || result.text;
+						item.htmlBody = result.html;
+						item.plainText || result.text;
 						// item.text = result.text;
 						// imap.end();
 
@@ -220,7 +221,7 @@
 			});
 		});
 	};
-	
+
 	function initImap() {
 		var s = 'user=' + login + '@yandex.ru\001auth=Bearer ' + token + '\001\001',
 			t = new Buffer(s).toString('base64'),
