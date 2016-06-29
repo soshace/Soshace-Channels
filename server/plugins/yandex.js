@@ -186,6 +186,8 @@
 			bcc: login
 		};
 
+		console.log(mailOptions);
+
 		smtp.sendMail(mailOptions, function(error, info) {
 			if (error) {
 				return console.log(error);
@@ -196,6 +198,7 @@
 	};
 
 	YandexPlugin.prototype.deleteMessage = function(uid) {
+		var self = this;
 		imap.openBox('INBOX', false, function(err, box) {
 			imap.search(['ALL', ['UID', uid]], function(err, results) {
 				if (err) {
@@ -208,6 +211,7 @@
 						if (err) {
 							console.log(err);
 						}
+						self.getInboxMessages(currentPage);
 					});
 					// var f2 = imap.getBoxes(function(err,result){
 					// 	console.log(result);
@@ -270,12 +274,14 @@
 			var attemptsCount = 0;
 			var repeat = setInterval(function() {
 				attemptsCount++;
-				imap.search(['UNSEEN', ['HEADER', 'FROM', login]], function(err, results) {
+				// imap.search(['UNSEEN', ['HEADER', 'FROM', login]], function(err, results) {
+				imap.search(['UNSEEN', ['UID', box.uidnext]], function(err, results) {
 					if (err) {
 						console.log(err);
 						return;
 					}
 					if (results.length > 0) {
+						console.log(attemptsCount, results, login);
 						attemptsCount = 60;
 
 						var f2 = imap.addFlags(results, 'Seen');

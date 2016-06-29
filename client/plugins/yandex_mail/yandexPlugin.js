@@ -4,6 +4,8 @@
 		currentBlock,
 		currentPage,
 		showReplyBlock,
+		showForwardBlock,
+		replySubject,
 		deps = new Deps.Dependency();
 
 	this.YandexPlugin = function(channelData) {
@@ -82,7 +84,7 @@
 		var message = {
 			bodyHtml: $('.summernote').summernote('code'),
 			receiver: currentBlock.from,
-			subject: currentBlock.subject
+			subject: replySubject
 		};
 		if (!message.bodyHtml) {
 			return;
@@ -126,10 +128,20 @@
 		'click .email__show-reply': function(event) {
 			event.preventDefault();
 			showReplyBlock = !showReplyBlock;
+			if (!showReplyBlock) {
+				showForwardBlock = false;
+			}
 			deps.changed();
 		},
 
-		'click .channel-block__delete-email': function(event) {
+		'click .email__show-forward': function(event) {
+			event.preventDefault();
+			showForwardBlock = !showForwardBlock;
+			showReplyBlock = showForwardBlock;
+			deps.changed();
+		},
+
+		'click .email__delete': function(event) {
 			event.preventDefault();
 			deleteEmail();
 		}
@@ -145,7 +157,8 @@
 
 	Template.replyBlock.onRendered(function() {
 		$('.summernote').summernote({
-			height: 300
+			height: 500,
+			focus: true
 		});
 
 		var separator = '<br/><div class="email__separator">',
@@ -161,12 +174,30 @@
 	Template.yandexDetailsTemplate.helpers({
 		showReplyBlock: function() {
 			deps.depend();
-			$('.summernote').summernote({
-				height: 300,
-				placeholder: 'Reply here...'
-			});
 			return showReplyBlock;
 		},
+	
+		showForwardBlock: function() {
+			deps.depend();
+			return showForwardBlock;
+		},
+
+		replySubject: function() {
+			deps.depend();
+			replySubject = currentBlock.subject;
+			if (showForwardBlock) {
+				if (replySubject.indexOf('Fwd:') === -1) {
+					replySubject = 'Fwd: ' + replySubject;
+				}
+				return subject;
+			}
+			if (showReplyBlock) {
+				if (replySubject.indexOf('Re:') === -1) {
+					replySubject = 'Re: ' + replySubject;
+				}
+				return replySubject;
+			}
+		}
 	});
 
 	Template.yandexSettingsTemplate.events({

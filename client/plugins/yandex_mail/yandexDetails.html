@@ -4,23 +4,57 @@
 	<div class="panel-body">
 
 		<button class="channel__return btn btn-sm btn-white pull-right">
-		Back to channel
+			Back to channel
 		</button>
 
-		<h3 class="channel-details__header f-s-20">{{subject}}</h3>
+		<h3 class="channel-block__header f-s-20">{{subject}}</h3>
 
 		<em class="channel-details__author grey-text">
-			Send by <span class="semi-bold">{{from}}</span> on {{formatDateTime date}}
+			By <span class="semi-bold">{{from}}</span> on {{formatDateTime date}}
 		</em>
 
+		{{#if userIsChannelCreator}}
+			<div>
+				<a class="email__show-reply email__handler">
+					<i class="fa fa-reply" aria-hidden="true"></i>
+					Reply
+				</a>		
+
+				<a class="email__show-forward email__handler">
+					<i class="fa fa-share" aria-hidden="true"></i>
+					Forward
+				</a>		
+
+				<a class="email__delete email__handler">
+					<i class="fa fa-trash-o" aria-hidden="true"></i>
+					To bin
+				</a>		
+
+				<a class="email__spam email__handler">
+					<i class="fa fa-ban" aria-hidden="true"></i>
+					Spam
+				</a>			
+			</div>
+		{{/if}}
+
+		{{#if showReplyBlock}}
+			{{#if showForwardBlock}}
+				<div class="email__forward-block">
+					<input type="text" class="form-control email__forward-address" placeholder="To:">
+				</div>
+			{{/if}}
+			<input type="text" class="form-control email__forward-subject" placeholder="Subject:" value="{{replySubject}}">				
+			{{> replyBlock}}
+		{{else}}
 			<div class="email__plain-text">
 				{{{plainText}}}
 			</div>
 			<div>
 				{{{htmlBody}}}
 			</div>
+		{{/if}}
 
-		{{#if userIsChannelCreator}}
+<!-- 		{{#if userIsChannelCreator}}
 			{{#if showReplyBlock}}
 				{{> replyBlock}}
 			{{else}}
@@ -28,7 +62,7 @@
 					Cick here to reply
 				</div>
 			{{/if}}
-		{{/if}}
+		{{/if}} -->
 	</div>
 
 <!-- 	<div class="panel-body">
@@ -39,16 +73,10 @@
 </template>
 
 <template name="replyBlock">
-<!-- 	<a class="email__hide-reply" href="">
-		<i class="fa fa-times" aria-hidden="true"></i>
-	</a> -->
 	<div class="email__reply-block">
 		<div class="summernote"></div>
 		<button class="btn btn-primary btn-lg channel-block__send-email">
 			Send
-		</button>
-		<button class="btn btn-primary btn-lg channel-block__delete-email">
-			Delete
 		</button>
 	</div>
 </template>

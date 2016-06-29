@@ -204,7 +204,6 @@ Template.channel.updateData = function(channelId) {
 };
 
 function getBlocksCallback(data, resourceId) {
-  console.log(data);
   blocks = data.blocks;
   loading = false;
   deps.changed();

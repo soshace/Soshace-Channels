@@ -98,9 +98,10 @@
 }
 
 /* Channel feed tab details */
-.channel-details__header {
-  width: 350px;
+.channel-block__header {
+  /*width: 350px;*/
   border-bottom: 2px solid #4DCACA;
+  padding-bottom: 10px;
 }
 
 .channel-details__author {
@@ -156,8 +157,9 @@
   width: 100%;
 }
 
-.email__show-reply {
+.email__handler {
   cursor: pointer;
+  margin: 10px;
 }
 
 .email__separator {
@@ -168,6 +170,18 @@
 .email__current-body {
   padding-left: 10px;
   border-left: Solid 2px #CCCCCC;
+}
+
+.email__reply-block {
+  margin: 10px 0;
+}
+
+.email__forward-subject{
+  margin-top: 10px;
+}
+
+.email__forward-address{
+  margin-top: 10px;
 }
 
 .tabulation {
