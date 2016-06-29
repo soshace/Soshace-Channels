@@ -89,6 +89,10 @@
 		if (!message.bodyHtml) {
 			return;
 		}
+		if (showForwardBlock) {
+
+		}
+
 		Meteor.call('replyEmail', message, function(error, results) {
 			if (error) {
 				console.log(error);
@@ -189,7 +193,7 @@
 				if (replySubject.indexOf('Fwd:') === -1) {
 					replySubject = 'Fwd: ' + replySubject;
 				}
-				return subject;
+				return replySubject;
 			}
 			if (showReplyBlock) {
 				if (replySubject.indexOf('Re:') === -1) {

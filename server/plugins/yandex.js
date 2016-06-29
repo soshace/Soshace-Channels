@@ -40,68 +40,7 @@
 				box: mailBox
 			};
 		}
-		currentPage = page;
-
-		var fut = new Future();
-
-		messages = [];
-		if (imap.state !== 'authenticated') {
-			imap.connect();
-		};
-
-		imap.openBox('INBOX', false, function(err, box) {
-			var total = box.messages.total,
-				end = total - 10 * (page - 1) > 0 ? total - 10 * (page - 1) : total - 10 * (page - 1),
-				start = (total - 10 * page) + 1 > 0 ? (total - 10 * page + 1) : 1,
-				f = imap.seq.fetch(start + ':' + end, {
-					bodies: ['HEADER'],
-					struct: true
-				});
-
-			f.on('message', function(msg, seqno) {
-				var buffer = '',
-					item = {};
-				msg.on('attributes', function(attrs) {
-					item.attr = attrs;
-					item.uid = attrs.uid;
-				});
-				msg.on('body', function(stream, info) {
-					var buffer = '';
-					stream.on('data', function(chunk) {
-						buffer += chunk;
-					});
-					stream.once('end', function() {
-						switch (info.which) {
-							case 'HEADER':
-								buffer = buffer.toString('utf8');
-								var i = Imap.parseHeader(buffer);
-								item.from = i.from ? i.from[0] : '';
-								item.subject = i.subject ? i.subject[0] : 'No subject';
-								item.date = i.date ? i.date[0] : '';
-								break;
-							default:
-								item.body = buffer;
-								break;
-						}
-					});
-				});
-				msg.on('end', function() {
-					messages.push(item);
-				});
-			});
-			f.once('error', function(err) {
-				console.log('Fetch error: ' + err);
-			});
-			f.once('end', function() {
-				// imap.end();
-				mailBox = box;
-				fut.return({
-					items: messages,
-					box: box
-				});
-			});
-		});
-		return fut.wait();
+		return getImapMessages(page);
 	};
 
 	YandexPlugin.prototype.getMessage = function(uid) {
@@ -198,7 +137,7 @@
 	};
 
 	YandexPlugin.prototype.deleteMessage = function(uid) {
-		var self = this;
+		messages = _.without(messages, _.findWhere(messages, {uid: uid}));
 		imap.openBox('INBOX', false, function(err, box) {
 			imap.search(['ALL', ['UID', uid]], function(err, results) {
 				if (err) {
@@ -211,7 +150,6 @@
 						if (err) {
 							console.log(err);
 						}
-						self.getInboxMessages(currentPage);
 					});
 					// var f2 = imap.getBoxes(function(err,result){
 					// 	console.log(result);
@@ -267,6 +205,71 @@
 				})
 			}
 		});
+	};
+
+	function getImapMessages(page) {
+		currentPage = page;
+
+		var fut = new Future();
+
+		messages = [];
+		if (imap.state !== 'authenticated') {
+			imap.connect();
+		};
+
+		imap.openBox('INBOX', false, function(err, box) {
+			var total = box.messages.total,
+				end = total - 10 * (page - 1) > 0 ? total - 10 * (page - 1) : total - 10 * (page - 1),
+				start = (total - 10 * page) + 1 > 0 ? (total - 10 * page + 1) : 1,
+				f = imap.seq.fetch(start + ':' + end, {
+					bodies: ['HEADER'],
+					struct: true
+				});
+
+			f.on('message', function(msg, seqno) {
+				var buffer = '',
+					item = {};
+				msg.on('attributes', function(attrs) {
+					item.attr = attrs;
+					item.uid = attrs.uid;
+				});
+				msg.on('body', function(stream, info) {
+					var buffer = '';
+					stream.on('data', function(chunk) {
+						buffer += chunk;
+					});
+					stream.once('end', function() {
+						switch (info.which) {
+							case 'HEADER':
+								buffer = buffer.toString('utf8');
+								var i = Imap.parseHeader(buffer);
+								item.from = i.from ? i.from[0] : '';
+								item.subject = i.subject ? i.subject[0] : 'No subject';
+								item.date = i.date ? i.date[0] : '';
+								break;
+							default:
+								item.body = buffer;
+								break;
+						}
+					});
+				});
+				msg.on('end', function() {
+					messages.push(item);
+				});
+			});
+			f.once('error', function(err) {
+				console.log('Fetch error: ' + err);
+			});
+			f.once('end', function() {
+				// imap.end();
+				mailBox = box;
+				fut.return({
+					items: messages,
+					box: box
+				});
+			});
+		});
+		return fut.wait();
 	};
 
 	function appendMessageToSentFolder() {
