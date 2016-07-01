@@ -1,3 +1,10 @@
+Meteor.startup(function() {
+  // changing link for password reset
+  Accounts.urls.resetPassword = function(token) {
+    return Meteor.absoluteUrl('reset-password/' + token);
+  };
+});
+
 // Methods working with 'Meteor.users' collection
 
 // Add empty arrays to some users fields

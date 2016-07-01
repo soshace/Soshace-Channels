@@ -16,6 +16,20 @@ Router.route('/register', {
   template: 'register',
 });
 
+Router.route('/forgot-password', {
+  name: 'forgotPassword',
+  template: 'forgotPassword'
+});
+
+Router.route('/reset-password/:token', {
+  name: 'resetPassword',
+  template: 'resetPassword',
+  onBeforeAction: function() {
+    Accounts._resetPasswordToken = this.params.token;
+    this.next();
+  }
+});
+
 Router.route('/profile', {
   template: 'profile',
   onBeforeAction: function() {
