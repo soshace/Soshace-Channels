@@ -1,4 +1,4 @@
-Invitations = new Meteor.Collection( 'invitations' );
+Invitations = new Mongo.Collection( 'invitations' );
 
 Invitations.allow({
   insert: () => false,
@@ -32,7 +32,7 @@ Schemas.Invitation = new SimpleSchema({
 
   channelCreatorId: {
     type: String,
-    label: 'ID of user who was sending invite.' 
+    label: 'ID of user who was sending invite.'
   },
 
   date: {

@@ -1,8 +1,8 @@
 // Methods working with 'Meteor.users' collection
 
-// Add empty arrays to users fields 'contacts'/'channels'
+// Add empty arrays to some users fields
 // (which defined in client/views/register.js)
-// when user creates an account (registation)
+// when user creates an account
 Accounts.onCreateUser(function(options, user) {
   user._id = Random.id();
 
@@ -26,7 +26,6 @@ Accounts.onCreateUser(function(options, user) {
       contactStatus: 'accepted'
     };
     // Add inviter to contact list
-    //user.profile.contacts.push(inviterContact);
     user.contacts.push(inviterContact);
 
     // Add new user to inviter contacts
