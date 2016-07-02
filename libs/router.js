@@ -45,8 +45,9 @@ Router.route('/profile', {
   }
 });
 
-Router.route('/uploadpic', {
-  template: 'profileImage',
+Router.route('/edit-profile', {
+  name: 'profileEdit',
+  template: 'profileEdit',
   onBeforeAction: function() {
     var currentUser = Meteor.userId();
     if (currentUser) {

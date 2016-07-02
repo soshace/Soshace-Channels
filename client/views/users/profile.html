@@ -7,173 +7,101 @@
   <div class="profile">
     <div class="row">
 
-      <div class="col-md-4">
-        <div class="user-avatar text-center m-b-20">
-          <a href="{{pathFor route='uploadpic'}}" class="user-avatar__link">
-            {{#unless currentUser.personalData.picPath}}
-            <img class="user-avatar__img" src="/images/user.png" alt="User Picture">
-            {{else}}
-            <img class="user-avatar__img" src="/upload/{{currentUser.personalData.picPath}}" alt="User Picture">
-            {{/unless}}
-            <span class="user-avatar__edit">Change Picture</span>
-          </a>
-        </div>
+      <div class="col-xs-10">
 
-      </div>
-
-      <div class="col-md-6">
         <div class="panel">
 
           <div class="panel-body">
-            <div class="clearfix">
-              <a href="#" class="profile-edit-btn btn btn-link pull-right">Edit</a>
-              <a href="#" class="profile-edit-close btn btn-link pull-right">Close without saving</a>
+
+            <div class="row">
+              <div class="col-xs-4">
+                <div class="user-avatar text-center m-b-20">
+                  <a href="{{pathFor route='profileEdit'}}" class="user-avatar__link">
+                    {{#unless currentUser.personalData.picPath}}
+                    <img class="user-avatar__img" src="/images/user.png" alt="User Picture">
+                    {{else}}
+                    <img class="user-avatar__img" src="/upload/{{currentUser.personalData.picPath}}" alt="User Picture">
+                    {{/unless}}
+                    <span class="user-avatar__edit">Change Picture</span>
+                  </a>
+                </div>
+              </div>
+
+
+              <div class="col-xs-8">
+                <div class="clearfix">
+                  <a href="{{pathFor route='profileEdit'}}" class="profile-edit-btn btn btn-link pull-right">Edit</a>
+                </div>
+
+                <table class="table table-profile">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>
+                        <h4>{{currentUser.personalData.firstName}} {{currentUser.personalData.lastName}}</h4>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="field">ID</td>
+                      <td><i class="fa fa-user fa-lg m-r-5"></i>{{currentUser.username}}</td>
+                    </tr>
+                    <tr class="highlight">
+                      <td class="field">Contact Info</td>
+                      <td></td>
+                    </tr>
+                    <tr class="divider">
+                      <td colspan="2"></td>
+                    </tr>
+                    <tr>
+                      <td class="field">E-mail</td>
+                      <td>
+                        <i class="fa fa-at fa-lg m-r-5"></i>
+                        <a href="mailto:{{currentUser.emails.[0].address}}">{{currentUser.emails.[0].address}}</a>
+                        {{#unless currentUser.emails.[0].verified}}
+                        <span class="label label-warning">Need to verify</span>
+                        <a class="resend-verification-link btn btn-link f-s-12" href="#">Resend verification link</a>
+                        {{else}}
+                        <span class="label label-success">Verified</span>
+                        {{/unless}}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="field">Phone</td>
+                      <td><i class="fa fa-phone fa-lg m-r-5"></i> {{currentUser.personalData.phone}}</td>
+                    </tr>
+                    <tr>
+                      <td class="field">Skype</td>
+                      <td><i class="fa fa-skype fa-lg m-r-5"></i> <a href="skype:{{currentUser.personalData.skype}}">{{currentUser.personalData.skype}}</a></td>
+                    </tr>
+                    <tr class="divider">
+                      <td colspan="2"></td>
+                    </tr>
+                    <tr class="highlight">
+                      <td class="field">Personal Info</td>
+                      <td></td>
+                    </tr>
+                    <tr class="divider">
+                      <td colspan="2"></td>
+                    </tr>
+                    <tr>
+                      <td class="field">Location</td>
+                      <td>{{currentUser.personalData.location}}</td>
+                    </tr>
+                    <tr>
+                      <td class="field">Gender</td>
+                      <td>{{currentUser.personalData.gender}}</td>
+                    </tr>
+                    <tr>
+                      <td class="field">Birthdate</td>
+                      <td>{{currentUser.personalData.bday}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+              </div>
             </div>
 
-            <table class="table table-profile">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>
-                    <h4>{{currentUser.personalData.firstName}} {{currentUser.personalData.lastName}}</h4>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="field">ID</td>
-                  <td><i class="fa fa-user fa-lg m-r-5"></i>{{currentUser.username}}</td>
-                </tr>
-                <tr class="highlight">
-                  <td class="field">Contact Info</td>
-                  <td></td>
-                </tr>
-                <tr class="divider">
-                  <td colspan="2"></td>
-                </tr>
-                <tr>
-                  <td class="field">E-mail</td>
-                  <td>
-                    <i class="fa fa-at fa-lg m-r-5"></i>
-                    <a href="mailto:{{currentUser.emails.[0].address}}">{{currentUser.emails.[0].address}}</a>
-                    {{#unless currentUser.emails.[0].verified}}
-                    <span class="label label-warning">Need to verify</span>
-                    <a class="resend-verification-link btn btn-link f-s-12" href="#">Resend verification link</a>
-                    {{else}}
-                    <span class="label label-success">Verified</span>
-                    {{/unless}}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="field">Phone</td>
-                  <td><i class="fa fa-phone fa-lg m-r-5"></i> {{currentUser.personalData.phone}}</td>
-                </tr>
-                <tr>
-                  <td class="field">Skype</td>
-                  <td><i class="fa fa-skype fa-lg m-r-5"></i> <a href="skype:{{currentUser.personalData.skype}}">{{currentUser.personalData.skype}}</a></td>
-                </tr>
-                <tr class="divider">
-                  <td colspan="2"></td>
-                </tr>
-                <tr class="highlight">
-                  <td class="field">Personal Info</td>
-                  <td></td>
-                </tr>
-                <tr class="divider">
-                  <td colspan="2"></td>
-                </tr>
-                <tr>
-                  <td class="field">Location</td>
-                  <td>{{currentUser.personalData.location}}</td>
-                </tr>
-                <tr>
-                  <td class="field">Gender</td>
-                  <td>{{currentUser.personalData.gender}}</td>
-                </tr>
-                <tr>
-                  <td class="field">Birthdate</td>
-                  <td>{{currentUser.personalData.bday}}</td>
-                </tr>
-                </tbody>
-            </table>
-
-            <form class="user-info-edit form-horizontal f-s-14">
-              <div class="form-group">
-                <label class="col-md-4 control-label f-w-600" for="first-name-field">
-                  First Name:
-                </label>
-                <div class="col-md-8">
-                  <input class="form-control f-s-14" type="text" name="first-name" id="first-name-field" value="{{currentUser.personalData.firstName}}" placeholder="Enter First Name">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="col-md-4 control-label f-w-600" for="last-name-field">
-                  Last Name:
-                </label>
-                <div class="col-md-8">
-                  <input class="form-control f-s-14" type="text" name="last-name" id="last-name-field" value="{{currentUser.personalData.lastName}}" placeholder="Enter Last Name">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="col-md-4 control-label f-w-600" for="gender-field">
-                  Gender:
-                </label>
-                <div class="col-md-8">
-                  <select class="form-control f-s-14" name="gender" id="gender-field" value="{{currentUser.personalData.gender}}" placeholder="Select Gender">
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="col-md-4 control-label f-w-600" for="bday-field">
-                  Birthday:
-                </label>
-                <div class="col-md-8">
-                  <input class="form-control f-s-14" type="date" name="bday" id="bday-field" value="{{currentUser.personalData.bday}}" placeholder="Enter Birthday">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="col-md-4 control-label f-w-600" for="phone-field">
-                  Mobile:
-                </label>
-                <div class="col-md-8">
-                  <input class="form-control f-s-14" type="tel" name="phone" id="phone-field" value="{{currentUser.personalData.phone}}" placeholder="Enter Phone Number">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="col-md-4 control-label f-w-600" for="skype-field">
-                  Skype:
-                </label>
-                <div class="col-md-8">
-                  <input class="form-control f-s-14" type="text" name="skype" id="skype-field" value="{{currentUser.personalData.skype}}" placeholder="Enter Skype Login">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="col-md-4 control-label f-w-600" for="location-field">
-                  Location:
-                </label>
-                <div class="col-md-8">
-                  <input class="form-control f-s-14" id="location-field" type="text" name="location" value="{{currentUser.personalData.location}}" autocomplete="off">
-                  <div class="location-result-wrapper">
-                    <ul class="location-result invisible">
-                    </ul>
-                  </div>
-                </div>
-
-              </div>
-
-              <div class="col-md-offset-4 col-md-8">
-                <input class="btn btn-primary" type="submit" value="Save">
-                <a href="#" class="delete-user btn btn-sm btn-danger pull-right">Delete account</a>
-              </div>
-            </form>
           </div>
         </div>
       </div>
@@ -181,7 +109,7 @@
     </div>
 
     <div class="row">
-      <div class="col-md-10">
+      <div class="col-xs-10">
         <div class="panel panel-inverse">
           <div class="panel-heading">
             <h4 class="panel-title">Services</h4>
