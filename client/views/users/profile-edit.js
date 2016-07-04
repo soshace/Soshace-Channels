@@ -6,7 +6,65 @@ Template.profileEdit.helpers({
 });
 
 Template.profileEdit.events({
-  'click #deleteUserPic': function(event) {
+  'click #cropUserPic': function() {
+    var img = $('.user-uploaded-img'),
+        okBtn = $('#acceptCrop'),
+        cancelBtn = $('#cancelCrop'),
+        deleteBtn = $('#deleteUserPic'),
+        cropBtn = $('#cropUserPic'),
+        legend = $('.user-image p'),
+        coordinates;
+
+    deleteBtn.addClass('invisible');
+    cropBtn.addClass('invisible');
+    legend.removeClass('invisible');
+    okBtn.removeClass('invisible');
+    cancelBtn.removeClass('invisible');
+
+    img.Jcrop({
+      onSelect: showCoords,
+      setSelect: [ 100, 100, 50, 50 ]
+    });
+
+    cancelBtn.click(function() {
+      legend.addClass('invisible');
+      okBtn.addClass('invisible');
+      cancelBtn.addClass('invisible');
+      deleteBtn.removeClass('invisible');
+      cropBtn.removeClass('invisible');
+
+      var JcropAPI = img.data('Jcrop');
+      JcropAPI.destroy();
+    });
+
+    okBtn.click(function() {
+      legend.addClass('invisible');
+      okBtn.addClass('invisible');
+      cancelBtn.addClass('invisible');
+      deleteBtn.removeClass('invisible');
+      cropBtn.removeClass('invisible');
+
+      Meteor.call('cropFile', coordinates, function(error) {
+        if (error) {
+          Bert.alert('Something went wrong.', 'warning');
+        } else {
+          Router.go('profile');
+          Bert.alert('Image was successfully cropped', 'success');
+        }
+      })
+    });
+
+    function showCoords(c) {
+      coordinates = {
+        x: c.x,
+        y: c.y,
+        width: c.w,
+        height: c.h
+      }
+    }
+  },
+
+  'click #deleteUserPic': function() {
     var userId = Meteor.userId();
     if (confirm('Are you sure?')) {
       Meteor.call('deleteFile', userId, true);

@@ -11,16 +11,25 @@
 
           <span class="lead">Current picture:</span>
 
-          <div class="row m-t-20 m-b-20">
+          <div class="row m-t-20 m-b-20 user-image text-center">
             {{#unless currentUser.personalData.picPath}}
-            <img src="/images/user.png" width="150" alt="User Picture">
+            <img src="/images/user.png" alt="User Picture">
             {{else}}
-            <img src="/upload/{{currentUser.personalData.picPath}}" width="200" alt="User Picture">
+            <div class="m-b-20">
+              <img class="user-uploaded-img" src="/upload/{{currentUser.personalData.picPath}}" width="300" alt="User Picture">
+            </div>
+            <div>
+              <p class="m-b-10 f-s-14 invisible"><em>Select area to crop and press OK</em></p>
+              <button id="cropUserPic" class="btn btn-info pull-left">Crop Picture</button>
+              <button id="deleteUserPic" class="btn btn-danger pull-right">Delete Picture</button>
+              <button id="acceptCrop" class="btn btn-info pull-left invisible">Ok</button>
+              <button id="cancelCrop" class="btn btn-danger pull-right invisible">Cancel</button>
+            </div>
+
             {{/unless}}
-            <button id="deleteUserPic" class="delete-user btn btn-danger pull-right">Delete Picture</button>
           </div>
 
-          <div class="row m-b-20">
+          <div class="row m-b-20" id="image-upload">
             <div class="m-b-20">
                 <span class="lead">Upload new picture:</span>
             </div>
@@ -132,4 +141,5 @@
 
     </div>
   </div>
+
 </template>
