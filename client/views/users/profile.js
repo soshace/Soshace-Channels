@@ -36,19 +36,5 @@ Template.profile.events({
         Bert.alert('Service token was deleted.', 'success');
       }
     });
-  },
-
-  // 'click .profile-edit-btn': function(event) {
-  //   event.preventDefault();
-  //   var profileContainer = $('.profile');
-  //   profileContainer.addClass('profile-edit');
-  // },
-  //
-  // 'click .profile-edit-close': function(event) {
-  //   event.preventDefault();
-  //   var profileContainer = $('.profile');
-  //   profileContainer.removeClass('profile-edit');
-  // },
-
-
+  }
 });

@@ -14,13 +14,12 @@ Template.profileEdit.events({
     }
   },
 
-  'submit .user-info-edit': function(event) {
+  'submit .user-info-edit': function(event, template) {
     event.preventDefault();
 
     // Get data
-    var form = $('.user-info-edit'),
-        profileBlock = $('.profile');
-        userData = {
+    var userData = {
+          email: $('[name=email]').val(),
           firstName: $('[name=first-name]').val(),
           lastName: $('[name=last-name]').val(),
           gender: $('[name=gender]').val(),
@@ -30,12 +29,24 @@ Template.profileEdit.events({
           location: $('[name=location]').val()
         };
 
-    Meteor.call('saveUserData', userData, function(error) {
+    Meteor.call('saveUserData', userData, function(error, result) {
       if (error) {
         Bert.alert(error.reason, 'warning');
       } else {
         Router.go('profile');
         Bert.alert('Successfully changed.', 'success');
+
+        // 'saveUserData' returns false if email was changed
+        if (!result) {
+          Meteor.call('sendVerificationLink', function(error) {
+            if (error) {
+              Bert.alert(error.reason, 'warning');
+            } else {
+              var email = Meteor.user().emails[0].address;
+              Bert.alert('Link send to ' + email, 'success');
+            }
+          });
+        }
       }
     });
   },
@@ -73,9 +84,4 @@ Template.profileEdit.events({
       });
     }
   }
-  // ,
-  //
-  // 'change form': function(event) {
-  //   console.log(this);
-  // }
 })

@@ -42,6 +42,15 @@
 
           <form class="user-info-edit form-horizontal f-s-14">
             <div class="form-group">
+              <label class="col-xs-4 control-label f-w-600" for="email-field">
+                E-mail:
+              </label>
+              <div class="col-xs-8">
+                <input class="form-control f-s-14" type="text" name="email" id="email-field" value="{{currentUser.emails.[0].address}}" placeholder="Enter E-mail">
+              </div>
+            </div>
+
+            <div class="form-group">
               <label class="col-xs-4 control-label f-w-600" for="first-name-field">
                 First Name:
               </label>
