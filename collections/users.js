@@ -76,13 +76,12 @@ Schema.UserProfile = new SimpleSchema({
 Schema.User = new SimpleSchema({
     username: {
         type: String,
-        regEx: /^[a-z0-9A-Z_]{3,15}$/
+        min: 3,
+        max: 15,
+        regEx: /^[a-zA-Z_]+$/
     },
     emails: {
-        type: [Object],
-        // this must be optional if you also use other login services like facebook,
-        // but if you use only accounts-password, then it can be required
-        optional: true
+        type: [Object]
     },
     "emails.$.address": {
         type: String,
@@ -115,6 +114,10 @@ Schema.User = new SimpleSchema({
       type: [Schema.PluginService],
       optional: true
     }
+});
+
+Schema.User.messages({
+  "regEx username": 'Error in [label]. Only English letters are allowed.'
 });
 
 Meteor.users.attachSchema(Schema.User);

@@ -11,14 +11,27 @@ Template.register.events({
           password: passwordVal
         };
 
-    Accounts.createUser(options, function(error) {
-      if (error) {
-        Bert.alert(error.reason, 'warning');
-      } else {
-        // TODO: check for errors for sendVerificationLink?
-        Meteor.call('sendVerificationLink');
-        Router.go('channels');
-      }
-    });
+    if (passwordVal.length < 6) {
+      Bert.alert('Password must be at least 6 characters.', 'warning');
+    } else if (passwordVal.length > 15) {
+      Bert.alert('Password cannot exceed 15 characters.', 'warning');
+    } else {
+      Accounts.createUser(options, function(error) {
+        if (error) {
+          Bert.alert(error.reason, 'warning');
+        } else {
+          // TODO: check for errors for sendVerificationLink?
+          Meteor.call('sendVerificationLink', function(error) {
+            if (error) {
+              Router.go('profile');
+              Bert.alert('We have a problem with sending you an email verification link. Check e-mail, please.', 'warning')
+            } else {
+              Router.go('channels');
+              Bert.alert('Check your e-mail for verification link.', 'success');
+            }
+          });
+        }
+      });
+    }
   }
 });

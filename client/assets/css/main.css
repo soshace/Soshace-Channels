@@ -377,10 +377,6 @@ code {
   transition: 0.3s ease;
 }
 
-.profile-edit-close {
-  display: none;
-}
-
 .profile input {
   border: none;
 }
@@ -473,4 +469,15 @@ code {
 
 .location-result li:hover {
 	background-color: #4DCACA;
+}
+
+
+
+/*PROFILE-EDIT PAGE*/
+.profile-edit__image-block {
+  position: relative;
+}
+.profile-edit__image-controls {
+  position: absolute;
+  bottom: 0;
 }

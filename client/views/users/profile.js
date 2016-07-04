@@ -1,30 +1,4 @@
 Template.profile.events({
-  'submit .user-info-edit': function(event) {
-    event.preventDefault();
-
-    // Get data
-    var form = $('.user-info-edit'),
-        profileBlock = $('.profile');
-        userData = {
-          firstName: $('[name=first-name]').val(),
-          lastName: $('[name=last-name]').val(),
-          gender: $('[name=gender]').val(),
-          bday: $('[name=bday]').val(),
-          phone: $('[name=phone]').val(),
-          skype: $('[name=skype]').val(),
-          location: $('[name=location]').val()
-        };
-
-    Meteor.call('saveUserData', userData, function(error) {
-      if (error) {
-        Bert.alert(error.reason, 'warning');
-      } else {
-        profileBlock.removeClass('profile-edit');
-        Bert.alert('Successfully changed.', 'success');
-      }
-    });
-  },
-
   'click .resend-verification-link': function(event) {
     event.preventDefault();
 
@@ -64,49 +38,17 @@ Template.profile.events({
     });
   },
 
-  'click .profile-edit-btn': function(event) {
-    event.preventDefault();
-    var profileContainer = $('.profile');
-    profileContainer.addClass('profile-edit');
-  },
+  // 'click .profile-edit-btn': function(event) {
+  //   event.preventDefault();
+  //   var profileContainer = $('.profile');
+  //   profileContainer.addClass('profile-edit');
+  // },
+  //
+  // 'click .profile-edit-close': function(event) {
+  //   event.preventDefault();
+  //   var profileContainer = $('.profile');
+  //   profileContainer.removeClass('profile-edit');
+  // },
 
-  'click .profile-edit-close': function(event) {
-    event.preventDefault();
-    var profileContainer = $('.profile');
-    profileContainer.removeClass('profile-edit');
-  },
 
-  'keyup #location-field': function(event) {
-    var input = $('#location-field')
-        str = input.val(),
-        addedCities = $('.location-result li'),
-        locationBlock = $('.location-result');
-
-    removeAddedCities(addedCities);
-    locationBlock.addClass('invisible');
-
-    $.get('http://api.openweathermap.org/data/2.5/find?q=' + str + '&type=like&mode=json&units=metric&appid=b28d0ac52d85fcb150a267da64e9776d', function(data) {
-      var cities = data.list;
-      if ($.isArray(cities)) {
-        locationBlock.removeClass('invisible');
-        cities.forEach(function(city) {
-          $('.location-result')
-            .append('<li>' + city.name + ', ' + city.sys.country + '</li>');
-        });
-
-        $('.location-result li').click(function() {
-          input.val($(this).text());
-          var addedCities = $('.location-result li');
-          removeAddedCities(addedCities);
-          locationBlock.addClass('invisible');
-        });
-      }
-    });
-
-    function removeAddedCities(cities) {
-      cities.each(function(i, item) {
-        $(item).remove();
-      });
-    }
-  }
 });

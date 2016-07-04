@@ -16,6 +16,20 @@ Router.route('/register', {
   template: 'register',
 });
 
+Router.route('/forgot-password', {
+  name: 'forgotPassword',
+  template: 'forgotPassword'
+});
+
+Router.route('/reset-password/:token', {
+  name: 'resetPassword',
+  template: 'resetPassword',
+  onBeforeAction: function() {
+    Accounts._resetPasswordToken = this.params.token;
+    this.next();
+  }
+});
+
 Router.route('/profile', {
   template: 'profile',
   onBeforeAction: function() {
@@ -31,8 +45,9 @@ Router.route('/profile', {
   }
 });
 
-Router.route('/uploadpic', {
-  template: 'profileImage',
+Router.route('/edit-profile', {
+  name: 'profileEdit',
+  template: 'profileEdit',
   onBeforeAction: function() {
     var currentUser = Meteor.userId();
     if (currentUser) {
