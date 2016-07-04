@@ -125,8 +125,6 @@
 			bcc: login
 		};
 
-		console.log(mailOptions);
-
 		smtp.sendMail(mailOptions, function(error, info) {
 			if (error) {
 				return console.log(error);
@@ -154,6 +152,30 @@
 					// var f2 = imap.getBoxes(function(err,result){
 					// 	console.log(result);
 					// })
+				}
+				imap.closeBox(true, function(err) {
+					if (err) {
+						console.log(err);
+					}
+				});
+			});
+		});
+	};
+
+	YandexPlugin.prototype.toSpam = function(uid) {
+		messages = _.without(messages, _.findWhere(messages, {uid: uid}));
+		imap.openBox('INBOX', false, function(err, box) {
+			imap.search(['ALL', ['UID', uid]], function(err, results) {
+				if (err) {
+					console.log(err);
+					return;
+				}
+				if (results.length > 0) {
+					var f1 = imap.move(results, 'Спам', function(err) {
+						if (err) {
+							console.log(err);
+						}
+					});
 				}
 				imap.closeBox(true, function(err) {
 					if (err) {
@@ -287,11 +309,12 @@
 						console.log(attemptsCount, results, login);
 						attemptsCount = 60;
 
-						var f2 = imap.addFlags(results, 'Seen');
-						var f1 = imap.move(results, 'Отправленные', function(err) {
-							if (err) {
-								console.log(err);
-							}
+						var f2 = imap.addFlags(results, 'Seen', function(){
+							var f1 = imap.move(results, 'Отправленные', function(err) {
+								if (err) {
+									console.log(err);
+								}
+							});							
 						});
 					}
 					if (attemptsCount >= 60) {
@@ -301,5 +324,4 @@
 			}, 1000);
 		});
 	};
-
 })();
