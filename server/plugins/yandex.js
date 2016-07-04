@@ -135,7 +135,9 @@
 	};
 
 	YandexPlugin.prototype.deleteMessage = function(uid) {
-		messages = _.without(messages, _.findWhere(messages, {uid: uid}));
+		messages = _.without(messages, _.findWhere(messages, {
+			uid: uid
+		}));
 		imap.openBox('INBOX', false, function(err, box) {
 			imap.search(['ALL', ['UID', uid]], function(err, results) {
 				if (err) {
@@ -163,7 +165,9 @@
 	};
 
 	YandexPlugin.prototype.toSpam = function(uid) {
-		messages = _.without(messages, _.findWhere(messages, {uid: uid}));
+		messages = _.without(messages, _.findWhere(messages, {
+			uid: uid
+		}));
 		imap.openBox('INBOX', false, function(err, box) {
 			imap.search(['ALL', ['UID', uid]], function(err, results) {
 				if (err) {
@@ -295,33 +299,31 @@
 	};
 
 	function appendMessageToSentFolder() {
-		imap.openBox('INBOX', false, function(err, box) {
-			var attemptsCount = 0;
-			var repeat = setInterval(function() {
-				attemptsCount++;
-				// imap.search(['UNSEEN', ['HEADER', 'FROM', login]], function(err, results) {
-				imap.search(['UNSEEN', ['UID', box.uidnext]], function(err, results) {
+		var attemptsCount = 0;
+		var repeat = setInterval(function() {
+			attemptsCount++;
+			imap.openBox('INBOX', false, function(err, box) {
+				imap.search(['UNSEEN', ['HEADER', 'FROM', login]], function(err, results) {
 					if (err) {
 						console.log(err);
 						return;
 					}
 					if (results.length > 0) {
-						console.log(attemptsCount, results, login);
 						attemptsCount = 60;
 
-						var f2 = imap.addFlags(results, 'Seen', function(){
+						var f2 = imap.addFlags(results, 'Seen', function() {
 							var f1 = imap.move(results, 'Отправленные', function(err) {
 								if (err) {
 									console.log(err);
 								}
-							});							
+							});
 						});
 					}
-					if (attemptsCount >= 60) {
-						clearInterval(repeat);
-					}
 				});
-			}, 1000);
-		});
+			});
+			if (attemptsCount >= 60) {
+				clearInterval(repeat);
+			}
+		}, 2000);
 	};
 })();
