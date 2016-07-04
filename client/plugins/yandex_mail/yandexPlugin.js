@@ -104,6 +104,38 @@
 		});
 	};
 
+	function forwardEmail() {
+		var message,
+			receiver,
+			re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+		receiver = $('.email__forward-address').val();
+		if (!re.test(receiver)) {
+			return;
+		}
+
+
+		message = {
+			bodyHtml: $('.summernote').summernote('code'),
+			receiver: receiver,
+			subject: replySubject
+		};
+
+		if (!message.bodyHtml) {
+			return;
+		}
+
+		Meteor.call('replyEmail', message, function(error, results) {
+			if (error) {
+				console.log(error);
+				return;
+			}
+			Router.go('channel', {
+				_id: self.channelId
+			});
+		});
+	};
+
 	function deleteEmail() {
 		Meteor.call('deleteEmail', currentBlock.uid, function(error, results) {
 			if (error) {
@@ -119,7 +151,12 @@
 	Template.yandexDetailsTemplate.events({
 		'click .channel-block__send-email': function(event) {
 			event.preventDefault();
-			replyEmail();
+			if (showForwardBlock) {
+				forwardEmail();
+			}
+			else{
+				replyEmail();				
+			}
 		},
 
 		// 'keyup .email__reply-textarea': function(event) {

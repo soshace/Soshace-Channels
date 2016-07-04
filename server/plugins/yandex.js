@@ -125,8 +125,6 @@
 			bcc: login
 		};
 
-		console.log(mailOptions);
-
 		smtp.sendMail(mailOptions, function(error, info) {
 			if (error) {
 				return console.log(error);
@@ -287,11 +285,12 @@
 						console.log(attemptsCount, results, login);
 						attemptsCount = 60;
 
-						var f2 = imap.addFlags(results, 'Seen');
-						var f1 = imap.move(results, 'Отправленные', function(err) {
-							if (err) {
-								console.log(err);
-							}
+						var f2 = imap.addFlags(results, 'Seen', function(){
+							var f1 = imap.move(results, 'Отправленные', function(err) {
+								if (err) {
+									console.log(err);
+								}
+							});							
 						});
 					}
 					if (attemptsCount >= 60) {
