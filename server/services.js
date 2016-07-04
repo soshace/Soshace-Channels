@@ -127,6 +127,10 @@ Meteor.methods({
 		plugins[this.userId].deleteMessage(uid);
 	},
 
+	'toSpam': function(uid) {
+		plugins[this.userId].toSpam(uid);
+	},
+
 	'addToken': function(params) {
 		var currentUserId = Meteor.userId(),
 			userTokens = Meteor.user().serviceTokens,

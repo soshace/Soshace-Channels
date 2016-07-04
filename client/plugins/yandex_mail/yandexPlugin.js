@@ -148,6 +148,18 @@
 		});
 	};
 
+	function toSpam() {
+		Meteor.call('toSpam', currentBlock.uid, function(error, results) {
+			if (error) {
+				console.log(error);
+				return;
+			}
+			Router.go('channel', {
+				_id: self.channelId
+			});
+		});
+	};
+
 	Template.yandexDetailsTemplate.events({
 		'click .channel-block__send-email': function(event) {
 			event.preventDefault();
@@ -158,13 +170,6 @@
 				replyEmail();				
 			}
 		},
-
-		// 'keyup .email__reply-textarea': function(event) {
-		// 	event.preventDefault();
-		// 	if ((event.keyCode === 13) && (event.ctrlKey)) {
-		// 		replyEmail();
-		// 	}
-		// },
 
 		'click .email__show-reply': function(event) {
 			event.preventDefault();
@@ -185,6 +190,11 @@
 		'click .email__delete': function(event) {
 			event.preventDefault();
 			deleteEmail();
+		},
+
+		'click .email__spam': function(event) {
+			event.preventDefault();
+			toSpam();
 		}
 	});
 

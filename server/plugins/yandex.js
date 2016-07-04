@@ -162,6 +162,30 @@
 		});
 	};
 
+	YandexPlugin.prototype.toSpam = function(uid) {
+		messages = _.without(messages, _.findWhere(messages, {uid: uid}));
+		imap.openBox('INBOX', false, function(err, box) {
+			imap.search(['ALL', ['UID', uid]], function(err, results) {
+				if (err) {
+					console.log(err);
+					return;
+				}
+				if (results.length > 0) {
+					var f1 = imap.move(results, 'Спам', function(err) {
+						if (err) {
+							console.log(err);
+						}
+					});
+				}
+				imap.closeBox(true, function(err) {
+					if (err) {
+						console.log(err);
+					}
+				});
+			});
+		});
+	};
+
 	function initImap() {
 		var s = 'user=' + login + '@yandex.ru\001auth=Bearer ' + token + '\001\001',
 			t = new Buffer(s).toString('base64'),
@@ -300,5 +324,4 @@
 			}, 1000);
 		});
 	};
-
 })();
