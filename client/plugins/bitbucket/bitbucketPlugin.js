@@ -11,6 +11,7 @@
 		this.settingsTemplateName = 'bitbucketSettingsTemplate';
 		this.previewTemplateName = 'bitbucketPreviewTemplate';
 		this.authTemplate = 'bitbucketAuthTemplate';
+		this.icon = 'fa fa-bitbucket';
 
 		self = this;
 		

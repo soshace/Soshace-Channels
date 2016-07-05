@@ -24,22 +24,22 @@
       </li>
     </ul>
     <ul class="nav">
-      <li>
+<!--       <li>
         <a href="{{pathFor route='contacts'}}">Contacts</a>
-      </li>
+      </li> -->
       <li class="has-sub">
         <a href="{{pathFor route='channels'}}">
           <span>
             My channels
-            <a class="sidebar-addchannel pull-right" href="{{pathFor route='addchannel'}}">
-              <span class="badge badge-inverse fa fa-2x fa-plus">
-              </span>
-            </a>
           </span>
+          <a class="sidebar-addchannel" href="{{pathFor route='addchannel'}}">
+            <span class="fa fa-plus-circle" aria-hidden="true"></span>
+          </a>
         </a>
-        <ul class="sub-menu">
+        <ul>
           {{#each channels}}
           <li>
+            <i class="{{icon}}"></i>
             <a href="{{pathFor route='channel'}}">{{name}}</a>
           </li>
           {{/each}}
@@ -54,6 +54,7 @@
         <ul class="sub-menu">
           {{#each guestchannels}}
           <li>
+            <i class="{{icon}}"></i>
             <a href="{{pathFor route='channel'}}">{{name}}</a>
           </li>
           {{/each}}

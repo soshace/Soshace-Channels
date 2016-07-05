@@ -13,6 +13,7 @@
 		this.settingsTemplateName = 'githubSettingsTemplate';
 		this.previewTemplateName = 'githubPreviewTemplate';
 		this.authTemplate = 'githubAuthTemplate';
+		this.icon = 'fa fa-github';
 
 		visibility = 'all';
 		self = this;

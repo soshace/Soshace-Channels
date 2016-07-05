@@ -69,6 +69,11 @@
   color: #00acac;
 }
 
+.sidebar ul ul{
+  list-style-type: none;
+  padding-left: 30px;
+}
+
 /*fix css from color admin*/
 .media-list.media-list-with-divider > li + li {
   padding-top: 0;
