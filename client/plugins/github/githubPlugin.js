@@ -59,7 +59,7 @@
 					commonParams: ''
 				};
 				getCommits(result, channelData._id);
-				getRepoContributors(getEmails); // Only for host users
+				// getRepoContributors(getEmails); // Only for host users
 			});
 		} else {
 			loading = true;
@@ -115,25 +115,25 @@
 		});
 	};
 
-	function getRepoContributors(getEmails) {
-		$.getJSON('https://api.github.com/repos/' + resourceId + '/contributors', {
-			access_token: tokenParams.token
-		}, function(data) {
-			var contributors = data;
-			var counter = contributors.length;
-			for (var contributor of contributors) {
-				(function(contributor) {
-					$.getJSON('https://api.github.com/users/' + contributor.login, function(data) {
-						counter--; // This counter is used to determine if we took checked contributors for email.
-						contributor.email = data.email || 'private';
-						if (counter === 0) {
-							getEmails(contributors);
-						}
-					});
-				})(contributor);
-			}
-		});
-	};
+	// function getRepoContributors(getEmails) {
+	// 	$.getJSON('https://api.github.com/repos/' + resourceId + '/contributors', {
+	// 		access_token: tokenParams.token
+	// 	}, function(data) {
+	// 		var contributors = data;
+	// 		var counter = contributors.length;
+	// 		for (var contributor of contributors) {
+	// 			(function(contributor) {
+	// 				$.getJSON('https://api.github.com/users/' + contributor.login, function(data) {
+	// 					counter--; // This counter is used to determine if we took checked contributors for email.
+	// 					contributor.email = data.email || 'private';
+	// 					if (counter === 0) {
+	// 						getEmails(contributors);
+	// 					}
+	// 				});
+	// 			})(contributor);
+	// 		}
+	// 	});
+	// };
 
 	function runTemplating() {
 		_.map(commits, function(item) {

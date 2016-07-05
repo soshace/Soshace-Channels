@@ -29,7 +29,7 @@
 		currentPage = currentPage <= 0 ? 1 : currentPage;
 	};
 
-	YandexPlugin.prototype.getChannelBlocks = function(getEmailsData, getEmails) {
+	YandexPlugin.prototype.getChannelBlocks = function(getEmailsData) {
 		Meteor.call('getYandexMessages', self.channelId, currentPage, function(error, results) {
 			if (error) {
 				console.log(error);

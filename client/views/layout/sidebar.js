@@ -32,5 +32,5 @@ Template.sidebar.helpers({
     });
 
     return channels;
-  },
+  }
 });

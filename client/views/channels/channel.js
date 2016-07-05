@@ -1,5 +1,5 @@
 var deps = new Deps.Dependency(),
-  associatedEmails = [],
+  // associatedEmails = [],
   blocks, // Array of loaded blocks (commits, boards etc)
   plugin,
   channelData,
@@ -103,14 +103,14 @@ Template.channel.events({
     loading = true;
     deps.changed();
     plugin.setPreviousPage();
-    plugin.getChannelBlocks(getBlocksCallback, getEmailsCallback);
+    plugin.getChannelBlocks(getBlocksCallback);
   },
 
   'click .next-link': function(event, template) {
     loading = true;
     deps.changed();
     plugin.setNextPage();
-    plugin.getChannelBlocks(getBlocksCallback, getEmailsCallback);
+    plugin.getChannelBlocks(getBlocksCallback);
   }
 });
 
@@ -152,11 +152,10 @@ Template.channel.helpers({
     return pagination;
   },
 
-  emails: function() {
-    deps.depend();
-    // loading = false;
-    return associatedEmails;
-  },
+  // emails: function() {
+  //   deps.depend();
+  //   return associatedEmails;
+  // },
 
   previewTemplate: function() {
     deps.depend();
@@ -200,7 +199,7 @@ Template.channel.updateData = function(channelId) {
         break;
     }
   }
-  plugin.getChannelBlocks(getBlocksCallback, getEmailsCallback);
+  plugin.getChannelBlocks(getBlocksCallback);
 };
 
 function getBlocksCallback(data, resourceId) {
@@ -209,4 +208,4 @@ function getBlocksCallback(data, resourceId) {
   deps.changed();
 };
 
-function getEmailsCallback(data) {};
+// function getEmailsCallback(data) {};
