@@ -26,25 +26,12 @@ Meteor.startup(function () {
       fileInfo.path = fileInfo.path.replace("images//", "images/");
       fileInfo.url = fileInfo.url.replace("images//", "images/");
 
-      console.log('fileinfo:');
-      console.log(fileInfo);
-      console.log('_______');
-
-      //var features = Imagemagick.identify(process.env.PWD + '/.upload/' + fileInfo.path);
-      //var features = Imagemagick.identify(process.env.PWD + '/.upload/' + fileInfo.path);
-
-      // console.log('features imagemagick:');
-      // console.log(features);
-      // console.log('_______');
-
       Imagemagick.resize({
         srcPath: process.env.PWD + '/.upload/' + fileInfo.path,
         dstPath: process.env.PWD + '/.upload/' + fileInfo.path,
         width: 300,
         height: 300
       });
-
-      // fileInfo.path = fileInfo.path + '.' + (features.format).toLowerCase();
 
       if (formData && formData.user != null) {
         var isUserHavePic = Uploads.findOne({ _id: formData.user});
@@ -78,5 +65,23 @@ Meteor.methods({
         Meteor.users.update(userPicId, { $set: { 'personalData.picPath': '' } });
       }
     }
+  },
+
+  'cropFile': function(coordinates) {
+    var imgId = this.userId,
+        upload = Uploads.findOne({ _id: imgId }),
+        src = upload.fileInfo.path + '_cropped',
+        path = upload.fileInfo.path,
+        newPath,
+        params = coordinates.width + 'x' + coordinates.height + '+' + coordinates.x + '+' + coordinates.y,
+
+    path = process.env.PWD + '/.upload/' + path;
+    newPath = path + '_cropped';
+
+    Imagemagick.convert([path, '-crop', params, newPath]);
+
+    UploadServer.delete(upload.fileInfo.path);
+    Uploads.update({_id: imgId}, { $set: { 'fileInfo.path': newPath }});
+    Meteor.users.update(imgId, { $set: { 'personalData.picPath': src } });
   }
 })

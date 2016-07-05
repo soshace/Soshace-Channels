@@ -6,7 +6,65 @@ Template.profileEdit.helpers({
 });
 
 Template.profileEdit.events({
-  'click #deleteUserPic': function(event) {
+  'click #cropUserPic': function() {
+    var img = $('.user-uploaded-img'),
+        okBtn = $('#acceptCrop'),
+        cancelBtn = $('#cancelCrop'),
+        deleteBtn = $('#deleteUserPic'),
+        cropBtn = $('#cropUserPic'),
+        legend = $('.user-image p'),
+        coordinates;
+
+    deleteBtn.addClass('invisible');
+    cropBtn.addClass('invisible');
+    legend.removeClass('invisible');
+    okBtn.removeClass('invisible');
+    cancelBtn.removeClass('invisible');
+
+    img.Jcrop({
+      onSelect: showCoords,
+      setSelect: [ 100, 100, 50, 50 ]
+    });
+
+    cancelBtn.click(function() {
+      legend.addClass('invisible');
+      okBtn.addClass('invisible');
+      cancelBtn.addClass('invisible');
+      deleteBtn.removeClass('invisible');
+      cropBtn.removeClass('invisible');
+
+      var JcropAPI = img.data('Jcrop');
+      JcropAPI.destroy();
+    });
+
+    okBtn.click(function() {
+      legend.addClass('invisible');
+      okBtn.addClass('invisible');
+      cancelBtn.addClass('invisible');
+      deleteBtn.removeClass('invisible');
+      cropBtn.removeClass('invisible');
+
+      Meteor.call('cropFile', coordinates, function(error) {
+        if (error) {
+          Bert.alert('Something went wrong.', 'warning');
+        } else {
+          Router.go('profile');
+          Bert.alert('Image was successfully cropped', 'success');
+        }
+      })
+    });
+
+    function showCoords(c) {
+      coordinates = {
+        x: c.x,
+        y: c.y,
+        width: c.w,
+        height: c.h
+      }
+    }
+  },
+
+  'click #deleteUserPic': function() {
     var userId = Meteor.userId();
     if (confirm('Are you sure?')) {
       Meteor.call('deleteFile', userId, true);
@@ -14,13 +72,12 @@ Template.profileEdit.events({
     }
   },
 
-  'submit .user-info-edit': function(event) {
+  'submit .user-info-edit': function(event, template) {
     event.preventDefault();
 
     // Get data
-    var form = $('.user-info-edit'),
-        profileBlock = $('.profile');
-        userData = {
+    var userData = {
+          email: $('[name=email]').val(),
           firstName: $('[name=first-name]').val(),
           lastName: $('[name=last-name]').val(),
           gender: $('[name=gender]').val(),
@@ -30,12 +87,24 @@ Template.profileEdit.events({
           location: $('[name=location]').val()
         };
 
-    Meteor.call('saveUserData', userData, function(error) {
+    Meteor.call('saveUserData', userData, function(error, result) {
       if (error) {
         Bert.alert(error.reason, 'warning');
       } else {
         Router.go('profile');
         Bert.alert('Successfully changed.', 'success');
+
+        // 'saveUserData' returns false if email was changed
+        if (!result) {
+          Meteor.call('sendVerificationLink', function(error) {
+            if (error) {
+              Bert.alert(error.reason, 'warning');
+            } else {
+              var email = Meteor.user().emails[0].address;
+              Bert.alert('Link send to ' + email, 'success');
+            }
+          });
+        }
       }
     });
   },
@@ -73,9 +142,4 @@ Template.profileEdit.events({
       });
     }
   }
-  // ,
-  //
-  // 'change form': function(event) {
-  //   console.log(this);
-  // }
 })

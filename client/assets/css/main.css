@@ -476,13 +476,6 @@ code {
 	background-color: #4DCACA;
 }
 
-
-
-/*PROFILE-EDIT PAGE*/
-.profile-edit__image-block {
-  position: relative;
-}
-.profile-edit__image-controls {
-  position: absolute;
-  bottom: 0;
+.user-image img {
+  width: 100%;
 }

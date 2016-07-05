@@ -55,16 +55,34 @@ Accounts.onCreateUser(function(options, user) {
 
 Meteor.methods({
   'saveUserData': function(userData) {
-    var currentUser = this.userId;
+    var currentUserId = this.userId;
 
     // TODO: сделать более точное сравнение
     // возможно приведение типов (проверить аналогичные условия)
-    // if (!currentUser) {
+    // if (!currentUserId) {
     //   throw new Meteor.Error('not-logged-in', 'You are not logged-in.');
     // }
+    //check([to, from, subject, text], [String]);
 
-    Meteor.users.update(currentUser, {
+    var currentUser = Meteor.users.findOne({
+      _id: currentUserId
+    }, {
+      fields: {
+        emails: 1
+      }
+    });
+
+    var currentEmail = currentUser.emails[0].address,
+        verified = false;
+
+    if (currentEmail === userData.email) {
+      verified = true;
+    }
+
+    Meteor.users.update(currentUserId, {
       $set: {
+        'emails.0.address': userData.email,
+        'emails.0.verified': verified,
         'personalData.firstName': userData.firstName,
         'personalData.lastName': userData.lastName,
         'personalData.gender': userData.gender,
@@ -74,6 +92,8 @@ Meteor.methods({
         'personalData.location': userData.location
       }
     });
+
+    return verified;
   },
 
   'signOutService': function(serviceName) {

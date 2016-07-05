@@ -55,6 +55,9 @@ Router.route('/edit-profile', {
     } else {
       this.render('login');
     }
+  },
+  waitOn: function() {
+    return [Meteor.subscribe('privateUserData')];
   }
 });
 
