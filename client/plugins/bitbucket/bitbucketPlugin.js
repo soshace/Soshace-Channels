@@ -55,7 +55,7 @@
 					getCommits(result, channelData._id);
 				})
 				.fail(function(error) {
-					if (error.status === 401) {
+					if (error && error.status === 401) {
 						Meteor.call('refreshBitbucketToken', tokenParams.refreshToken, function(error, results) {
 							tokenParams.token = results.data.access_token;
 							tokenParams.refreshToken = results.data.refresh_token;
@@ -79,9 +79,8 @@
 		} else {
 			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commits?access_token=';
 			Meteor.call('getDataForGuest', request, channelData._id, function(error, results) {
-				if (error.status === 401) {
-					Meteor.call('refreshBitbucketTokenByGuest', channelData._id, function(error, result) {
-					});
+				if (error && error.status === 401) {
+					Meteor.call('refreshBitbucketTokenByGuest', channelData._id);
 					return;
 				}
 				commits = results.data.values;
