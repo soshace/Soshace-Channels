@@ -3,8 +3,8 @@ var deps = new Deps.Dependency(),
   blocks, // Array of loaded blocks (commits, boards etc)
   plugin,
   channelData,
-  channelMembers, // List of this channel members
-  contacts, // Users contacts to determine who is not in channel yet
+  // channelMembers, // List of this channel members
+  // contacts, // Users contacts to determine who is not in channel yet
   loading = true;
 
 Template.channel.events({
@@ -26,13 +26,11 @@ Template.channel.events({
 
   'submit .channel__add-member': function(event) {
     event.preventDefault();
+    var parameter = $('.channel__member-input').val();
 
-    // Find select
-    var select = document.querySelector('[name=user-to-channel]');
-    // Get id of a selected user
-    var userId = select.options[select.selectedIndex].value;
-
-    Meteor.call('addMember', channelData._id, userId, function(error, results) {
+    // var select = document.querySelector('[name=user-to-channel]');
+    // var userId = select.options[select.selectedIndex].value;
+    Meteor.call('addMemberByParam', channelData._id, parameter, function(error, results) {
       if (error) {
         console.log(error.reason);
       }
@@ -47,57 +45,55 @@ Template.channel.events({
     Meteor.call('removeMember', channelData._id, userId, function(error, results) {
       if (error) {
         console.log(error.reason);
-      } else {
-        console.log(results);
       }
     });
   },
 
-  'click .channel__invite-unregistered': function(event, template) {
-    var emailForInvite = this.email,
-      channelCreatorId = Meteor.userId(),
-      invitation = {
-        email: emailForInvite,
-        channelId: channelData._id,
-        channelCreatorId: channelCreatorId
-      };
+  // 'click .channel__invite-unregistered': function(event, template) {
+  //   var emailForInvite = this.email,
+  //     channelCreatorId = Meteor.userId(),
+  //     invitation = {
+  //       email: emailForInvite,
+  //       channelId: channelData._id,
+  //       channelCreatorId: channelCreatorId
+  //     };
 
-    Meteor.call('sendInvitation', invitation, function(error, response) {
-      if (error) {
-        Bert.alert(error.reason, 'warning');
-      } else {
-        if (response === 'Invite already exist.') {
-          Bert.alert('Invite to this email is already exist. You can revoke it and try again.', 'info');
-        } else {
-          // TODO: remove email from associated email list?
-          Bert.alert('Invitation send to ' + emailForInvite + '.', 'success');
-        }
-      }
-    });
-  },
+  //   Meteor.call('sendInvitation', invitation, function(error, response) {
+  //     if (error) {
+  //       Bert.alert(error.reason, 'warning');
+  //     } else {
+  //       if (response === 'Invite already exist.') {
+  //         Bert.alert('Invite to this email is already exist. You can revoke it and try again.', 'info');
+  //       } else {
+  //         // TODO: remove email from associated email list?
+  //         Bert.alert('Invitation send to ' + emailForInvite + '.', 'success');
+  //       }
+  //     }
+  //   });
+  // },
 
-  'click .channel__invite-registered': function(event, template) {
-    var userId = event.target.id,
-      selector = {
-        _id: userId
-      },
-      options = {
-        fields: {
-          username: 1,
-        }
-      };
+  // 'click .channel__invite-registered': function(event, template) {
+  //   var userId = event.target.id,
+  //     selector = {
+  //       _id: userId
+  //     },
+  //     options = {
+  //       fields: {
+  //         username: 1,
+  //       }
+  //     };
 
-    userToAdd = Meteor.users.findOne(selector, options);
+  //   userToAdd = Meteor.users.findOne(selector, options);
 
-    // Request from inviter to user
-    Meteor.call('requestContact', userToAdd.username);
-    // Add user to channel
-    Meteor.call('addMember', channelData._id, userId);
-  },
+  //   // Request from inviter to user
+  //   Meteor.call('requestContact', userToAdd.username);
+  //   // Add user to channel
+  //   Meteor.call('addMember', channelData._id, userId);
+  // },
 
-  'click .channel__add-contact-to-channel': function(event, template) {
-    Meteor.call('addMember', channelData._id, event.target.id);
-  },
+  // 'click .channel__add-contact-to-channel': function(event, template) {
+  //   Meteor.call('addMember', channelData._id, event.target.id);
+  // },
 
   'click .previous-link': function(event, template) {
     loading = true;
@@ -115,27 +111,29 @@ Template.channel.events({
 });
 
 Template.channel.helpers({
-  contacts: function() {
-    var allContacts = Meteor.user().contacts;
-    var acceptedUsers = _.where(allContacts, {
-      contactStatus: 'accepted'
-    });
+  // contacts: function() {
+  //   var allContacts = Meteor.user().contacts;
+  //   var acceptedUsers = _.where(allContacts, {
+  //     contactStatus: 'accepted'
+  //   });
 
-    var selector = {
-      _id: {
-        $in: _.pluck(acceptedUsers, 'contactId')
-      }
-    };
+  //   var selector = {
+  //     _id: {
+  //       $in: _.pluck(acceptedUsers, 'contactId')
+  //     }
+  //   };
 
-    contacts = Meteor.users.find(selector).fetch();
-    return contacts;
-  },
+  //   contacts = Meteor.users.find(selector).fetch();
+  //   return contacts;
+  // },
 
   members: function() {
-    var membersArray = Channels.findOne(channelData._id).members || [];
-    channelMembers = Meteor.users.find({
+    var memberIds = Channels.findOne(channelData._id).members || [];
+    Meteor.subscribe('publicUserData', memberIds);
+
+    var channelMembers = Meteor.users.find({
       _id: {
-        $in: membersArray
+        $in: memberIds
       }
     }).fetch();
     return channelMembers;

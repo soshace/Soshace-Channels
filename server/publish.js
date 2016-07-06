@@ -21,20 +21,22 @@ Meteor.publish('selectedChannel', function(channelId) {
 // });
 
 Meteor.publish(null, function() {
-  return Meteor.users.find({
-    _id: this.userId
-  }, {
-    fields: {
-      personalData: 1,
-      serviceTokens: 1,
-      contacts: 1
-    }
-  });
-});
-
-Meteor.publish('publicUserData', function(userId) {
 	return Meteor.users.find({
 		_id: this.userId
+	}, {
+		fields: {
+			personalData: 1,
+			serviceTokens: 1,
+			contacts: 1
+		}
+	});
+});
+
+Meteor.publish('publicUserData', function(ids) {
+	return Meteor.users.find({
+		_id: {
+			$in: ids
+		}
 	}, {
 		fields: {
 			'username': 1,

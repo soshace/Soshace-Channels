@@ -1,9 +1,8 @@
-Meteor.subscribe('publicUserData');
-Meteor.subscribe('hostChannels');
+// Meteor.subscribe('publicUserData');
 
 Template.sidebar.helpers({
   channels: function() {
-    var channels  = Channels.find({
+    var channels = Channels.find({
       createdBy: Meteor.userId()
     }, {
       sort: {
@@ -11,15 +10,15 @@ Template.sidebar.helpers({
       }
     }).fetch();
 
-    _.each(channels, function(item){
+    _.each(channels, function(item) {
       item.icon = SERVICES[item.serviceType].icon;
     });
 
     return channels;
   },
 
-  guestchannels: function() {
-    var channels  = Channels.find({
+  guestChannels: function() {
+    var channels = Channels.find({
       members: Meteor.userId()
     }, {
       sort: {
@@ -27,7 +26,7 @@ Template.sidebar.helpers({
       }
     }).fetch();
 
-    _.each(channels, function(item){
+    _.each(channels, function(item) {
       item.icon = SERVICES[item.serviceType].icon;
     });
 

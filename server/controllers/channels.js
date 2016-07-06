@@ -77,6 +77,35 @@ Meteor.methods({
     });
   },
 
+  'addMemberByParam': function(channelId, parameter) {
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+      addedUser;
+
+    if (!parameter) {
+      return;
+    }
+
+    if (re.test(parameter)) {
+      user = Meteor.users.findOne({
+        'emails.0.address': parameter
+      });
+    } else {
+      user = Meteor.users.findOne({
+        'username': parameter
+      });
+    }
+
+    if (user && (user._id !== this.userId)) {
+      Channels.update({
+        _id: channelId
+      }, {
+        $addToSet: {
+          members: user._id
+        }
+      });
+    }
+  },
+
   'removeMember': function(channelId, userId) {
 
     // some checks?
@@ -105,17 +134,3 @@ Meteor.methods({
     });
   }
 });
-
-function defaultName(currentUser) {
-  var nextLetter = 'A';
-  var nextName = 'Channel ' + nextLetter;
-
-  while (Channels.findOne({
-      name: nextName,
-      createdBy: currentUser
-    })) {
-    nextLetter = String.fromCharCode(nextLetter.charCodeAt(0) + 1);
-    nextName = 'Channel ' + nextLetter;
-  }
-  return nextName;
-}
