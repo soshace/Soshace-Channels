@@ -104,6 +104,11 @@ Meteor.methods({
         }
       });
     }
+
+    if (!user) {
+      throw new Meteor.Error(500, ERRORS.userNotFound);
+    }
+    return;
   },
 
   'removeMember': function(channelId, userId) {

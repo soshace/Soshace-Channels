@@ -32,7 +32,9 @@ Template.channel.events({
     // var userId = select.options[select.selectedIndex].value;
     Meteor.call('addMemberByParam', channelData._id, parameter, function(error, results) {
       if (error) {
-        console.log(error.reason);
+        if (error.reason === ERRORS.userNotFound) {
+          Bert.alert(ERRORS.userNotFound, 'warning');
+        }
       }
     });
   },
@@ -44,7 +46,7 @@ Template.channel.events({
 
     Meteor.call('removeMember', channelData._id, userId, function(error, results) {
       if (error) {
-        console.log(error.reason);
+        console.log(error);
       }
     });
   },

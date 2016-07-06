@@ -9,3 +9,7 @@ SERVICES = {
 		icon: 'fa fa-bitbucket'
 	}
 }
+
+ERRORS = {
+	userNotFound: 'User not found'
+}
