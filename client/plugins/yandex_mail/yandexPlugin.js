@@ -13,7 +13,6 @@
 		this.previewTemplateName = 'yandexPreviewTemplate';
 		this.authTemplate = 'yandexAuthTemplate';
 		this.resourceId = 'INBOX';
-		this.icon = 'fa fa-yahoo';
 
 		currentPage = 1;
 		self = this;

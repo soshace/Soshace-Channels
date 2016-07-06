@@ -2,7 +2,6 @@
 	var commits = [],
 		tokenParams,
 		resourceId, // The name of repository
-		loading, // Boolean variable that triggers if loading through server wasn't finished yet
 		visibility,
 		getUserReposCallback,
 		self,
@@ -13,7 +12,6 @@
 		this.settingsTemplateName = 'githubSettingsTemplate';
 		this.previewTemplateName = 'githubPreviewTemplate';
 		this.authTemplate = 'githubAuthTemplate';
-		this.icon = 'fa fa-github';
 
 		visibility = 'all';
 		self = this;
@@ -42,8 +40,7 @@
 		return 'github'; // TODO: Implement getting user login
 	};
 
-	GithubPlugin.prototype.getChannelBlocks = function(getCommits, getEmails) {
-		loading = false;
+	GithubPlugin.prototype.getChannelBlocks = function(getCommits) {
 		var request;
 		commits = [];
 
@@ -59,21 +56,17 @@
 					commonParams: ''
 				};
 				getCommits(result, channelData._id);
-				// getRepoContributors(getEmails); // Only for host users
 			});
 		} else {
-			loading = true;
 			request = 'https://api.github.com/repos/' + resourceId + '/commits?access_token=';
 			Meteor.call('getDataForGuest', request, channelData._id, function(error, results) {
 				commits = results.data || [];
 				runTemplating();
-				if (loading) {
-					var result = {
-						blocks: commits,
-						commonParams: ''
-					};
-					getCommits(result, channelData._id);
-				}
+				var result = {
+					blocks: commits,
+					commonParams: ''
+				};
+				getCommits(result, channelData._id);
 			});
 		}
 	};
@@ -114,26 +107,6 @@
 			setDefaultChannelName('github/' + repoName);
 		});
 	};
-
-	// function getRepoContributors(getEmails) {
-	// 	$.getJSON('https://api.github.com/repos/' + resourceId + '/contributors', {
-	// 		access_token: tokenParams.token
-	// 	}, function(data) {
-	// 		var contributors = data;
-	// 		var counter = contributors.length;
-	// 		for (var contributor of contributors) {
-	// 			(function(contributor) {
-	// 				$.getJSON('https://api.github.com/users/' + contributor.login, function(data) {
-	// 					counter--; // This counter is used to determine if we took checked contributors for email.
-	// 					contributor.email = data.email || 'private';
-	// 					if (counter === 0) {
-	// 						getEmails(contributors);
-	// 					}
-	// 				});
-	// 			})(contributor);
-	// 		}
-	// 	});
-	// };
 
 	function runTemplating() {
 		_.map(commits, function(item) {

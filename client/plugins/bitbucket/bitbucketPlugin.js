@@ -1,7 +1,6 @@
 (function() {
 	var tokenParams,
 		resourceId, // The name of repository
-		loading, // Boolean variable that triggers if loading through server wasn't finished yet
 		getUserReposCallback,
 		self,
 		channelData;
@@ -11,7 +10,6 @@
 		this.settingsTemplateName = 'bitbucketSettingsTemplate';
 		this.previewTemplateName = 'bitbucketPreviewTemplate';
 		this.authTemplate = 'bitbucketAuthTemplate';
-		this.icon = 'fa fa-bitbucket';
 
 		self = this;
 		
@@ -39,8 +37,7 @@
 		return 'bitbucket'; // TODO: Implement getting user login
 	};
 
-	BitbucketPlugin.prototype.getChannelBlocks = function(getCommits, getEmails) {
-		loading = false;
+	BitbucketPlugin.prototype.getChannelBlocks = function(getCommits) {
 		var request;
 		commits = [];
 		if (channelData.userIsHost) {
@@ -80,7 +77,6 @@
 					}
 				});
 		} else {
-			loading = true;
 			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commits?access_token=';
 			Meteor.call('getDataForGuest', request, channelData._id, function(error, results) {
 				if (error.status === 401) {
@@ -90,9 +86,7 @@
 				}
 				commits = results.data.values;
 				runTemplating(commits);
-				if (loading) {
 					getCommits(commits, channelData._id);
-				}
 			});
 		}
 	};
