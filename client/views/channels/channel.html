@@ -78,11 +78,6 @@
 
                     <div class="form-group m-r-10">
                       <input type="text" class="channel__member-input form-control">
-<!--                       <select class="form-control p-l-10 p-r-10" id="contacts-list" name="user-to-channel">
-                        {{#each contacts}}
-                          <option value="{{_id}}">{{profile.firstName}} {{profile.lastName}} ({{username}})</option>
-                        {{/each}}
-                      </select> -->
                     </div>
 
                     <div class="form-group">
@@ -95,80 +90,6 @@
             </div>
           </div>
           {{/if}}
-
-<!--           {{#if userIsChannelCreator ..}}
-          <div class="panel-group" id="accordion">
-
-      			<div class="panel overflow-hidden channel-members__accordion">
-
-      				<div class="panel-heading channel-members__accordion-header">
-      					<h3 class="panel-title">
-        					<a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion" href="#invite" aria-expanded="false">
-                    <span class="f-s-15">Invites interface</span>
-                    <i class="fa fa-plus-circle pull-right"></i>
-                    <span class="pull-right">Click to open/close</span>
-        					</a>
-      					</h3>
-      				</div>
-
-      				<div id="invite" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
-      					<div class="panel-body accordion-body">
-
-                  {{> channelInvites}}
-
-                  <div class="row">
-                    <div class="col-sm-12">
-                      <div class="panel panel-inverse">
-
-                        <div class="panel-heading">
-                          <h4 class="panel-title">E-mails associated with your channel source</h4>
-                        </div>
-
-                        <div class="panel-body">
-                          <table class="table">
-                            <thead>
-                              <tr>
-                                <th>Service login</th>
-                                <th>Email</th>
-                                <th>Status</th>
-                                <th></th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {{#each emails}}
-                              <tr>
-                                <td>{{login}}</td>
-                                <td>{{email}}</td>
-                                <td>{{outputType}}</td>
-                                <td>
-
-                                  {{#if equals emailType 'member'}}
-                                    <button class="btn btn-xs btn-primary channel__add-contact-to-channel" id="{{userId}}">Add to channel</button>
-                                  {{/if}}
-
-                                  {{#if equals emailType 'registered'}}
-                                    <button class="btn btn-xs btn-primary channel__invite-registered" id="{{userId}}">Add to channel</button>
-                                  {{/if}}
-
-                                  {{#if equals emailType 'unregistered'}}
-                                    <button class="btn btn-xs btn-primary channel__invite-unregistered" id="{{userId}}">Invite to service</button>
-                                  {{/if}}
-                                </td>
-                              </tr>
-                              {{/each}}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-      					</div>
-      				</div>
-
-      			</div>
-      		</div>
-          {{/if}} -->
         </div>
 
         <div class="tab-pane fade" id="settings">
