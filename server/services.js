@@ -39,7 +39,7 @@ Meteor.methods({
 	'refreshBitbucketTokenByGuest': function(channelId) {
 		var hostId = Channels.findOne(channelId).createdBy,
 			user = Meteor.users.findOne(hostId),
-			refreshToken = _.findWhere(user.profile.serviceTokens, {
+			refreshToken = _.findWhere(user.serviceTokens, {
 				serviceName: 'bitbucket'
 			}).refreshToken,
 			url = 'https://bitbucket.org/site/oauth2/access_token';
@@ -53,7 +53,7 @@ Meteor.methods({
 				}
 			},
 			function(error, results) {
-				var userTokens = user.profile.serviceTokens,
+				var userTokens = user.serviceTokens,
 					newToken = results.data.access_token;
 
 				if (userTokens) {
@@ -72,7 +72,7 @@ Meteor.methods({
 					_id: hostId
 				}, {
 					$set: {
-						'profile.serviceTokens': userTokens
+						'serviceTokens': userTokens
 					}
 				}, function(error, results) {
 					if (error) {
@@ -86,7 +86,7 @@ Meteor.methods({
 		var channel = Channels.findOne(channelId),
 			hostId = channel.createdBy,
 			serviceName = channel.serviceType,
-			hostTokens = Meteor.users.findOne(hostId).profile.serviceTokens,
+			hostTokens = Meteor.users.findOne(hostId).serviceTokens,
 			serviceData = _.findWhere(hostTokens, {
 				serviceName: serviceName
 			}),

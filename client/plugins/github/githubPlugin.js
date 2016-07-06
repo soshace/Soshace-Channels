@@ -60,6 +60,9 @@
 		} else {
 			request = 'https://api.github.com/repos/' + resourceId + '/commits?access_token=';
 			Meteor.call('getDataForGuest', request, channelData._id, function(error, results) {
+				if (error) {
+					console.log(error);
+				}
 				commits = results.data || [];
 				runTemplating();
 				var result = {
