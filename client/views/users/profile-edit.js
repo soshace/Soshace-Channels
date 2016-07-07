@@ -47,18 +47,19 @@ Template.profileEdit.events({
     });
 
     okBtn.click(function() {
-      legend.addClass('hidden');
-      okBtn.addClass('hidden');
-      cancelBtn.addClass('hidden');
-      deleteBtn.removeClass('hidden');
-      cropBtn.removeClass('hidden');
 
       Meteor.call('cropFile', coords, function(error) {
         if (error) {
-          Bert.alert('Something went wrong.', 'warning');
+          Bert.alert('Error while reading image file. Please contact support about this problem.', 'warning');
         } else {
+          legend.addClass('hidden');
+          okBtn.addClass('hidden');
+          cancelBtn.addClass('hidden');
+          deleteBtn.removeClass('hidden');
+          cropBtn.removeClass('hidden');
+
           Router.go('profile');
-          Bert.alert('Image was successfully cropped', 'success');
+          Bert.alert('Image was successfully cropped.', 'success');
         }
       })
     });
@@ -67,7 +68,11 @@ Template.profileEdit.events({
   'click #deleteUserPic': function() {
     var userId = Meteor.userId();
     if (confirm('Are you sure?')) {
-      Meteor.call('deleteFile', userId, true);
+      Meteor.call('deleteFile', userId, true, function(error) {
+        if (error) {
+          Bert.alert('Error while reading image file. Please contact support about this problem.', 'warning');
+        }
+      });
       Router.go('profile');
     }
   },

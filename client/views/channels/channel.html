@@ -30,8 +30,11 @@
             {{/each}}
           </ul>
 
-          <a href="" class="previous-link">Prev</a>
-          <a href="" class="next-link">Next</a>
+          <ul class="pager">
+            <li><a href="" class="previous-link">Prev</a></li>
+            <li><a href="" class="next-link">Next</a></li>
+          </ul>
+
           {{else}}
             {{> loading}}
           {{/if}}
@@ -45,9 +48,15 @@
 
                 {{#each members}}
                   <li class="channel__member">
-                    <img src="../images/user.png" width="80" height="80" alt="User avatar">
+
+                    {{#unless personalData.picPath}}
+                    <img src="/images/user.png" alt="User Picture">
+                    {{else}}
+                    <img class="" src="/upload/{{personalData.picPath}}" alt="User Picture">
+                    {{/unless}}
+
                     <h4 class="username text-ellipsis">
-                      {{profile.firstName}} {{profile.lastName}}
+                      {{personalData.firstName}} {{personalData.lastName}}
                       <small>({{username}})</small>
                     </h4>
 
@@ -96,11 +105,11 @@
           {{#if userIsChannelCreator ..}}
             {{#if showAuthServiceButton}}
             <div>
-              {{> authTemplate clientkey}}            
+              {{> authTemplate clientkey}}
             </div>
             {{else}}
               <div>
-                <a class="channel__delete btn btn-danger m-t-15 m-b-15" href="#">Delete Channel</a>            
+                <a class="channel__delete btn btn-danger m-t-15 m-b-15" href="#">Delete Channel</a>
               </div>
             {{/if}}
           {{/if}}

@@ -230,6 +230,11 @@ p{margin-bottom:.3em;}
   position: relative;
 }
 
+.channel__member img {
+  max-width: 80px;
+  max-height: 80px;
+}
+
 .channel__remove-member {
   position: absolute;
   top: 0;
