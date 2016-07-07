@@ -30,42 +30,19 @@
             {{/each}}
           </ul>
 
-          <a href="" class="previous-link">Prev</a>
-          <a href="" class="next-link">Next</a>
+          <ul class="pager">
+            <li><a href="" class="previous-link">Prev</a></li>
+            <li><a href="" class="next-link">Next</a></li>
+          </ul>
+
           {{else}}
             {{> loading}}
           {{/if}}
         </div>
 
         <div class="tab-pane fade" id="members">
-
-          <div class="row">
-            <div class="panel m-t-15">
-              <ul class="registered-users-list clearfix">
-
-                {{#each members}}
-                  <li class="channel__member">
-                    <img src="../images/user.png" width="80" height="80" alt="User avatar">
-                    <h4 class="username text-ellipsis">
-                      {{profile.firstName}} {{profile.lastName}}
-                      <small>({{username}})</small>
-                    </h4>
-
-                    {{#if userIsChannelCreator ..}}
-                    <a data-userid={{_id}} class="channel__remove-member btn btn-danger btn-icon btn-circle" href="delete">
-                      <i class="fa fa-times"></i>
-                    </a>
-                    {{/if}}
-
-                  </li>
-                {{/each}}
-
-              </ul>
-            </div>
-          </div>
-
           {{#if userIsChannelCreator ..}}
-          <div class="row m-b-20">
+          <div class="row m-t-20 m-b-20">
             <div class="col-sm-12 col-md-6">
               <div class="panel panel-inverse">
 
@@ -90,17 +67,70 @@
             </div>
           </div>
           {{/if}}
+
+          <div class="row">
+            <div class="channel__creator panel m-t-15 m-l-15">
+              {{#if channelCreator}}
+
+                <p class="lead m-l-15">Channel creator:</p>
+
+                {{#unless channelCreator.personalData.picPath}}
+                <img src="/images/user.png" alt="User Picture">
+                {{else}}
+                <img src="/upload/{{channelCreator.personalData.picPath}}" alt="User Picture">
+                {{/unless}}
+
+                <h4>
+                  {{channelCreator.personalData.firstName}} {{channelCreator.personalData.lastName}}
+                  <small>({{channelCreator.username}})</small>
+                </h4>
+              {{/if}}
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="panel m-t-15">
+              <p class="lead m-l-15">Channel members:</p>
+              <ul class="registered-users-list clearfix">
+
+                {{#each members}}
+                  <li class="channel__member">
+
+                    {{#unless personalData.picPath}}
+                    <img src="/images/user.png" alt="User Picture">
+                    {{else}}
+                    <img src="/upload/{{personalData.picPath}}" alt="User Picture">
+                    {{/unless}}
+
+                    <h4 class="username text-ellipsis">
+                      {{personalData.firstName}} {{personalData.lastName}}
+                      <small>({{username}})</small>
+                    </h4>
+
+                    {{#if userIsChannelCreator ..}}
+                    <a data-userid={{_id}} class="channel__remove-member btn btn-danger btn-icon btn-circle" href="delete">
+                      <i class="fa fa-times"></i>
+                    </a>
+                    {{/if}}
+
+                  </li>
+                {{/each}}
+
+              </ul>
+            </div>
+          </div>
+
         </div>
 
         <div class="tab-pane fade" id="settings">
           {{#if userIsChannelCreator ..}}
             {{#if showAuthServiceButton}}
             <div>
-              {{> authTemplate clientkey}}            
+              {{> authTemplate clientkey}}
             </div>
             {{else}}
               <div>
-                <a class="channel__delete btn btn-danger m-t-15 m-b-15" href="#">Delete Channel</a>            
+                <a class="channel__delete btn btn-danger m-t-15 m-b-15" href="#">Delete Channel</a>
               </div>
             {{/if}}
           {{/if}}

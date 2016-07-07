@@ -63,8 +63,7 @@ Template.channel.events({
 
 Template.channel.helpers({
   members: function() {
-    // var memberIds = Channels.findOne(channelData._id).members || [];
-    var memberIds = channelData.members || [];
+    var memberIds = Channels.findOne(channelData._id).members || [];
     Meteor.subscribe('publicUserData', memberIds);
 
     var channelMembers = Meteor.users.find({
@@ -99,6 +98,15 @@ Template.channel.helpers({
   contentLoaded: function() {
     deps.depend();
     return !loading;
+  },
+
+  channelCreator: function() {
+    var creatorId = channelData.createdBy,
+        creator = Meteor.users.findOne({
+          _id: creatorId
+        });
+    Meteor.subscribe('publicUserData', [creatorId]);
+    return creator;
   }
 });
 

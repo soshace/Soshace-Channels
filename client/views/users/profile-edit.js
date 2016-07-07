@@ -1,19 +1,22 @@
 Template.profileEdit.helpers({
   myFormData: function() {
     // this.what = 'lol';
-    return { directoryName: 'images', user: Meteor.userId() }
+    return {
+      directoryName: 'images',
+      user: Meteor.userId()
+    }
   }
 });
 
 Template.profileEdit.events({
   'click #cropUserPic': function() {
     var img = $('.user-uploaded-img'),
-        okBtn = $('#acceptCrop'),
-        cancelBtn = $('#cancelCrop'),
-        deleteBtn = $('#deleteUserPic'),
-        cropBtn = $('#cropUserPic'),
-        legend = $('.user-image p'),
-        coords;
+      okBtn = $('#acceptCrop'),
+      cancelBtn = $('#cancelCrop'),
+      deleteBtn = $('#deleteUserPic'),
+      cropBtn = $('#cropUserPic'),
+      legend = $('.user-image p'),
+      coords;
 
     deleteBtn.addClass('hidden');
     cropBtn.addClass('hidden');
@@ -32,7 +35,7 @@ Template.profileEdit.events({
           height: c.h
         };
       },
-      setSelect: [ 100, 100, 50, 50 ]
+      setSelect: [100, 100, 50, 50]
     });
 
     cancelBtn.click(function() {
@@ -55,10 +58,16 @@ Template.profileEdit.events({
 
       Meteor.call('cropFile', coords, function(error) {
         if (error) {
-          Bert.alert('Something went wrong.', 'warning');
+          Bert.alert('Error while reading image file. Please contact support about this problem.', 'warning');
         } else {
+          legend.addClass('hidden');
+          okBtn.addClass('hidden');
+          cancelBtn.addClass('hidden');
+          deleteBtn.removeClass('hidden');
+          cropBtn.removeClass('hidden');
+
           Router.go('profile');
-          Bert.alert('Image was successfully cropped', 'success');
+          Bert.alert('Image was successfully cropped.', 'success');
         }
       })
     });
@@ -67,7 +76,11 @@ Template.profileEdit.events({
   'click #deleteUserPic': function() {
     var userId = Meteor.userId();
     if (confirm('Are you sure?')) {
-      Meteor.call('deleteFile', userId, true);
+      Meteor.call('deleteFile', userId, true, function(error) {
+        if (error) {
+          Bert.alert('Error while reading image file. Please contact support about this problem.', 'warning');
+        }
+      });
       Router.go('profile');
     }
   },
@@ -77,15 +90,15 @@ Template.profileEdit.events({
 
     // Get data
     var userData = {
-          email: $('[name=email]').val(),
-          firstName: $('[name=first-name]').val(),
-          lastName: $('[name=last-name]').val(),
-          gender: $('[name=gender]').val(),
-          bday: $('[name=bday]').val(),
-          phone: $('[name=phone]').val(),
-          skype: $('[name=skype]').val(),
-          location: $('[name=location]').val()
-        };
+      email: $('[name=email]').val(),
+      firstName: $('[name=first-name]').val(),
+      lastName: $('[name=last-name]').val(),
+      gender: $('[name=gender]').val(),
+      bday: $('[name=bday]').val(),
+      phone: $('[name=phone]').val(),
+      skype: $('[name=skype]').val(),
+      location: $('[name=location]').val()
+    };
 
     Meteor.call('saveUserData', userData, function(error, result) {
       if (error) {
@@ -111,9 +124,9 @@ Template.profileEdit.events({
 
   'keyup #location-field': function(event) {
     var input = $('#location-field')
-        str = input.val(),
-        addedCities = $('.location-result li'),
-        locationBlock = $('.location-result');
+    str = input.val(),
+      addedCities = $('.location-result li'),
+      locationBlock = $('.location-result');
 
     removeAddedCities(addedCities);
     locationBlock.addClass('invisible');
