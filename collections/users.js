@@ -38,12 +38,16 @@ Schema.UserProfile = new SimpleSchema({
     },
     firstName: {
         type: String,
-        regEx: /^[a-zA-Z]{2,25}$/,
+        min: 2,
+        max: 25,
+        regEx: /^[a-zA-Z_ ]+$/,
         optional: true
     },
     lastName: {
         type: String,
-        regEx: /^[a-zA-Z]{2,25}$/,
+        min: 2,
+        max: 25,
+        regEx: /^[a-zA-Z_ ]+$/,
         optional: true
     },
     gender: {
@@ -68,7 +72,7 @@ Schema.UserProfile = new SimpleSchema({
     },
     location: {
         type: String,
-        //regEx: /^[a-zA-Z]{2,25}$/,
+        regEx: /^[a-zA-Z,\- ]{2,50}$/,
         optional: true
     }
 });
@@ -117,7 +121,10 @@ Schema.User = new SimpleSchema({
 });
 
 Schema.User.messages({
-  "regEx username": 'Error in [label]. Only English letters are allowed.'
+  "regEx username": 'Error in [label]. Only English characters are allowed.',
+  "regEx personalData.firstName": 'Error in [label]. Only English characters are allowed.',
+  "regEx personalData.lastName": 'Error in [label]. Only English characters are allowed.',
+  "regEx personalData.location": 'Error in [label]. Only English characters are allowed.'
 });
 
 Meteor.users.attachSchema(Schema.User);

@@ -13,38 +13,47 @@ Template.profileEdit.events({
         deleteBtn = $('#deleteUserPic'),
         cropBtn = $('#cropUserPic'),
         legend = $('.user-image p'),
-        coordinates;
+        coords;
 
-    deleteBtn.addClass('invisible');
-    cropBtn.addClass('invisible');
-    legend.removeClass('invisible');
-    okBtn.removeClass('invisible');
-    cancelBtn.removeClass('invisible');
+    deleteBtn.addClass('hidden');
+    cropBtn.addClass('hidden');
+    legend.removeClass('hidden');
+    okBtn.removeClass('hidden');
+    cancelBtn.removeClass('hidden');
 
     img.Jcrop({
-      onSelect: showCoords,
+      boxWidth: 300,
+      boxHeight: 300,
+      onSelect: function(c) {
+        coords = {
+          x: c.x,
+          y: c.y,
+          width: c.w,
+          height: c.h
+        };
+      },
       setSelect: [ 100, 100, 50, 50 ]
     });
 
     cancelBtn.click(function() {
-      legend.addClass('invisible');
-      okBtn.addClass('invisible');
-      cancelBtn.addClass('invisible');
-      deleteBtn.removeClass('invisible');
-      cropBtn.removeClass('invisible');
+      legend.addClass('hidden');
+      okBtn.addClass('hidden');
+      cancelBtn.addClass('hidden');
+      deleteBtn.removeClass('hidden');
+      cropBtn.removeClass('hidden');
 
       var JcropAPI = img.data('Jcrop');
       JcropAPI.destroy();
     });
 
     okBtn.click(function() {
-      legend.addClass('invisible');
-      okBtn.addClass('invisible');
-      cancelBtn.addClass('invisible');
-      deleteBtn.removeClass('invisible');
-      cropBtn.removeClass('invisible');
+      legend.addClass('hidden');
+      okBtn.addClass('hidden');
+      cancelBtn.addClass('hidden');
+      deleteBtn.removeClass('hidden');
+      cropBtn.removeClass('hidden');
 
-      Meteor.call('cropFile', coordinates, function(error) {
+      Meteor.call('cropFile', coords, function(error) {
         if (error) {
           Bert.alert('Something went wrong.', 'warning');
         } else {
@@ -53,15 +62,6 @@ Template.profileEdit.events({
         }
       })
     });
-
-    function showCoords(c) {
-      coordinates = {
-        x: c.x,
-        y: c.y,
-        width: c.w,
-        height: c.h
-      }
-    }
   },
 
   'click #deleteUserPic': function() {
