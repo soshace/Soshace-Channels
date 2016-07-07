@@ -12,7 +12,7 @@
 		this.authTemplate = 'bitbucketAuthTemplate';
 
 		self = this;
-		
+
 		tokenParams = data.tokenParams;
 		resourceId = data.serviceResource;
 		channelData = data;
@@ -55,7 +55,7 @@
 					getCommits(result, channelData._id);
 				})
 				.fail(function(error) {
-					if (error && error.status === 401) {
+					if (error.status === 401) {
 						Meteor.call('refreshBitbucketToken', tokenParams.refreshToken, function(error, results) {
 							tokenParams.token = results.data.access_token;
 							tokenParams.refreshToken = results.data.refresh_token;
@@ -79,13 +79,20 @@
 		} else {
 			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commits?access_token=';
 			Meteor.call('getDataForGuest', request, channelData._id, function(error, results) {
-				if (error && error.status === 401) {
-					Meteor.call('refreshBitbucketTokenByGuest', channelData._id);
-					return;
+				if (error) {
+					console.log(error);
+					if (error.status === 401) {
+						Meteor.call('refreshBitbucketTokenByGuest', channelData._id);
+						return;
+					}
 				}
 				commits = results.data.values;
 				runTemplating(commits);
-					getCommits(commits, channelData._id);
+				var result = {
+					blocks: commits,
+					commonParams: ''
+				};
+				getCommits(result, channelData._id);
 			});
 		}
 	};
@@ -107,16 +114,33 @@
 					});
 				})
 				.fail(function(error) {
-					console.log(error);
+					if (error.status === 401) {
+						Meteor.call('refreshBitbucketToken', tokenParams.refreshToken, function(error, results) {
+							tokenParams.token = results.data.access_token;
+							tokenParams.refreshToken = results.data.refresh_token;
+
+							$.getJSON(request, {
+									access_token: tokenParams.token
+								})
+								.done(function(data) {
+									parseDiff(data, commitData, getCommitCallback);
+								});
+							Meteor.call('addToken', tokenParams);
+						});
+					}
 				});
 		} else {
 			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commit/' + sha + '?access_token=';
 			Meteor.call('getDataForGuest', request, channelData._id, function(error, results) {
-				var diffRequest = results.data.links.diff.href,
-					commitData = results.data;
-				Meteor.call('getDataForGuest', diffRequest + '?access_token=', channelData._id, function(error, results) {
-					parseDiff(results.content, commitData, getCommitCallback);
-				});
+				if (error) {
+					console.log(error)
+				} else {
+					var diffRequest = results.data.links.diff.href,
+						commitData = results.data;
+					Meteor.call('getDataForGuest', diffRequest + '?access_token=', channelData._id, function(error, results) {
+						parseDiff(results.content, commitData, getCommitCallback);
+					});
+				}
 			});
 		}
 	};
