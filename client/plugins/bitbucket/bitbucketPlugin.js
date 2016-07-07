@@ -80,19 +80,16 @@
 			request = 'https://api.bitbucket.org/2.0/repositories/' + resourceId + '/commits?access_token=';
 			Meteor.call('getDataForGuest', request, channelData._id, function(error, results) {
 				if (error) {
-					console.log(error);
-					if (error.status === 401) {
-						Meteor.call('refreshBitbucketTokenByGuest', channelData._id);
-						return;
-					}
+					Meteor.call('refreshBitbucketTokenByGuest', channelData._id);
+				} else {
+					commits = results.data.values;
+					runTemplating(commits);
+					var result = {
+						blocks: commits,
+						commonParams: ''
+					};
+					getCommits(result, channelData._id);
 				}
-				commits = results.data.values;
-				runTemplating(commits);
-				var result = {
-					blocks: commits,
-					commonParams: ''
-				};
-				getCommits(result, channelData._id);
 			});
 		}
 	};

@@ -129,7 +129,6 @@
 			if (error) {
 				return console.log(error);
 			}
-			// setTimeout(appendMessageToSentFolder, 5000);
 			appendMessageToSentFolder();
 		});
 	};
@@ -300,10 +299,13 @@
 
 	function appendMessageToSentFolder() {
 		var attemptsCount = 0;
+		console.log(login);
 		var repeat = setInterval(function() {
 			attemptsCount++;
 			imap.openBox('INBOX', false, function(err, box) {
-				imap.search(['UNSEEN', ['HEADER', 'FROM', login]], function(err, results) {
+				console.log(attemptsCount);
+				// imap.search(['UNSEEN', ['HEADER', 'FROM', login]], function(err, results) {
+				imap.search(['UNSEEN', ['UID', box.uidnext - 1]], function(err, results) {
 					if (err) {
 						console.log(err);
 						return;
@@ -326,5 +328,5 @@
 			}
 		}, 2000);
 	};
-	
+
 })();

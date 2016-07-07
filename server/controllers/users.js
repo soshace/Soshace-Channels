@@ -28,24 +28,24 @@ Accounts.onCreateUser(function(options, user) {
     // Verify email
     user.emails[0].verified = true;
 
-    var inviterContact = {
-      contactId: options.contacts,
-      contactStatus: 'accepted'
-    };
+    // var inviterContact = {
+    //   contactId: options.contacts,
+    //   contactStatus: 'accepted'
+    // };
     // Add inviter to contact list
-    user.contacts.push(inviterContact);
+    // user.contacts.push(inviterContact);
 
     // Add new user to inviter contacts
-    Meteor.users.update({
-      _id: options.contacts
-    }, {
-      $addToSet: {
-        'contacts': {
-          contactId: user._id,
-          contactStatus: 'accepted'
-        }
-      }
-    });
+    // Meteor.users.update({
+    //   _id: options.contacts
+    // }, {
+    //   $addToSet: {
+    //     'contacts': {
+    //       contactId: user._id,
+    //       contactStatus: 'accepted'
+    //     }
+    //   }
+    // });
   }
 
   // Returns the user object

@@ -63,7 +63,8 @@ Template.channel.events({
 
 Template.channel.helpers({
   members: function() {
-    var memberIds = Channels.findOne(channelData._id).members || [];
+    // var memberIds = Channels.findOne(channelData._id).members || [];
+    var memberIds = channelData.members || [];
     Meteor.subscribe('publicUserData', memberIds);
 
     var channelMembers = Meteor.users.find({
