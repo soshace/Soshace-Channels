@@ -117,11 +117,15 @@ Router.route('/channel/:_id', {
     });
   },
   onBeforeAction: function() {
-    var currentUser = Meteor.userId();
-    var channel = Channels.findOne({
-      _id: this.params._id
-    });
-    var userHasAccess = _.contains(channel.members, currentUser) || (channel.createdBy === currentUser);
+    var currentUser = Meteor.userId(),
+      channel = Channels.findOne({
+        _id: this.params._id
+      }),
+      userHasAccess = false;
+
+    if (channel) {
+      userHasAccess = _.contains(channel.members, currentUser) || (channel.createdBy === currentUser);
+    }
 
     if (currentUser) {
       if (userHasAccess) {

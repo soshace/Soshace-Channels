@@ -21,17 +21,13 @@ Meteor.methods({
   },
 
   'removeChannel': function(channelId) {
-    var currentUser = this.userId;
-    var data = {
-      _id: channelId,
-      createdBy: currentUser
-    };
-
-    if (!currentUser) {
+    if (!this.userId) {
       throw new Meteor.Error('not-logged-in', 'You are not logged-in.');
     }
 
-    Channels.remove(data);
+    Channels.remove({
+      _id: channelId
+    });
   },
 
   'addNewResourceToChannel': function(resourceToAdd, channelId) {
