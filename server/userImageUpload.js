@@ -6,8 +6,8 @@ Meteor.startup(function () {
   }
 
   UploadServer.init({
-    tmpDir: process.env.PWD + '/.upload/tmp',
-    uploadDir: process.env.PWD + '/.upload/',
+    tmpDir: process.env.PWD + '/../' + '.upload/tmp',
+    uploadDir: process.env.PWD + '/../' + '.upload/',
     checkCreateDirectories: true,
     getDirectory: function(fileInfo, formData) {
       if (formData && formData.directoryName != null) {
@@ -27,8 +27,8 @@ Meteor.startup(function () {
       fileInfo.url = fileInfo.url.replace("images//", "images/");
 
       Imagemagick.resize({
-        srcPath: process.env.PWD + '/.upload/' + fileInfo.path,
-        dstPath: process.env.PWD + '/.upload/' + fileInfo.path,
+        srcPath: process.env.PWD + '/../' + '.upload/' + fileInfo.path,
+        dstPath: process.env.PWD + '/../' + '.upload/' + fileInfo.path,
         width: 300,
         height: 300
       });
@@ -46,9 +46,7 @@ Meteor.startup(function () {
         }
         Meteor.users.update(formData.user, { $set: { 'personalData.picPath': fileInfo.path } });
       }
-    },
-    // max 2 mb
-    maxFileSize: 2097152
+    }
   });
 });
 
@@ -67,21 +65,20 @@ Meteor.methods({
     }
   },
 
-  'cropFile': function(coordinates) {
+  'cropFile': function(coords) {
     var imgId = this.userId,
         upload = Uploads.findOne({ _id: imgId }),
-        src = upload.fileInfo.path + '_cropped',
+        dateNow = Date.now(),
         path = upload.fileInfo.path,
-        newPath,
-        params = coordinates.width + 'x' + coordinates.height + '+' + coordinates.x + '+' + coordinates.y,
+        newPath = upload.fileInfo.subDirectory + upload.fileInfo.name + '_' + dateNow,
+        pathForCropperIn = process.env.PWD + '/../' + '.upload/' + path,
+        pathForCropperOut = process.env.PWD + '/../' + '.upload/' + newPath,
+        params = coords.width + 'x' + coords.height + '+' + coords.x + '+' + coords.y;
 
-    path = process.env.PWD + '/.upload/' + path;
-    newPath = path + '_cropped';
+    Imagemagick.convert([pathForCropperIn, '-crop', params, pathForCropperOut]);
 
-    Imagemagick.convert([path, '-crop', params, newPath]);
-
-    UploadServer.delete(upload.fileInfo.path);
+    UploadServer.delete(path);
     Uploads.update({_id: imgId}, { $set: { 'fileInfo.path': newPath }});
-    Meteor.users.update(imgId, { $set: { 'personalData.picPath': src } });
+    Meteor.users.update(imgId, { $set: { 'personalData.picPath': newPath } });
   }
 })
