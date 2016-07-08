@@ -2,6 +2,7 @@
 	var Imap = Npm.require('imap'),
 		MailParser = require('mailparser').MailParser,
 		Future = Npm.require('fibers/future'),
+		utf7 = Npm.require('utf7'),
 
 		imap,
 		smtp,
@@ -10,7 +11,10 @@
 		messages,
 		mailBox,
 		userIsHost = false,
-		currentPage;
+		currentPage,
+		boxes,
+		trashBox,
+		sentBox;
 
 	this.YandexPlugin = function(channelId) {
 		var channel = Channels.findOne(channelId),
@@ -144,15 +148,13 @@
 					return;
 				}
 				if (results.length > 0) {
+					// console.log(utf7.decode(sentBox));
 					// var f2 = imap.addFlags(results, 'Deleted');
-					var f1 = imap.move(results, 'Удаленные', function(err) {
+					var f1 = imap.move(results, trashBox.toUnicode(), function(err) {
 						if (err) {
 							console.log(err);
 						}
 					});
-					// var f2 = imap.getBoxes(function(err,result){
-					// 	console.log(result);
-					// })
 				}
 				imap.closeBox(true, function(err) {
 					if (err) {
@@ -209,6 +211,22 @@
 			console.log(error);
 		});
 		imap.on('ready', function(error) {
+			var f2 = imap.getBoxes(function(err, result) {
+				// console.log(result);
+				boxes = result;
+				for (var box in boxes) {
+					// console.log(box);
+					// console.log(typeof(box));
+					if (boxes[box]['special_use_attrib'] === '\\Trash') {
+						// console.log(box.toString());
+						trashBox = box.toString();
+					}
+					if (boxes[box]['special_use_attrib'] === '\\Sent') {
+						sentBox = box.toString();
+					}
+				}
+			})
+
 			fut.return();
 		});
 		imap.connect();
@@ -303,7 +321,6 @@
 		var repeat = setInterval(function() {
 			attemptsCount++;
 			imap.openBox('INBOX', false, function(err, box) {
-				console.log(attemptsCount);
 				// imap.search(['UNSEEN', ['HEADER', 'FROM', login]], function(err, results) {
 				imap.search(['UNSEEN', ['UID', box.uidnext - 1]], function(err, results) {
 					if (err) {
@@ -314,7 +331,7 @@
 						attemptsCount = 60;
 
 						var f2 = imap.addFlags(results, 'Seen', function() {
-							var f1 = imap.move(results, 'Отправленные', function(err) {
+							var f1 = imap.move(results, sentBox.toUnicode(), function(err) {
 								if (err) {
 									console.log(err);
 								}
@@ -327,6 +344,14 @@
 				clearInterval(repeat);
 			}
 		}, 2000);
+	};
+
+	String.prototype.toUnicode = function(){
+	    var result = "";
+	    for(var i = 0; i < this.length; i++){
+	        result += "\\u" + ("000" + this[i].charCodeAt(0).toString(16)).substr(-4);
+	    }
+	    return result;
 	};
 
 })();
