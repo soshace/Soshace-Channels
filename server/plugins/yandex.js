@@ -2,7 +2,7 @@
 	var Imap = Npm.require('imap'),
 		MailParser = require('mailparser').MailParser,
 		Future = Npm.require('fibers/future'),
-		utf7 = Npm.require('utf7'),
+		// utf7 = Npm.require('utf7').imap,
 
 		imap,
 		smtp,
@@ -14,7 +14,8 @@
 		currentPage,
 		boxes,
 		trashBox,
-		sentBox;
+		sentBox,
+		spamBox;
 
 	this.YandexPlugin = function(channelId) {
 		var channel = Channels.findOne(channelId),
@@ -176,7 +177,7 @@
 					return;
 				}
 				if (results.length > 0) {
-					var f1 = imap.move(results, 'Спам', function(err) {
+					var f1 = imap.move(results, spamBox, function(err) {
 						if (err) {
 							console.log(err);
 						}
@@ -219,10 +220,13 @@
 					// console.log(typeof(box));
 					if (boxes[box]['special_use_attrib'] === '\\Trash') {
 						// console.log(box.toString());
-						trashBox = box.toString();
+						trashBox = box;
 					}
 					if (boxes[box]['special_use_attrib'] === '\\Sent') {
-						sentBox = box.toString();
+						sentBox = box;
+					}
+					if (boxes[box]['special_use_attrib'] === '\\Spam') {
+						spamBox = box;
 					}
 				}
 			})
@@ -331,7 +335,9 @@
 						attemptsCount = 60;
 
 						var f2 = imap.addFlags(results, 'Seen', function() {
-							var f1 = imap.move(results, sentBox.toUnicode(), function(err) {
+							// console.log(sentBox);
+							// console.log(sentBox.toUnicode());
+							var f1 = imap.move(results, sentBox, function(err) {
 								if (err) {
 									console.log(err);
 								}
@@ -345,13 +351,12 @@
 			}
 		}, 2000);
 	};
-
-	String.prototype.toUnicode = function(){
-	    var result = "";
-	    for(var i = 0; i < this.length; i++){
-	        result += "\\u" + ("000" + this[i].charCodeAt(0).toString(16)).substr(-4);
-	    }
-	    return result;
-	};
-
 })();
+
+String.prototype.toUnicode = function() {
+	var result = "";
+	for (var i = 0; i < this.length; i++) {
+		result += "\\u" + ("000" + this[i].charCodeAt(0).toString(16)).substr(-4);
+	}
+	return result;
+};
