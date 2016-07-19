@@ -30,6 +30,20 @@ Meteor.methods({
     });
   },
 
+  'changeChannelName': function(channelId, userId, newName) {
+    var currentUser = this.userId;
+
+    if (currentUser === userId) {
+      Channels.update({
+        _id: channelId
+      }, {
+        $set: {
+          name: newName
+        }
+      });
+    }
+  },
+
   'addNewResourceToChannel': function(resourceToAdd, channelId) {
     var currentUser = this.userId;
 

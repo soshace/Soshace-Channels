@@ -21,6 +21,24 @@ Template.channel.events({
     }
   },
 
+  'submit .channel__change-name': function(event) {
+    event.preventDefault();
+    var newName = $('.channel__new-name').val();
+
+    if (newName) {
+      Meteor.call('changeChannelName', channelData._id, channelData.createdBy, newName, function(error) {
+        if (error) {
+          Bert.alert(error.message, 'warning');
+        } else {
+          Bert.alert('Channel name changed.', 'success');
+          $('.channel__new-name').val('');
+        }
+      });
+    } else {
+      Bert.alert('Channel name can\'t be empty.', 'warning');
+    }
+  },
+
   'submit .channel__add-member': function(event) {
     event.preventDefault();
     var parameter = $('.channel__member-input').val();

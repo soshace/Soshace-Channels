@@ -112,7 +112,6 @@
                       <i class="fa fa-times"></i>
                     </a>
                     {{/if}}
-
                   </li>
                 {{/each}}
 
@@ -129,9 +128,33 @@
               {{> authTemplate clientkey}}
             </div>
             {{else}}
-              <div>
-                <a class="channel__delete btn btn-danger m-t-15 m-b-15" href="#">Delete Channel</a>
+            <div class="row m-t-20 m-b-20">
+              <div class="col-sm-12 col-md-6">
+                <div class="panel panel-inverse">
+
+                  <form class="form-inline channel__change-name">
+                    <fieldset>
+
+                      <div class="checkbox m-r-10">
+                        <label for="contacts-list">Change channel name:</label>
+                      </div>
+
+                      <div class="form-group m-r-10">
+                        <input type="text" class="channel__new-name form-control">
+                      </div>
+
+                      <div class="form-group">
+                        <input class="btn btn-primary" type="submit" value="Ok">
+                      </div>
+
+                    </fieldset>
+                  </form>
+                </div>
               </div>
+            </div>
+            <div>
+              <a class="channel__delete btn btn-danger m-t-15 m-b-15" href="#">Delete Channel</a>
+            </div>
             {{/if}}
           {{/if}}
         </div>

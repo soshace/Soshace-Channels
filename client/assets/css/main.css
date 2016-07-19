@@ -279,7 +279,8 @@ p{margin-bottom:.3em;}
   color: white;
 }
 
-.channel__add-member label {
+.channel__add-member label,
+.channel__change-name label {
   font-size: 15px;
   font-weight: 600;
 }
