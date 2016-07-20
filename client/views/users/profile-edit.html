@@ -8,7 +8,7 @@
       <div class="panel panel-inverse p-20">
 
         <div class="panel-body">
-          
+
           <div class="row m-b-20" id="image-upload">
             <div class="m-b-20">
                 <span class="lead">Upload new picture:</span>
@@ -16,9 +16,10 @@
             {{> upload_bootstrap fileTypes='image/*' formData=myFormData}}
           </div>
 
-          <span class="lead">Current picture:</span>
-
           <div class="row m-t-20 m-b-20 user-image text-center">
+            <div class="m-b-20 text-left">
+              <span class="lead">Current picture:</span>
+            </div>
             {{#unless currentUser.personalData.picPath}}
             <img src="/images/user.png" alt="User Picture">
             {{else}}

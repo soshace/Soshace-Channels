@@ -11,6 +11,8 @@ Template.profileEdit.helpers({
 Template.profileEdit.events({
   'click #cropUserPic': function() {
     var img = $('.user-uploaded-img'),
+      realWidth = img[0].naturalWidth,
+      realHeight = img[0].naturalHeight,
       okBtn = $('#acceptCrop'),
       cancelBtn = $('#cancelCrop'),
       deleteBtn = $('#deleteUserPic'),
@@ -27,6 +29,7 @@ Template.profileEdit.events({
     img.Jcrop({
       boxWidth: 300,
       boxHeight: 300,
+      trueSize: [realWidth, realHeight],
       onSelect: function(c) {
         coords = {
           x: c.x,
