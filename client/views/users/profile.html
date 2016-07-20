@@ -12,7 +12,7 @@
             <div class="row">
 
               <div class="col-xs-4">
-                
+
                 <div class="user-avatar text-center m-b-20">
                   <a href="{{pathFor route='profileEdit'}}" class="user-avatar__link">
                     {{#unless currentUser.personalData.picPath}}
@@ -56,7 +56,7 @@
                     <tr>
                       <td class="field">E-mail</td>
                       <td>
-                        <i class="fa fa-at fa-lg m-r-5"></i>
+                        <i class="fa fa-envelope fa-lg m-r-5"></i>
                         <a href="mailto:{{currentUser.emails.[0].address}}">{{currentUser.emails.[0].address}}</a>
                         {{#unless currentUser.emails.[0].verified}}
                         <span class="label label-warning">Need to verify</span>
@@ -66,14 +66,19 @@
                         {{/unless}}
                       </td>
                     </tr>
+                    {{#if currentUser.personalData.phone}}
                     <tr>
                       <td class="field">Phone</td>
                       <td><i class="fa fa-phone fa-lg m-r-5"></i> {{currentUser.personalData.phone}}</td>
                     </tr>
+                    {{/if}}
+                    {{#if currentUser.personalData.skype}}
                     <tr>
                       <td class="field">Skype</td>
                       <td><i class="fa fa-skype fa-lg m-r-5"></i> <a href="skype:{{currentUser.personalData.skype}}">{{currentUser.personalData.skype}}</a></td>
                     </tr>
+                    {{/if}}
+
                     <tr class="divider">
                       <td colspan="2"></td>
                     </tr>
@@ -84,18 +89,24 @@
                     <tr class="divider">
                       <td colspan="2"></td>
                     </tr>
+                    {{#if currentUser.personalData.location}}
                     <tr>
                       <td class="field">Location</td>
                       <td>{{currentUser.personalData.location}}</td>
                     </tr>
+                    {{/if}}
+                    {{#if currentUser.personalData.gender}}
                     <tr>
                       <td class="field">Gender</td>
                       <td>{{currentUser.personalData.gender}}</td>
                     </tr>
+                    {{/if}}
+                    {{#if currentUser.personalData.bday}}
                     <tr>
                       <td class="field">Birthdate</td>
                       <td>{{currentUser.personalData.bday}}</td>
                     </tr>
+                    {{/if}}
                     </tbody>
                 </table>
 
