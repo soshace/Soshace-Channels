@@ -1,3 +1,4 @@
+
 .sidebar h1 {
   font-size: 25px;
   color: white;
@@ -506,3 +507,28 @@ code {
 .location-result li:hover {
 	background-color: #4DCACA;
 }
+
+
+/*Sticky footer*/
+html, body, #page-container {
+  height: 100%;
+}
+
+body > #page-container {
+  height: auto;
+  min-height: 100%;
+}
+
+main {
+  padding-bottom: 25px;
+}
+
+.footer {
+  clear: both;
+   position: relative;
+   z-index: 10;
+   height: 25px;
+   margin-top: -25px;
+}
+
+/*----------*/
