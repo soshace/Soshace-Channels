@@ -1,3 +1,5 @@
+. ~/.nvm/nvm.sh
+
 # select node version
 nvm use 5.8
 
@@ -44,7 +46,7 @@ npm rebuild
 cp /home/ssi/settings.json /home/ssi/bundle/programs/server/
 
 # set settings
-export PORT=80
+export PORT=8080
 export MONGO_URL=mongodb://localhost:27017/meteor
 export ROOT_URL=http://soshace.me
 export METEOR_SETTINGS=$(cat settings.json)
