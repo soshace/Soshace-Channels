@@ -149,8 +149,8 @@
 	// Private methods
 	function runTemplating(commits) {
 		_.map(commits, function(commit) {
-			commit.name = commit.author.user.display_name;
-			commit.avatar = commit.author.user.links.avatar.href;
+			commit.name = commit.author.user ? commit.author.user.display_name : commit.author.raw;
+			commit.avatar = commit.author.user ? commit.author.user.links.avatar.href : '';
 			commit.date = commit.date;
 			commit.channelId = channelData._id;
 		});
