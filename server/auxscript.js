@@ -1,5 +1,5 @@
 Meteor.startup(function(){
-	console.log('------------RESTARTED-------------------')
+	console.log('------------RESTARTED: ' + moment().format());
 	// var users = Meteor.users.find().fetch();
 	// _.map(users, function(user){
 	// 	var tokens = user.profile.serviceTokens;
