@@ -38,3 +38,4 @@ standard-minifier-js
 classcraft:imagemagick
 summernote:summernote
 mrt:jquery-jcrop
+lsun:meteor-node-forge

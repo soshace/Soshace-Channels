@@ -16,7 +16,7 @@
 		sentBox,
 		spamBox;
 
-	this.YandexPlugin = function(channelId) {
+	this.YandexPlugin = function(channelId, hostId) {
 		var channel = Channels.findOne(channelId),
 			hostId = channel.createdBy,
 			host = Meteor.users.findOne(hostId),
@@ -351,11 +351,3 @@
 		}, 2000);
 	};
 })();
-
-String.prototype.toUnicode = function() {
-	var result = "";
-	for (var i = 0; i < this.length; i++) {
-		result += "\\u" + ("000" + this[i].charCodeAt(0).toString(16)).substr(-4);
-	}
-	return result;
-};

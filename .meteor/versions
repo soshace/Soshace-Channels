@@ -55,6 +55,7 @@ launch-screen@1.0.12
 livedata@1.0.18
 localstorage@1.0.11
 logging@1.0.14
+lsun:meteor-node-forge@0.6.35_5
 mdg:validation-error@0.2.0
 meteor@1.1.16
 meteor-base@1.0.4

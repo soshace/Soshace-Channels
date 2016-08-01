@@ -1,12 +1,14 @@
 (function() {
 	var self,
 		login,
+		token,
 		currentBlock,
 		currentPage,
 		showReplyBlock,
 		showForwardBlock,
 		replySubject,
-		deps = new Deps.Dependency();
+		deps = new Deps.Dependency(),
+		Imap = require('emailjs-imap-client');
 
 	this.YandexPlugin = function(channelData) {
 		this.settingsTemplateName = 'yandexSettingsTemplate';
@@ -29,23 +31,31 @@
 	};
 
 	YandexPlugin.prototype.getChannelBlocks = function(getEmailsData) {
-		Meteor.call('getYandexMessages', self.channelId, currentPage, function(error, results) {
-			if (error) {
-				console.log(error);
-				return;
-			}
-			_.map(results.items, function(item) {
-				item.channelId = self.channelId;
-				if (item.attr.flags.indexOf('\\Seen') === -1) {
-					item.class = ' message__unseen';
-				}
-			});
+		// Meteor.call('getYandexMessages', self.channelId, currentPage, function(error, results) {
+		// 	if (error) {
+		// 		console.log(error);
+		// 		return;
+		// 	}
+		// 	_.map(results.items, function(item) {
+		// 		item.channelId = self.channelId;
+		// 		if (item.attr.flags.indexOf('\\Seen') === -1) {
+		// 			item.class = ' message__unseen';
+		// 		}
+		// 	});
 
-			getEmailsData({
-				blocks: results.items.reverse(),
-				commonParams: results.box
-			});
-		});
+		// 	getEmailsData({
+		// 		blocks: results.items.reverse(),
+		// 		commonParams: results.box
+		// 	});
+		// });
+
+		// var hostUser = Meteor.user();
+		// var client = new ImapClient('localhost', 143, {
+		//     auth: {
+		//         user: 'testuser',
+		//     }
+		// });
+		initImap();
 	};
 
 	YandexPlugin.prototype.getSingleBlock = function(getOneEmailCallback, uid) {
@@ -71,6 +81,7 @@
 			});
 		}
 		if (logins.length > 0) {
+			console.log(login);
 			login = logins[0];
 		}
 		func(logins);
@@ -158,6 +169,68 @@
 				_id: self.channelId
 			});
 		});
+	};
+
+	function initImap() {
+		var login = Meteor.user().serviceTokens[0].login;
+		var token = Meteor.user().serviceTokens[0].token;
+
+		var s = 'user=' + login + '@yandex.ru\001auth=Bearer ' + token + '\001\001',
+			t = new Buffer(s).toString('base64'),
+			connParams = {
+				xoauth2: t,
+				host: 'imap.yandex.com',
+				port: 993,
+				tls: 1,
+				tlsOptions: {
+					rejectUnauthorized: false
+				}
+			};
+
+		console.log(t);
+		console.log(s);
+
+		var tcp = navigator.TCPSocket.open('imap.yandex.com', 993);
+
+		var tls = navigator.TCPSocket.open('imap.yandex.com', 993, {
+		    useSecureTransport: true
+		});
+
+		var client = new Imap('imap.yandex.com', 993, {
+		    auth: {
+		        user: 'superstringt@yandex.ru',
+		        xoauth2: t
+		    },
+		    useSecureTransport: false,
+		    ignoreTLS: true,
+		    requireTLS: false,
+		});
+
+		client.connect().then();
+
+		// var imap = new Imap(connParams);
+		// imap.on('error', function(error) {
+		// 	console.log(error);
+		// });
+		// imap.on('ready', function(error) {
+		// 	var f2 = imap.getBoxes(function(err, result) {
+		// 		console.log(result);
+		// 		boxes = result;
+		// 		for (var box in boxes) {
+		// 			console.log(box);
+		// 			if (boxes[box]['special_use_attrib'] === '\\Trash') {
+		// 				// trashBox = box;
+		// 			}
+		// 			if (boxes[box]['special_use_attrib'] === '\\Sent') {
+		// 				// sentBox = box;
+		// 			}
+		// 			if (boxes[box]['special_use_attrib'] === '\\Spam') {
+		// 				// spamBox = box;
+		// 			}
+		// 		}
+		// 	})
+		// });
+		// imap.connect();
 	};
 
 	Template.yandexDetailsTemplate.events({
