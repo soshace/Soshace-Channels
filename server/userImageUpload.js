@@ -61,7 +61,12 @@ Meteor.methods({
     var upload = Uploads.findOne({ _id: userPicId });
 
     if (upload) {
-      UploadServer.delete(upload.fileInfo.path);
+      try {
+        UploadServer.delete(upload.fileInfo.path);        
+      }
+      catch(e) {
+        console.log(e);
+      }
       if (deleteFromDb) {
         Uploads.remove({ _id: userPicId });
         Meteor.users.update(userPicId, { $set: { 'personalData.picPath': '' } });
