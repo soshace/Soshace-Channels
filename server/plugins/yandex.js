@@ -2,7 +2,6 @@
 	var Imap = Npm.require('imap'),
 		MailParser = require('mailparser').MailParser,
 		Future = Npm.require('fibers/future'),
-		// utf7 = Npm.require('utf7').imap,
 
 		imap,
 		smtp,
@@ -151,7 +150,7 @@
 				if (results.length > 0) {
 					// console.log(utf7.decode(sentBox));
 					// var f2 = imap.addFlags(results, 'Deleted');
-					var f1 = imap.move(results, trashBox.toUnicode(), function(err) {
+					var f1 = imap.move(results, trashBox, function(err) {
 						if (err) {
 							console.log(err);
 						}
