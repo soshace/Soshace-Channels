@@ -6,8 +6,10 @@ Meteor.startup(function () {
   }
 
   UploadServer.init({
-    tmpDir: process.env.PWD + '/../' + '.upload/tmp',
-    uploadDir: process.env.PWD + '/../' + '.upload/',
+    // tmpDir: process.env.PWD + '/../' + '.upload/tmp',
+    // uploadDir: process.env.PWD + '/../' + '.upload/',
+    tmpDir: '~/.upload/tmp',
+    uploadDir: '~/.upload/',
     checkCreateDirectories: true,
     getDirectory: function(fileInfo, formData) {
       if (formData && formData.directoryName != null) {
@@ -27,8 +29,10 @@ Meteor.startup(function () {
       fileInfo.url = fileInfo.url.replace("images//", "images/");
 
       Imagemagick.resize({
-        srcPath: process.env.PWD + '/../' + '.upload/' + fileInfo.path,
-        dstPath: process.env.PWD + '/../' + '.upload/' + fileInfo.path,
+        srcPath: '~/.upload/' + fileInfo.path,
+        dstPath: '~/.upload/' + fileInfo.path,
+        // srcPath: process.env.PWD + '/../' + '.upload/' + fileInfo.path,
+        // dstPath: process.env.PWD + '/../' + '.upload/' + fileInfo.path,
         width: 300,
         height: 300
       });
@@ -71,8 +75,10 @@ Meteor.methods({
         dateNow = Date.now(),
         path = upload.fileInfo.path,
         newPath = upload.fileInfo.subDirectory + upload.fileInfo.name + '_' + dateNow,
-        pathForCropperIn = process.env.PWD + '/../' + '.upload/' + path,
-        pathForCropperOut = process.env.PWD + '/../' + '.upload/' + newPath,
+        // pathForCropperIn = process.env.PWD + '/../' + '.upload/' + path,
+        // pathForCropperOut = process.env.PWD + '/../' + '.upload/' + newPath,
+        pathForCropperIn = '~/.upload/' + path,
+        pathForCropperOut = '~/.upload/' + newPath,
         params = coords.width + 'x' + coords.height + '+' + coords.x + '+' + coords.y;
 
     Imagemagick.convert([pathForCropperIn, '-crop', params, pathForCropperOut]);
