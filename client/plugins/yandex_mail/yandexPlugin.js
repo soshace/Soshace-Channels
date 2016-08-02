@@ -30,8 +30,7 @@
 			return;
 		}
 
-		var params = {
-			page: currentPage,
+		this.params = {
 			channelId: this.channelId,
 			createdBy: this.createdBy,
 			userIsHost: this.userIsHost,
@@ -39,7 +38,9 @@
 			token: this.token
 		};
 
-		Meteor.call('getImapBoxes', params, function(error, results) {
+		Meteor.call('getImapBoxes', self.params, function(error, results) {
+			self.boxes = results;
+
 			for (var box in results) {
 				var attr = results[box]['special_use_attrib'];
 
@@ -66,14 +67,9 @@
 	};
 
 	YandexPlugin.prototype.getChannelBlocks = function(getEmailsData) {
-		var params = {
-			page: currentPage,
-			channelId: this.channelId,
-			createdBy: this.createdBy,
-			userIsHost: this.userIsHost,
-			login: this.login,
-			token: this.token
-		};
+		var params = this.params;
+
+		params.page = currentPage;
 
 		Meteor.call('getYandexMessages', params, function(error, results) {
 			if (error) {

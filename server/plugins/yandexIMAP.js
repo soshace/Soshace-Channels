@@ -24,7 +24,6 @@ Meteor.methods({
 	},
 
 	'moveMessageToTrash': function(params) {
-		console.log(params);
 		return initImap(params)
 			.then(
 				imap => moveMessageToBox(params.uid, imap, params.box),
@@ -49,33 +48,26 @@ Meteor.methods({
 	},
 
 	'getImapBoxes': function(params) {
-		var s = 'user=' + params.login + '@yandex.ru\001auth=Bearer ' + params.token + '\001\001',
-			t = new Buffer(s).toString('base64'),
-			connParams = {
-				xoauth2: t,
-				host: 'imap.yandex.com',
-				port: 993,
-				tls: 1,
-				tlsOptions: {
-					rejectUnauthorized: false
-				}
-			};
-
-		return new Promise(function(resolve, reject) {
-			var Imap = Npm.require('imap');
-
-			var imap = new Imap(connParams);
-			imap.on('error', function(error) {
-				reject(error);
-			});
-			imap.on('ready', function(error) {
-				var f2 = imap.getBoxes(function(err, result) {
-					resolve(result);
-				});
-			});
-			imap.connect();
-		});
-
+		return initImap(params)
+			.then(
+				imap => {
+					return new Promise(function(resolve, reject) {
+						imap.getBoxes(function(err, result){
+							// TODO: Check for nested folders!!! Circular folders can't be passed to client
+							var res = {};
+							for (var key in result) {
+								if (result.hasOwnProperty(key)){
+									res[key] = {};
+									res[key]['special_use_attrib'] = result['special_use_attrib'];		
+								}
+							}
+							resolve(res);
+							imap.end();
+						})
+					});
+				},
+				error => console.log(error)
+			)
 	}
 });
 
@@ -96,14 +88,18 @@ function initImap(params) {
 		var Imap = Npm.require('imap');
 
 		var imap = new Imap(connParams);
+
 		imap.on('error', function(error) {
 			reject(error);
 		});
+
 		imap.on('ready', function(error) {
 			resolve(this);
 		});
+
 		imap.connect();
 	});
+
 };
 
 function getImapMessages(page, imap) {
