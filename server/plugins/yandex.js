@@ -1,9 +1,8 @@
 (function() {
 	var Imap = Npm.require('imap'),
 		MailParser = require('mailparser').MailParser,
-		Future = Npm.require('fibers/future'),
+		// Future = Npm.require('fibers/future'),
 
-		imap,
 		smtp,
 		login,
 		token,
@@ -31,28 +30,22 @@
 		userIsHost = Meteor.userId() === channel.createdBy;
 		token = accessParams.token;
 		login = accessParams.login + '@yandex.ru';
-		initImap();
 	};
 
 	YandexPlugin.prototype.getInboxMessages = function(page) {
-		if (!imap) {
-			return;
-		}
-		if (currentPage === page) {
-			return {
-				items: messages,
-				box: mailBox
-			};
-		}
-		return getImapMessages(page);
+		return initImap()
+			.then(
+				imap => getImapMessages(page, imap),
+				error => console.log(error)
+			)
+			.then(
+				response => response,
+				error => console.log(error)
+			);
 	};
 
 	YandexPlugin.prototype.getMessage = function(uid) {
-		if (!imap) {
-			return;
-		}
-		var fut = new Future(),
-			item,
+		var item,
 			parser = new MailParser(),
 			bodies = [''];
 
@@ -70,50 +63,15 @@
 			item = {};
 		}
 
-		if (imap.state !== 'authenticated') {
-			imap.connect();
-		};
-
-		imap.openBox('INBOX', false, function(err, box) {
-			imap.search(['ALL', ['UID', uid]], function(err, results) {
-				if (err) throw err;
-				var f = imap.fetch(results, {
-					bodies: bodies,
-					markSeen: userIsHost
-				});
-				f.on('message', function(msg, seqno) {
-					msg.on('attributes', function(attrs) {
-						item.attr = attrs;
-						item.uid = attrs.uid;
-					});
-					msg.on('body', function(stream) {
-						stream.on('data', function(chunk) {
-							parser.write(chunk.toString('utf8'));
-						});
-					});
-					msg.once('end', function() {
-						parser.end();
-					});
-					parser.on('headers', function(result) {
-						item.from = result ? result.from : '';
-						item.subject = result ? result.subject : '';
-						item.date = result ? result.date : '';
-					});
-					parser.on('end', function(result) {
-						item.htmlBody = result.html;
-						item.plainText || result.text;
-						// item.text = result.text;
-						// imap.end();
-
-						fut.return(item);
-					});
-				});
-				f.once('error', function(err) {
-					console.log('Fetch error: ' + err);
-				});
-			});
-		});
-		return fut.wait();
+		return initImap()
+			.then(
+				imap => getImapMessage(uid, imap),
+				error => console.log(error)
+			)
+			.then(
+				response => response,
+				error => console.log(error)
+			);
 	};
 
 	YandexPlugin.prototype.replyEmail = function(message) {
@@ -148,8 +106,6 @@
 					return;
 				}
 				if (results.length > 0) {
-					// console.log(utf7.decode(sentBox));
-					// var f2 = imap.addFlags(results, 'Deleted');
 					var f1 = imap.move(results, trashBox, function(err) {
 						if (err) {
 							console.log(err);
@@ -191,51 +147,6 @@
 		});
 	};
 
-	function initImap() {
-		var s = 'user=' + login + '@yandex.ru\001auth=Bearer ' + token + '\001\001',
-			t = new Buffer(s).toString('base64'),
-			connParams = {
-				xoauth2: t,
-				host: 'imap.yandex.com',
-				port: 993,
-				tls: 1,
-				tlsOptions: {
-					rejectUnauthorized: false
-				}
-			};
-
-		var Future = Npm.require('fibers/future'),
-			fut = new Future();
-		imap = new Imap(connParams);
-		imap.on('error', function(error) {
-			console.log(error);
-		});
-		imap.on('ready', function(error) {
-			var f2 = imap.getBoxes(function(err, result) {
-				// console.log(result);
-				boxes = result;
-				for (var box in boxes) {
-					// console.log(box);
-					// console.log(typeof(box));
-					if (boxes[box]['special_use_attrib'] === '\\Trash') {
-						// console.log(box.toString());
-						trashBox = box;
-					}
-					if (boxes[box]['special_use_attrib'] === '\\Sent') {
-						sentBox = box;
-					}
-					if (boxes[box]['special_use_attrib'] === '\\Spam') {
-						spamBox = box;
-					}
-				}
-			})
-
-			fut.return();
-		});
-		imap.connect();
-		return fut.wait();
-	};
-
 	function initSmtp() {
 		var nodemailer = new Npm.require('nodemailer'),
 			xoauth2 = new Npm.require('xoauth2');
@@ -253,78 +164,152 @@
 		});
 	};
 
-	function getImapMessages(page) {
-		currentPage = page;
+	// function initImap(login, token) {
+	// 	var s = 'user=' + login + '@yandex.ru\001auth=Bearer ' + token + '\001\001',
+	// 		t = new Buffer(s).toString('base64'),
+	// 		connParams = {
+	// 			xoauth2: t,
+	// 			host: 'imap.yandex.com',
+	// 			port: 993,
+	// 			tls: 1,
+	// 			tlsOptions: {
+	// 				rejectUnauthorized: false
+	// 			}
+	// 		};
 
-		var fut = new Future();
+	// 	return new Promise(function(resolve, reject) {
+	// 		var imap = new Imap(connParams);
+	// 		imap.on('error', function(error) {
+	// 			reject(error);
+	// 		});
+	// 		imap.on('ready', function(error) {
+	// 			var f2 = imap.getBoxes(function(err, result) {
+	// 				boxes = result;
+	// 				for (var box in boxes) {
+	// 					if (boxes[box]['special_use_attrib'] === '\\Trash') {
+	// 						trashBox = box;
+	// 					}
+	// 					if (boxes[box]['special_use_attrib'] === '\\Sent') {
+	// 						sentBox = box;
+	// 					}
+	// 					if (boxes[box]['special_use_attrib'] === '\\Spam') {
+	// 						spamBox = box;
+	// 					}
+	// 				}
+	// 			});
+	// 			resolve(this);
+	// 		});
+	// 		imap.connect();
+	// 	});
+	// };
 
-		messages = [];
-		if (imap.state !== 'authenticated') {
-			imap.connect();
-		};
+	// function getImapMessages(page, imap) {
+	// 	currentPage = page;
+	// 	messages = [];
 
-		imap.openBox('INBOX', false, function(err, box) {
-			var total = box.messages.total,
-				end = total - 10 * (page - 1) > 0 ? total - 10 * (page - 1) : total - 10 * (page - 1),
-				start = (total - 10 * page) + 1 > 0 ? (total - 10 * page + 1) : 1,
-				f = imap.seq.fetch(start + ':' + end, {
-					bodies: ['HEADER'],
-					struct: true
-				});
+	// 	return new Promise(function(resolve, error){
+	// 		imap.openBox('INBOX', false, function(err, box) {
+	// 			var total = box.messages.total,
+	// 				end = total - 10 * (page - 1) > 0 ? total - 10 * (page - 1) : total - 10 * (page - 1),
+	// 				start = (total - 10 * page) + 1 > 0 ? (total - 10 * page + 1) : 1,
+	// 				f = imap.seq.fetch(start + ':' + end, {
+	// 					bodies: ['HEADER'],
+	// 					struct: true
+	// 				});
 
-			f.on('message', function(msg, seqno) {
-				var buffer = '',
-					item = {};
-				msg.on('attributes', function(attrs) {
-					item.attr = attrs;
-					item.uid = attrs.uid;
-				});
-				msg.on('body', function(stream, info) {
-					var buffer = '';
-					stream.on('data', function(chunk) {
-						buffer += chunk;
-					});
-					stream.once('end', function() {
-						switch (info.which) {
-							case 'HEADER':
-								buffer = buffer.toString('utf8');
-								var i = Imap.parseHeader(buffer);
-								item.from = i.from ? i.from[0] : '';
-								item.subject = i.subject ? i.subject[0] : 'No subject';
-								item.date = i.date ? i.date[0] : '';
-								break;
-							default:
-								item.body = buffer;
-								break;
-						}
-					});
-				});
-				msg.on('end', function() {
-					messages.push(item);
-				});
-			});
-			f.once('error', function(err) {
-				console.log('Fetch error: ' + err);
-			});
-			f.once('end', function() {
-				// imap.end();
-				mailBox = box;
-				fut.return({
-					items: messages,
-					box: box
-				});
-			});
-		});
-		return fut.wait();
-	};
+	// 			f.on('message', function(msg, seqno) {
+	// 				var buffer = '',
+	// 					item = {};
+	// 				msg.on('attributes', function(attrs) {
+	// 					item.attr = attrs;
+	// 					item.uid = attrs.uid;
+	// 				});
+	// 				msg.on('body', function(stream, info) {
+	// 					var buffer = '';
+	// 					stream.on('data', function(chunk) {
+	// 						buffer += chunk;
+	// 					});
+	// 					stream.once('end', function() {
+	// 						switch (info.which) {
+	// 							case 'HEADER':
+	// 								buffer = buffer.toString('utf8');
+	// 								var i = Imap.parseHeader(buffer);
+	// 								item.from = i.from ? i.from[0] : '';
+	// 								item.subject = i.subject ? i.subject[0] : 'No subject';
+	// 								item.date = i.date ? i.date[0] : '';
+	// 								break;
+	// 							default:
+	// 								item.body = buffer;
+	// 								break;
+	// 						}
+	// 					});
+	// 				});
+	// 				msg.on('end', function() {
+	// 					messages.push(item);
+	// 				});
+	// 			});
+	// 			f.once('error', function(err) {
+	// 				reject(err);
+	// 			});
+	// 			f.once('end', function() {
+	// 				imap.end();
+	// 				mailBox = box;
+	// 				resolve({
+	// 					items: messages,
+	// 					box: box
+	// 				})
+	// 			});
+	// 		});			
+	// 	})
+	// };
+
+	// function getImapMessage(uid, imap) {
+	// 	return new Promise(function(resolve, reject) {
+	// 		imap.openBox('INBOX', false, function(err, box) {
+	// 			imap.search(['ALL', ['UID', uid]], function(err, results) {
+	// 				if (err) throw err;
+	// 				var f = imap.fetch(results, {
+	// 					bodies: bodies,
+	// 					markSeen: userIsHost
+	// 				});
+	// 				f.on('message', function(msg, seqno) {
+	// 					msg.on('attributes', function(attrs) {
+	// 						item.attr = attrs;
+	// 						item.uid = attrs.uid;
+	// 					});
+	// 					msg.on('body', function(stream) {
+	// 						stream.on('data', function(chunk) {
+	// 							parser.write(chunk.toString('utf8'));
+	// 						});
+	// 					});
+	// 					msg.once('end', function() {
+	// 						parser.end();
+	// 					});
+	// 					parser.on('headers', function(result) {
+	// 						item.from = result ? result.from : '';
+	// 						item.subject = result ? result.subject : '';
+	// 						item.date = result ? result.date : '';
+	// 					});
+	// 					parser.on('end', function(result) {
+	// 						item.htmlBody = result.html;
+	// 						item.plainText || result.text;
+
+	// 						resolve(item);
+	// 					});
+	// 				});
+	// 				f.once('error', function(err) {
+	// 					reject(error);
+	// 				});
+	// 			});
+	// 		});
+	// 	});
+	// };
 
 	function appendMessageToSentFolder() {
 		var attemptsCount = 0;
-		console.log(login);
 		var repeat = setInterval(function() {
 			attemptsCount++;
 			imap.openBox('INBOX', false, function(err, box) {
-				// imap.search(['UNSEEN', ['HEADER', 'FROM', login]], function(err, results) {
 				imap.search(['UNSEEN', ['UID', box.uidnext - 1]], function(err, results) {
 					if (err) {
 						console.log(err);
@@ -334,8 +319,6 @@
 						attemptsCount = 60;
 
 						var f2 = imap.addFlags(results, 'Seen', function() {
-							// console.log(sentBox);
-							// console.log(sentBox.toUnicode());
 							var f1 = imap.move(results, sentBox, function(err) {
 								if (err) {
 									console.log(err);

@@ -7,8 +7,7 @@
 		showReplyBlock,
 		showForwardBlock,
 		replySubject,
-		deps = new Deps.Dependency(),
-		Imap = require('emailjs-imap-client');
+		deps = new Deps.Dependency();
 
 	this.YandexPlugin = function(channelData) {
 		this.settingsTemplateName = 'yandexSettingsTemplate';
@@ -19,6 +18,17 @@
 		currentPage = 1;
 		self = this;
 		this.channelId = channelData._id;
+		this.createdBy = channelData.createdBy;
+		this.login = channelData.login;
+		this.userIsHost = this.createdBy === Meteor.user()._id;
+
+		if (this.userIsHost) {
+			var tokens = Meteor.user().serviceTokens;
+			this.token = _.findWhere(tokens, {serviceName: 'yandex', login: this.login}).token;
+		} else {
+			console.log('Guest preview is in progress!');
+			return;
+		}
 	};
 
 	YandexPlugin.prototype.setNextPage = function() {
@@ -31,36 +41,48 @@
 	};
 
 	YandexPlugin.prototype.getChannelBlocks = function(getEmailsData) {
-		// Meteor.call('getYandexMessages', self.channelId, currentPage, function(error, results) {
-		// 	if (error) {
-		// 		console.log(error);
-		// 		return;
-		// 	}
-		// 	_.map(results.items, function(item) {
-		// 		item.channelId = self.channelId;
-		// 		if (item.attr.flags.indexOf('\\Seen') === -1) {
-		// 			item.class = ' message__unseen';
-		// 		}
-		// 	});
+		var params = {
+			page: currentPage,
+			channelId: this.channelId,
+			createdBy: this.createdBy,
+			userIsHost: this.userIsHost,
+			login: this.login,
+			token: this.token
+		};
 
-		// 	getEmailsData({
-		// 		blocks: results.items.reverse(),
-		// 		commonParams: results.box
-		// 	});
-		// });
+		Meteor.call('getYandexMessages', params, function(error, results) {
+			if (error) {
+				console.log(error);
+				return;
+			}
 
-		// var hostUser = Meteor.user();
-		// var client = new ImapClient('localhost', 143, {
-		//     auth: {
-		//         user: 'testuser',
-		//     }
-		// });
-		initImap();
+			_.map(results.items, function(item) {
+				item.channelId = self.channelId;
+				if (item.attr.flags.indexOf('\\Seen') === -1) {
+					item.class = ' message__unseen';
+				}
+			});
+
+			console.log(results.items);
+			getEmailsData({
+				blocks: results.items.reverse(),
+				commonParams: results.box
+			});
+		});
 	};
 
 	YandexPlugin.prototype.getSingleBlock = function(getOneEmailCallback, uid) {
+		var params = {
+			uid: uid,
+			channelId: this.channelId,
+			createdBy: this.createdBy,
+			userIsHost: this.userIsHost,
+			login: this.login,
+			token: this.token
+		};
+
 		showReplyBlock = false;
-		Meteor.call('getOneMessage', self.channelId, uid, function(error, results) {
+		Meteor.call('getOneMessage', params, uid, function(error, results) {
 			currentBlock = results;
 			getOneEmailCallback(results);
 		});
@@ -169,68 +191,6 @@
 				_id: self.channelId
 			});
 		});
-	};
-
-	function initImap() {
-		var login = Meteor.user().serviceTokens[0].login;
-		var token = Meteor.user().serviceTokens[0].token;
-
-		var s = 'user=' + login + '@yandex.ru\001auth=Bearer ' + token + '\001\001',
-			t = new Buffer(s).toString('base64'),
-			connParams = {
-				xoauth2: t,
-				host: 'imap.yandex.com',
-				port: 993,
-				tls: 1,
-				tlsOptions: {
-					rejectUnauthorized: false
-				}
-			};
-
-		console.log(t);
-		console.log(s);
-
-		var tcp = navigator.TCPSocket.open('imap.yandex.com', 993);
-
-		var tls = navigator.TCPSocket.open('imap.yandex.com', 993, {
-		    useSecureTransport: true
-		});
-
-		var client = new Imap('imap.yandex.com', 993, {
-		    auth: {
-		        user: 'superstringt@yandex.ru',
-		        xoauth2: t
-		    },
-		    useSecureTransport: false,
-		    ignoreTLS: true,
-		    requireTLS: false,
-		});
-
-		client.connect().then();
-
-		// var imap = new Imap(connParams);
-		// imap.on('error', function(error) {
-		// 	console.log(error);
-		// });
-		// imap.on('ready', function(error) {
-		// 	var f2 = imap.getBoxes(function(err, result) {
-		// 		console.log(result);
-		// 		boxes = result;
-		// 		for (var box in boxes) {
-		// 			console.log(box);
-		// 			if (boxes[box]['special_use_attrib'] === '\\Trash') {
-		// 				// trashBox = box;
-		// 			}
-		// 			if (boxes[box]['special_use_attrib'] === '\\Sent') {
-		// 				// sentBox = box;
-		// 			}
-		// 			if (boxes[box]['special_use_attrib'] === '\\Spam') {
-		// 				// spamBox = box;
-		// 			}
-		// 		}
-		// 	})
-		// });
-		// imap.connect();
 	};
 
 	Template.yandexDetailsTemplate.events({
