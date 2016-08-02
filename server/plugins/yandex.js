@@ -32,94 +32,94 @@
 		login = accessParams.login + '@yandex.ru';
 	};
 
-	YandexPlugin.prototype.getInboxMessages = function(page) {
-		return initImap()
-			.then(
-				imap => getImapMessages(page, imap),
-				error => console.log(error)
-			)
-			.then(
-				response => response,
-				error => console.log(error)
-			);
-	};
+	// YandexPlugin.prototype.getInboxMessages = function(page) {
+	// 	return initImap()
+	// 		.then(
+	// 			imap => getImapMessages(page, imap),
+	// 			error => console.log(error)
+	// 		)
+	// 		.then(
+	// 			response => response,
+	// 			error => console.log(error)
+	// 		);
+	// };
 
-	YandexPlugin.prototype.getMessage = function(uid) {
-		var item,
-			parser = new MailParser(),
-			bodies = [''];
+	// YandexPlugin.prototype.getMessage = function(uid) {
+	// 	var item,
+	// 		parser = new MailParser(),
+	// 		bodies = [''];
 
-		_.each(messages, function(i, index) {
-			if (i.uid === Number(uid)) {
-				item = i;
-				if (messages[index].attr.flags.indexOf('\\Seen') === -1) {
-					messages[index].attr.flags.push('\\Seen');
-				}
-			}
-		});
+	// 	_.each(messages, function(i, index) {
+	// 		if (i.uid === Number(uid)) {
+	// 			item = i;
+	// 			if (messages[index].attr.flags.indexOf('\\Seen') === -1) {
+	// 				messages[index].attr.flags.push('\\Seen');
+	// 			}
+	// 		}
+	// 	});
 
-		if (!item) {
-			bodies.push('HEADER');
-			item = {};
-		}
+	// 	if (!item) {
+	// 		bodies.push('HEADER');
+	// 		item = {};
+	// 	}
 
-		return initImap()
-			.then(
-				imap => getImapMessage(uid, imap),
-				error => console.log(error)
-			)
-			.then(
-				response => response,
-				error => console.log(error)
-			);
-	};
+	// 	return initImap()
+	// 		.then(
+	// 			imap => getImapMessage(uid, imap),
+	// 			error => console.log(error)
+	// 		)
+	// 		.then(
+	// 			response => response,
+	// 			error => console.log(error)
+	// 		);
+	// };
 
-	YandexPlugin.prototype.replyEmail = function(message) {
-		if (!smtp) {
-			initSmtp();
-		}
-		var mailOptions = {
-			from: login,
-			to: message.receiver,
-			subject: message.subject,
-			text: message.body,
-			html: message.bodyHtml,
-			bcc: login
-		};
+	// YandexPlugin.prototype.replyEmail = function(message) {
+	// 	if (!smtp) {
+	// 		initSmtp();
+	// 	}
+	// 	var mailOptions = {
+	// 		from: login,
+	// 		to: message.receiver,
+	// 		subject: message.subject,
+	// 		text: message.body,
+	// 		html: message.bodyHtml,
+	// 		bcc: login
+	// 	};
 
-		smtp.sendMail(mailOptions, function(error, info) {
-			if (error) {
-				return console.log(error);
-			}
-			appendMessageToSentFolder();
-		});
-	};
+	// 	smtp.sendMail(mailOptions, function(error, info) {
+	// 		if (error) {
+	// 			return console.log(error);
+	// 		}
+	// 		appendMessageToSentFolder();
+	// 	});
+	// };
 
-	YandexPlugin.prototype.deleteMessage = function(uid) {
-		messages = _.without(messages, _.findWhere(messages, {
-			uid: uid
-		}));
-		imap.openBox('INBOX', false, function(err, box) {
-			imap.search(['ALL', ['UID', uid]], function(err, results) {
-				if (err) {
-					console.log(err);
-					return;
-				}
-				if (results.length > 0) {
-					var f1 = imap.move(results, trashBox, function(err) {
-						if (err) {
-							console.log(err);
-						}
-					});
-				}
-				imap.closeBox(true, function(err) {
-					if (err) {
-						console.log(err);
-					}
-				});
-			});
-		});
-	};
+	// YandexPlugin.prototype.deleteMessage = function(uid) {
+	// 	messages = _.without(messages, _.findWhere(messages, {
+	// 		uid: uid
+	// 	}));
+	// 	imap.openBox('INBOX', false, function(err, box) {
+	// 		imap.search(['ALL', ['UID', uid]], function(err, results) {
+	// 			if (err) {
+	// 				console.log(err);
+	// 				return;
+	// 			}
+	// 			if (results.length > 0) {
+	// 				var f1 = imap.move(results, trashBox, function(err) {
+	// 					if (err) {
+	// 						console.log(err);
+	// 					}
+	// 				});
+	// 			}
+	// 			imap.closeBox(true, function(err) {
+	// 				if (err) {
+	// 					console.log(err);
+	// 				}
+	// 			});
+	// 		});
+	// 	});
+	// };
 
 	YandexPlugin.prototype.toSpam = function(uid) {
 		messages = _.without(messages, _.findWhere(messages, {
@@ -147,22 +147,22 @@
 		});
 	};
 
-	function initSmtp() {
-		var nodemailer = new Npm.require('nodemailer'),
-			xoauth2 = new Npm.require('xoauth2');
+	// function initSmtp() {
+	// 	var nodemailer = new Npm.require('nodemailer'),
+	// 		xoauth2 = new Npm.require('xoauth2');
 
-		smtp = nodemailer.createTransport({
-			service: 'yandex',
-			auth: {
-				xoauth2: xoauth2.createXOAuth2Generator({
-					user: login,
-					clientId: Meteor.settings.public.yandex_client_id,
-					clientSecret: Meteor.settings.private.yandex_client_secret,
-					accessToken: token
-				})
-			}
-		});
-	};
+	// 	smtp = nodemailer.createTransport({
+	// 		service: 'yandex',
+	// 		auth: {
+	// 			xoauth2: xoauth2.createXOAuth2Generator({
+	// 				user: login,
+	// 				clientId: Meteor.settings.public.yandex_client_id,
+	// 				clientSecret: Meteor.settings.private.yandex_client_secret,
+	// 				accessToken: token
+	// 			})
+	// 		}
+	// 	});
+	// };
 
 	// function initImap(login, token) {
 	// 	var s = 'user=' + login + '@yandex.ru\001auth=Bearer ' + token + '\001\001',

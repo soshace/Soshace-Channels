@@ -1,5 +1,3 @@
-var plugins = {};
-
 Meteor.methods({
 	'postCodeToService': function(code, service) {
 		var url;
@@ -105,33 +103,6 @@ Meteor.methods({
 		return Meteor.http.get(url, options);
 	},
 
-	// 'getYandexMessages': function(channelId, page) {
-	// 	// if (!plugins[this.userId] || !(channelId === plugins[this.userId].channelId)) {
-	// 	// 	plugins[this.userId] = new YandexPlugin(channelId);
-	// 	// }
-	// 	var plugin = new YandexPlugin(channelId);
-	// 	return plugin.getInboxMessages(page);
-	// },
-
-	// 'getOneMessage': function(channelId, id) {
-	// 	if (!plugins[this.userId]) {
-	// 		plugins[this.userId] = new YandexPlugin(channelId);
-	// 	}
-	// 	return plugins[this.userId].getMessage(id);
-	// },
-
-	// 'replyEmail': function(message) {
-	// 	plugins[this.userId].replyEmail(message);
-	// },
-
-	// 'deleteEmail': function(uid) {
-	// 	plugins[this.userId].deleteMessage(uid);
-	// },
-
-	// 'toSpam': function(uid) {
-	// 	plugins[this.userId].toSpam(uid);
-	// },
-
 	'addToken': function(params) {
 		var currentUserId = Meteor.userId(),
 			userTokens = Meteor.user().serviceTokens,
@@ -211,8 +182,4 @@ Meteor.methods({
 		}
 		return fut.wait();
 	},
-
-	'clearSession': function() {
-		delete plugins[this.userId]
-	}
 });

@@ -29,6 +29,31 @@
 			console.log('Guest preview is in progress!');
 			return;
 		}
+
+		var params = {
+			page: currentPage,
+			channelId: this.channelId,
+			createdBy: this.createdBy,
+			userIsHost: this.userIsHost,
+			login: this.login,
+			token: this.token
+		};
+
+		Meteor.call('getImapBoxes', params, function(error, results) {
+			for (var box in results) {
+				var attr = results[box]['special_use_attrib'];
+
+				if (attr === '\\Trash') {
+					self.trashBox = box;
+				}
+				if (attr === '\\Sent') {
+					self.sentBox = box;
+				}
+				if (attr === '\\Spam' || attr === '\\Junk') {
+					self.spamBox = box;
+				}
+			}
+		});
 	};
 
 	YandexPlugin.prototype.setNextPage = function() {
@@ -63,7 +88,6 @@
 				}
 			});
 
-			console.log(results.items);
 			getEmailsData({
 				blocks: results.items.reverse(),
 				commonParams: results.box
@@ -103,7 +127,6 @@
 			});
 		}
 		if (logins.length > 0) {
-			console.log(login);
 			login = logins[0];
 		}
 		func(logins);
@@ -113,20 +136,26 @@
 		return login;
 	};
 
-	function replyEmail() {
+	function replyEmail(params) {
 		var message = {
 			bodyHtml: $('.summernote').summernote('code'),
 			receiver: currentBlock.from,
 			subject: replySubject
 		};
+
+		var params = {
+			channelId: self.channelId,
+			createdBy: self.createdBy,
+			userIsHost: self.userIsHost,
+			login: self.login,
+			token: self.token
+		};
+
 		if (!message.bodyHtml) {
 			return;
 		}
-		if (showForwardBlock) {
 
-		}
-
-		Meteor.call('replyEmail', message, function(error, results) {
+		Meteor.call('replyEmail', params, message, function(error, results) {
 			if (error) {
 				console.log(error);
 				return;
@@ -170,7 +199,17 @@
 	};
 
 	function deleteEmail() {
-		Meteor.call('deleteEmail', currentBlock.uid, function(error, results) {
+		var params = {
+			channelId: self.channelId,
+			createdBy: self.createdBy,
+			userIsHost: self.userIsHost,
+			login: self.login,
+			token: self.token,
+			uid: currentBlock.uid,
+			box: self.trashBox
+		};
+
+		Meteor.call('moveMessageToTrash', params, function(error, results) {
 			if (error) {
 				console.log(error);
 				return;
@@ -182,7 +221,17 @@
 	};
 
 	function toSpam() {
-		Meteor.call('toSpam', currentBlock.uid, function(error, results) {
+		var params = {
+			channelId: self.channelId,
+			createdBy: self.createdBy,
+			userIsHost: self.userIsHost,
+			login: self.login,
+			token: self.token,
+			uid: currentBlock.uid,
+			box: self.spamBox
+		};
+
+		Meteor.call('moveMessageToSpam', params, function(error, results) {
 			if (error) {
 				console.log(error);
 				return;
@@ -196,6 +245,7 @@
 	Template.yandexDetailsTemplate.events({
 		'click .channel-block__send-email': function(event) {
 			event.preventDefault();
+
 			if (showForwardBlock) {
 				forwardEmail();
 			}

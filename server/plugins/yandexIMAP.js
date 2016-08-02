@@ -23,17 +23,60 @@ Meteor.methods({
 			);
 	},
 
-	'replyEmail': function(message) {
-		plugins[this.userId].replyEmail(message);
+	'moveMessageToTrash': function(params) {
+		console.log(params);
+		return initImap(params)
+			.then(
+				imap => moveMessageToBox(params.uid, imap, params.box),
+				error => console.log(error)
+			)
+			.then(
+				response => response,
+				error => console.log(error)
+			);
 	},
 
-	'deleteEmail': function(uid) {
-		plugins[this.userId].deleteMessage(uid);
+	'moveMessageToSpam': function(params) {
+		return initImap(params)
+			.then(
+				imap => moveMessageToBox(params.uid, imap, params.box),
+				error => console.log(error)
+			)
+			.then(
+				response => response,
+				error => console.log(error)
+			);
 	},
 
-	'toSpam': function(uid) {
-		plugins[this.userId].toSpam(uid);
-	},
+	'getImapBoxes': function(params) {
+		var s = 'user=' + params.login + '@yandex.ru\001auth=Bearer ' + params.token + '\001\001',
+			t = new Buffer(s).toString('base64'),
+			connParams = {
+				xoauth2: t,
+				host: 'imap.yandex.com',
+				port: 993,
+				tls: 1,
+				tlsOptions: {
+					rejectUnauthorized: false
+				}
+			};
+
+		return new Promise(function(resolve, reject) {
+			var Imap = Npm.require('imap');
+
+			var imap = new Imap(connParams);
+			imap.on('error', function(error) {
+				reject(error);
+			});
+			imap.on('ready', function(error) {
+				var f2 = imap.getBoxes(function(err, result) {
+					resolve(result);
+				});
+			});
+			imap.connect();
+		});
+
+	}
 });
 
 function initImap(params) {
@@ -57,20 +100,6 @@ function initImap(params) {
 			reject(error);
 		});
 		imap.on('ready', function(error) {
-			var f2 = imap.getBoxes(function(err, result) {
-				boxes = result;
-				for (var box in boxes) {
-					if (boxes[box]['special_use_attrib'] === '\\Trash') {
-						trashBox = box;
-					}
-					if (boxes[box]['special_use_attrib'] === '\\Sent') {
-						sentBox = box;
-					}
-					if (boxes[box]['special_use_attrib'] === '\\Spam') {
-						spamBox = box;
-					}
-				}
-			});
 			resolve(this);
 		});
 		imap.connect();
@@ -183,6 +212,33 @@ function getImapMessage(params, imap) {
 		});
 	});
 };
+
+function moveMessageToBox(uid, imap, box) {
+	return new Promise(function(resolve, reject){
+		imap.openBox('INBOX', false, function(err, bx) {
+			imap.search(['ALL', ['UID', uid]], function(err, results) {
+				if (err) {
+					reject(err);
+				}
+				if (results.length > 0) {
+					var f1 = imap.move(results, box, function(err) {
+						if (err) {
+							console.log(err);
+						}
+						resolve(1);
+						imap.end();
+					});
+				}
+				imap.closeBox(true, function(err) {
+					if (err) {
+						console.log(err);
+					}
+				});
+			});
+		});
+	});
+};
+
 
 
 
