@@ -1,10 +1,13 @@
 <template name="githubPreviewTemplate">
-	<a href="/channel/{{channelId}}/block/{{sha}}">
-		<div class="p-10">
-			<img class="pull-left m-r-15 channel__resource-avatar" src="{{avatar}}" alt="@{{name}}" height="40" width="40">
+	<li class="media media-sm channel__resource-block">
 
-			<p class="f-s-15 f-w-600">{{commit.message}}</p>
-			<em class="grey-text">committed by {{name}} on {{formatDateTime date}}</em>
-		</div>
-	</a>
+		<a href="/channel/{{channelId}}/block/{{sha}}">
+			<div class="p-10">
+				<img class="pull-left m-r-15 channel__resource-avatar" src="{{avatar}}" alt="@{{name}}" height="40" width="40">
+
+				<p class="f-s-15 f-w-600">{{commit.message}}</p>
+				<em class="grey-text">committed by {{name}} on {{formatDateTime date}}</em>
+			</div>
+		</a>
+	</li>
 </template>

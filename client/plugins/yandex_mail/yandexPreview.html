@@ -1,9 +1,11 @@
 <template name="yandexPreviewTemplate">
-	<a href="/channel/{{channelId}}/block/{{from}}">
-		<div class="p-10">
-			<p class="f-s-15 {{class}}">{{subject}}</p>
-			<em class="grey-text">From: {{from}}</em>
-			<em class="grey-text pull-right">{{formatDateTime date}}</em>				
-		</div>
-	</a>
+	<li class="media media-sm channel__resource-block">
+		<a href="/channel/{{channelId}}/block/{{from}}">
+			<div class="p-10">
+				<p class="f-s-15 {{class}}">{{subject}}</p>
+				<em class="grey-text">From: {{from}}</em>
+				<em class="grey-text pull-right">{{formatDateTime date}}</em>				
+			</div>
+		</a>
+	</li>
 </template>
