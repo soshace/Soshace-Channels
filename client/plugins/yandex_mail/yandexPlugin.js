@@ -94,7 +94,7 @@
 			params.boxName = 'Отправленные';
 
 			getEmailsData({
-				blocks: messages,
+				blocks: [{messages: messages}],
 				commonParams: results.box
 			});
 
@@ -133,9 +133,8 @@
 
 		showReplyBlock = false;
 		Meteor.call('getYandexMessagesFromAddress', params, function(error, results) {
-			console.log(results);
-			// currentBlock = results;
-			// getOneEmailCallback(results);
+			currentBlock = results;
+			getOneEmailCallback(results);
 		});
 	};
 

@@ -7,11 +7,11 @@
 			Back to channel
 		</button>
 
-		<h3 class="channel-block__header f-s-20">{{subject}}</h3>
+		<h3 class="channel-block__header f-s-20">{{partnerAddress}}</h3>
 
-		<em class="channel-details__author grey-text">
+<!-- 		<em class="channel-details__author grey-text">
 			By <span class="semi-bold">{{from}}</span> on {{formatDateTime date}}
-		</em>
+		</em> -->
 
 		{{#if userIsChannelCreator}}
 			<div>
@@ -54,21 +54,23 @@
 			</div>
 		{{/if}}
 
-<!-- 		{{#if userIsChannelCreator}}
-			{{#if showReplyBlock}}
-				{{> replyBlock}}
-			{{else}}
-				<div class="email__show-reply">
-					Cick here to reply
+		{{#each messages1}}
+		<li class="media media-sm channel__resource-block">
+			<div class="p-10">
+				<p class="f-s-15 {{class}}">{{subject}}</p>
+				<em class="grey-text pull-right">{{formatDateTime date}}</em>
+				<div class="email__plain-text">
+					{{{plainText}}}
 				</div>
-			{{/if}}
-		{{/if}} -->
-	</div>
+				<div>
+					{{{htmlBody}}}
+				</div>				
+			</div>
+		</li>
+		{{/each}}
 
-<!-- 	<div class="panel-body">
-		{{> commentsBlock}}
 	</div>
- --></div>
+</div>
 
 </template>
 

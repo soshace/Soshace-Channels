@@ -1,4 +1,5 @@
 <template name="yandexPreviewTemplate">
+	{{#each messages}}
 	<li class="media media-sm channel__resource-block">
 		<a href="/channel/{{channelId}}/block/{{from}}">
 			<div class="p-10">
@@ -8,4 +9,5 @@
 			</div>
 		</a>
 	</li>
+	{{/each}}
 </template>

@@ -1,6 +1,5 @@
 Meteor.methods({
 	'getYandexMessages': function(params) {
-		console.log(params.boxName);
 		return initImap(params)
 			.then(
 				// imap => getImapMessages(params.page, imap, params.boxName),
@@ -366,64 +365,59 @@ function getMessageFromBox(request) {
 function getMessagesFromAddress(params, imap, boxName, fromAddress) {
 	var messages = [];
 	var Imap = Npm.require('imap');
+	var MailParser = require('mailparser').MailParser;
+	var parser = new MailParser();
+
 
 	return new Promise(function(resolve, error) {
 		imap.openBox(boxName, false, function(err, box) {
 			imap.search(['ALL', ['FROM', fromAddress]],function(err, results) {
 				var f = imap.fetch(results, {
-					bodies: ['HEADER', 'TEXT'],
+					bodies: ['HEADER', ''],
 					struct: true
 				});
 
 				f.on('message', function(msg, seqno) {
-					var buffer = '',
-						item = {};
-					msg.on('attributes', function(attrs) {
-						item.attr = attrs;
-						item.uid = attrs.uid;
-					});
-					msg.on('body', function(stream, info) {
-						var buffer = '';
-						stream.on('data', function(chunk) {
-							buffer += chunk;
+					var item = {};
+
+					f.on('message', function(msg, seqno) {
+						msg.on('attributes', function(attrs) {
+							item.attr = attrs;
+							item.uid = attrs.uid;
 						});
-						stream.once('end', function() {
-							switch (info.which) {
-								case 'HEADER':
-									buffer = buffer.toString('utf8');
-									var i = Imap.parseHeader(buffer);
-									item.from = i.from ? i.from[0] : '';
-
-									if (item.from.indexOf('<') > -1 && item.from.indexOf('>') > -1) {
-										item.from = item.from.match(/<(.*?)>/i)[1];
-									}
-
-									item.subject = i.subject ? i.subject[0] : 'No subject';
-									item.date = i.date ? i.date[0] : '';
-									item.date = Date.parse(item.date) / 1000;
-									item.to = i.to ? i.to[0] : '';
-
-									if (item.to.indexOf('<') > -1 && item.to.indexOf('>') > -1) {
-										item.to = item.to.match(/<(.*?)>/i)[1];
-									}
-
-									break;
-								default:
-									item.body = buffer;
-									break;
+						msg.on('body', function(stream) {
+							stream.on('data', function(chunk) {
+								parser.write(chunk.toString('utf8'));
+							});
+						});
+						msg.once('end', function() {
+							parser.end();
+						});
+						parser.on('headers', function(result) {
+							item.from = result ? result.from : '';
+							
+							if (item.from.indexOf('<') > -1 && item.from.indexOf('>') > -1) {
+								item.from = item.from.match(/<(.*?)>/i)[1];
 							}
+
+							item.subject = result ? result.subject : '';
+							item.date = result ? result.date : '';
 						});
-					});
-					msg.on('end', function() {
-						messages.push(item);
-						if (messages.length >= 10) {
-							imap.end();
-							mailBox = box;
-							resolve({
-								items: messages,
-								box: box
-							});							
-						}
+						parser.on('end', function(result) {
+							item.htmlBody = result.html;
+							item.plainText || result.text;
+
+							messages.push(item);
+							if (messages.length > 10) {
+								imap.destroy();
+								resolve({
+									messages1: messages,
+									box: box,
+									partnerAddress: fromAddress
+								});
+								return;
+							} 
+						});
 					});
 				});
 				f.once('error', function(err) {
@@ -431,10 +425,11 @@ function getMessagesFromAddress(params, imap, boxName, fromAddress) {
 				});
 				f.once('end', function() {
 					imap.end();
-					mailBox = box;
+					// mailBox = box;
 					resolve({
-						items: messages,
-						box: box
+						messages1: messages,
+						box: box,
+						partnerAddress: fromAddress
 					})
 				});
 
