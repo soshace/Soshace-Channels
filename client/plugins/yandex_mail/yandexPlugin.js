@@ -70,6 +70,9 @@
 		var params = this.params;
 
 		params.page = currentPage;
+		params.boxName = 'INBOX';
+
+		var messages = [];
 
 		Meteor.call('getYandexMessages', params, function(error, results) {
 			if (error) {
@@ -84,27 +87,55 @@
 				}
 			});
 
+			messages = results.items.reverse();
+
+			console.log(messages);
+
+			params.boxName = 'Отправленные';
+
 			getEmailsData({
-				blocks: results.items.reverse(),
+				blocks: messages,
 				commonParams: results.box
 			});
+
+			// Meteor.call('getYandexMessages', params, function(error, results) {
+			// 	if (error) {
+			// 		console.log(error);
+			// 		return;
+			// 	}
+
+			// 	messages = messages.concat(results.items.reverse());
+
+			// 	console.log(messages);
+
+			// 	getEmailsData({
+			// 		blocks: messages,
+			// 		commonParams: results.box
+			// 	});
+			// });
 		});
 	};
 
 	YandexPlugin.prototype.getSingleBlock = function(getOneEmailCallback, uid) {
-		var params = {
-			uid: uid,
-			channelId: this.channelId,
-			createdBy: this.createdBy,
-			userIsHost: this.userIsHost,
-			login: this.login,
-			token: this.token
-		};
+		// var params = self.params;
+
+		// params.uid = uid;
+
+		// showReplyBlock = false;
+		// Meteor.call('getOneMessage', params, uid, function(error, results) {
+		// 	currentBlock = results;
+		// 	getOneEmailCallback(results);
+		// });
+		var params = self.params;
+
+		params.from = uid;
+		params.boxName = 'INBOX';
 
 		showReplyBlock = false;
-		Meteor.call('getOneMessage', params, uid, function(error, results) {
-			currentBlock = results;
-			getOneEmailCallback(results);
+		Meteor.call('getYandexMessagesFromAddress', params, function(error, results) {
+			console.log(results);
+			// currentBlock = results;
+			// getOneEmailCallback(results);
 		});
 	};
 
@@ -139,13 +170,7 @@
 			subject: replySubject
 		};
 
-		var params = {
-			channelId: self.channelId,
-			createdBy: self.createdBy,
-			userIsHost: self.userIsHost,
-			login: self.login,
-			token: self.token
-		};
+		var params = self.params;
 
 		if (!message.bodyHtml) {
 			return;
@@ -195,15 +220,10 @@
 	};
 
 	function deleteEmail() {
-		var params = {
-			channelId: self.channelId,
-			createdBy: self.createdBy,
-			userIsHost: self.userIsHost,
-			login: self.login,
-			token: self.token,
-			uid: currentBlock.uid,
-			box: self.trashBox
-		};
+		var params = self.params;
+
+		params.uid = currentBlock.uid;
+		params.box = self.trashBox;
 
 		Meteor.call('moveMessageToTrash', params, function(error, results) {
 			if (error) {
@@ -217,15 +237,10 @@
 	};
 
 	function toSpam() {
-		var params = {
-			channelId: self.channelId,
-			createdBy: self.createdBy,
-			userIsHost: self.userIsHost,
-			login: self.login,
-			token: self.token,
-			uid: currentBlock.uid,
-			box: self.spamBox
-		};
+		var params = self.params;
+
+		params.uid = currentBlock.uid;
+		params.box = self.spamBox;
 
 		Meteor.call('moveMessageToSpam', params, function(error, results) {
 			if (error) {
