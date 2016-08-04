@@ -346,7 +346,7 @@ function getMessageFromBox(request) {
 			});
 			parser.on('end', function(result) {
 				item.from = result.from[0].address.toLowerCase();
-				item.fromName = result.from[0].name;
+				item.fromName = result.from[0].name || result.from[0].address;
 
 				item.to = result.to ? result.to[0].address.toLowerCase() : '';
 				item.toName = result.to ? result.to[0].name : '';
@@ -356,10 +356,10 @@ function getMessageFromBox(request) {
 				item.date = result.date || '';
 				console.log(result.date);
 				// item.date = Date.parse(item.date) / 1000;
-				item.date = moment(item.date, 'ddd MMM DD YYYY HH:mm:ss Z').valueOf() / 1000;
+				item.date = moment(item.date, 'ddd MMM DD YYYY hh:mm:ss Z').valueOf() / 1000;
 
 				item.htmlBody = result.html;
-				item.plainText = result.text;
+				item.plainText || result.text;
 
 				resolve(item);
 			});
@@ -443,8 +443,8 @@ function getDialogMessageIds(imap, boxName, key) {
 								box: 'Отправленные'
 							})
 						});
-						// console.log(received);
-						// console.log(sent);
+						console.log(received);
+						console.log(sent);
 						resolve({
 							ids: received.concat(sent),
 							imap: imap
@@ -485,7 +485,7 @@ function getMessagesByIds(imap, ids) {
 							} else {
 								var seqno = sent[index].index;
 								var req1 = imap.seq.fetch(seqno + ':' + seqno, {
-									bodies: ['HEADER', ''],
+									bodies: '',
 									struct: true
 								});
 
@@ -507,7 +507,7 @@ function getMessagesByIds(imap, ids) {
 				} else {
 					var seqno = received[index].index;
 					var req = imap.seq.fetch(seqno + ':' + seqno, {
-						bodies: ['HEADER', ''],
+						bodies: '',
 						struct: true
 					});
 

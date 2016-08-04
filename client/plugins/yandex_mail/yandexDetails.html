@@ -58,8 +58,8 @@
 			{{#each dialogMessages}}
 			<li class="media media-sm email__list">
 				<div class="email__dialog-item p-10 {{inboxClass}}">
-					<p class="f-s-15 {{class}}">{{subject}} by {{from}}</p>
-					<em class="grey-text pull-right">{{formatDateTimeFromUnix date}}</em>
+					<p class="f-s-15 {{class}}">{{fromName}} wrote on {{formatDateTimeFromUnix date}}</p>
+					<em class="grey-text pull-right"></em>
 					<div class="email__plain-text">
 						{{{plainText}}}
 					</div>
