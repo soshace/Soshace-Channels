@@ -116,123 +116,123 @@ function initImap(params) {
 	});
 };
 
-function getImapMessages(page, imap, boxName) {
-	var Imap = Npm.require('imap'),
-		messages = [];
+// function getImapMessages(page, imap, boxName) {
+// 	var Imap = Npm.require('imap'),
+// 		messages = [];
 
-	return new Promise(function(resolve, error) {
-		imap.openBox(boxName, false, function(err, box) {
-			var total = box.messages.total,
-				end = total - 10 * (page - 1) > 0 ? total - 10 * (page - 1) : total - 10 * (page - 1),
-				start = (total - 10 * page) + 1 > 0 ? (total - 10 * page + 1) : 1,
-				f = imap.seq.fetch(start + ':' + end, {
-					bodies: ['HEADER', 'TEXT'],
-					struct: true
-				});
+// 	return new Promise(function(resolve, error) {
+// 		imap.openBox(boxName, false, function(err, box) {
+// 			var total = box.messages.total,
+// 				end = total - 10 * (page - 1) > 0 ? total - 10 * (page - 1) : total - 10 * (page - 1),
+// 				start = (total - 10 * page) + 1 > 0 ? (total - 10 * page + 1) : 1,
+// 				f = imap.seq.fetch(start + ':' + end, {
+// 					bodies: ['HEADER', 'TEXT'],
+// 					struct: true
+// 				});
 
-			f.on('message', function(msg, seqno) {
-				var buffer = '',
-					item = {};
-				msg.on('attributes', function(attrs) {
-					item.attr = attrs;
-					item.uid = attrs.uid;
-				});
-				msg.on('body', function(stream, info) {
-					var buffer = '';
-					stream.on('data', function(chunk) {
-						buffer += chunk;
-					});
-					stream.once('end', function() {
-						switch (info.which) {
-							case 'HEADER':
-								buffer = buffer.toString('utf8');
-								var i = Imap.parseHeader(buffer);
-								item.from = i.from ? i.from[0] : '';
+// 			f.on('message', function(msg, seqno) {
+// 				var buffer = '',
+// 					item = {};
+// 				msg.on('attributes', function(attrs) {
+// 					item.attr = attrs;
+// 					item.uid = attrs.uid;
+// 				});
+// 				msg.on('body', function(stream, info) {
+// 					var buffer = '';
+// 					stream.on('data', function(chunk) {
+// 						buffer += chunk;
+// 					});
+// 					stream.once('end', function() {
+// 						switch (info.which) {
+// 							case 'HEADER':
+// 								buffer = buffer.toString('utf8');
+// 								var i = Imap.parseHeader(buffer);
+// 								item.from = i.from ? i.from[0] : '';
 
-								if (item.from.indexOf('<') > -1 && item.from.indexOf('>') > -1) {
-									item.from = item.from.match(/<(.*?)>/i)[1];
-								}
+// 								if (item.from.indexOf('<') > -1 && item.from.indexOf('>') > -1) {
+// 									item.from = item.from.match(/<(.*?)>/i)[1];
+// 								}
 
-								item.subject = i.subject ? i.subject[0] : 'No subject';
-								item.date = i.date ? i.date[0] : '';
-								item.date = Date.parse(item.date) / 1000;
-								item.to = i.to ? i.to[0] : '';
+// 								item.subject = i.subject ? i.subject[0] : 'No subject';
+// 								item.date = i.date ? i.date[0] : '';
+// 								item.date = Date.parse(item.date) / 1000;
+// 								item.to = i.to ? i.to[0] : '';
 
-								if (item.to.indexOf('<') > -1 && item.to.indexOf('>') > -1) {
-									item.to = item.to.match(/<(.*?)>/i)[1];
-								}
+// 								if (item.to.indexOf('<') > -1 && item.to.indexOf('>') > -1) {
+// 									item.to = item.to.match(/<(.*?)>/i)[1];
+// 								}
 
-								break;
-							default:
-								item.body = buffer;
-								break;
-						}
-					});
-				});
-				msg.on('end', function() {
-					messages.push(item);
-				});
-			});
-			f.once('error', function(err) {
-				reject(err);
-			});
-			f.once('end', function() {
-				imap.end();
-				mailBox = box;
-				resolve({
-					items: messages,
-					box: box
-				})
-			});
-		});
-	})
-};
+// 								break;
+// 							default:
+// 								item.body = buffer;
+// 								break;
+// 						}
+// 					});
+// 				});
+// 				msg.on('end', function() {
+// 					messages.push(item);
+// 				});
+// 			});
+// 			f.once('error', function(err) {
+// 				reject(err);
+// 			});
+// 			f.once('end', function() {
+// 				imap.end();
+// 				mailBox = box;
+// 				resolve({
+// 					items: messages,
+// 					box: box
+// 				})
+// 			});
+// 		});
+// 	})
+// };
 
-function getImapMessage(params, imap) {
-	var MailParser = require('mailparser').MailParser,
-		parser = new MailParser(),
-		item = {};
+// function getImapMessage(params, imap) {
+// 	var MailParser = require('mailparser').MailParser,
+// 		parser = new MailParser(),
+// 		item = {};
 
-	return new Promise(function(resolve, reject) {
-		imap.openBox('INBOX', false, function(err, box) {
-			imap.search(['ALL', ['UID', params.uid]], function(err, results) {
-				if (err) throw err;
-				var f = imap.fetch(results, {
-					bodies: [''],
-					markSeen: params.userIsHost
-				});
-				f.on('message', function(msg, seqno) {
-					msg.on('attributes', function(attrs) {
-						item.attr = attrs;
-						item.uid = attrs.uid;
-					});
-					msg.on('body', function(stream) {
-						stream.on('data', function(chunk) {
-							parser.write(chunk.toString('utf8'));
-						});
-					});
-					msg.once('end', function() {
-						parser.end();
-					});
-					parser.on('headers', function(result) {
-						item.from = result ? result.from : '';
-						item.subject = result ? result.subject : '';
-						item.date = result ? result.date : '';
-					});
-					parser.on('end', function(result) {
-						item.htmlBody = result.html;
-						item.plainText || result.text;
+// 	return new Promise(function(resolve, reject) {
+// 		imap.openBox('INBOX', false, function(err, box) {
+// 			imap.search(['ALL', ['UID', params.uid]], function(err, results) {
+// 				if (err) throw err;
+// 				var f = imap.fetch(results, {
+// 					bodies: [''],
+// 					markSeen: params.userIsHost
+// 				});
+// 				f.on('message', function(msg, seqno) {
+// 					msg.on('attributes', function(attrs) {
+// 						item.attr = attrs;
+// 						item.uid = attrs.uid;
+// 					});
+// 					msg.on('body', function(stream) {
+// 						stream.on('data', function(chunk) {
+// 							parser.write(chunk.toString('utf8'));
+// 						});
+// 					});
+// 					msg.once('end', function() {
+// 						parser.end();
+// 					});
+// 					parser.on('headers', function(result) {
+// 						item.from = result ? result.from : '';
+// 						item.subject = result ? result.subject : '';
+// 						item.date = result ? result.date : '';
+// 					});
+// 					parser.on('end', function(result) {
+// 						item.htmlBody = result.html;
+// 						item.plainText || result.text;
 
-						resolve(item);
-					});
-				});
-				f.once('error', function(err) {
-					reject(error);
-				});
-			});
-		});
-	});
-};
+// 						resolve(item);
+// 					});
+// 				});
+// 				f.once('error', function(err) {
+// 					reject(error);
+// 				});
+// 			});
+// 		});
+// 	});
+// };
 
 function moveMessageToBox(uid, imap, box) {
 	return new Promise(function(resolve, reject) {
@@ -273,7 +273,7 @@ function getUniqueDialogs(params, imap, boxName) {
 			function getMessages(messages) {
 				if (messages.length > 10 || (total - index === 0)) {
 					resolve({
-						items: messages,
+						items: messages.reverse(),
 						box: box
 					});
 					return;
@@ -363,76 +363,46 @@ function getMessageFromBox(request) {
 };
 
 function getMessagesFromAddress(params, imap, boxName, fromAddress) {
-	var messages = [];
 	var Imap = Npm.require('imap');
 	var MailParser = require('mailparser').MailParser;
 	var parser = new MailParser();
 
-
-	return new Promise(function(resolve, error) {
+	return new Promise(function(resolve, reject) {
 		imap.openBox(boxName, false, function(err, box) {
-			imap.search(['ALL', ['FROM', fromAddress]],function(err, results) {
-				var f = imap.fetch(results, {
-					bodies: ['HEADER', ''],
-					struct: true
-				});
+			imap.seq.search(['ALL', ['FROM', fromAddress]],function(err, results) {
+				var messages = [];
+				var lastMessages = results.length > 10 ? results.reverse().slice(0,10) : results.reverse();
 
-				f.on('message', function(msg, seqno) {
-					var item = {};
+				function getMessages(index) {
+					if (index > 9 || index > (lastMessages.length - 1)) {
+						resolve({
+							dialogMessages: messages,
+							box: box,
+							partnerAddress: fromAddress
+						})
+						return;
+					} else {
+						var seqno = lastMessages[index];
+						var req = imap.seq.fetch(seqno + ':' + seqno, {
+							bodies: ['HEADER', ''],
+							struct: true
+						});
 
-					f.on('message', function(msg, seqno) {
-						msg.on('attributes', function(attrs) {
-							item.attr = attrs;
-							item.uid = attrs.uid;
-						});
-						msg.on('body', function(stream) {
-							stream.on('data', function(chunk) {
-								parser.write(chunk.toString('utf8'));
-							});
-						});
-						msg.once('end', function() {
-							parser.end();
-						});
-						parser.on('headers', function(result) {
-							item.from = result ? result.from : '';
-							
-							if (item.from.indexOf('<') > -1 && item.from.indexOf('>') > -1) {
-								item.from = item.from.match(/<(.*?)>/i)[1];
-							}
+						return getMessageFromBox(req)
+							.then(
+								item => {
+									messages.push(item);		
 
-							item.subject = result ? result.subject : '';
-							item.date = result ? result.date : '';
-						});
-						parser.on('end', function(result) {
-							item.htmlBody = result.html;
-							item.plainText || result.text;
+									index++;
 
-							messages.push(item);
-							if (messages.length > 10) {
-								imap.destroy();
-								resolve({
-									messages1: messages,
-									box: box,
-									partnerAddress: fromAddress
-								});
-								return;
-							} 
-						});
-					});
-				});
-				f.once('error', function(err) {
-					reject(err);
-				});
-				f.once('end', function() {
-					imap.end();
-					// mailBox = box;
-					resolve({
-						messages1: messages,
-						box: box,
-						partnerAddress: fromAddress
-					})
-				});
+									return getMessages(index);
+								},
+								error => console.log(error)
+							);
+					}
+				};
 
+				getMessages(0);
 			});
 		});
 	});

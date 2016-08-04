@@ -134,6 +134,7 @@
 		showReplyBlock = false;
 		Meteor.call('getYandexMessagesFromAddress', params, function(error, results) {
 			currentBlock = results;
+			console.log(results);
 			getOneEmailCallback(results);
 		});
 	};
