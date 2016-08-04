@@ -193,6 +193,23 @@
   margin-top: 10px;
 }
 
+.email__dialog-item{
+  max-width: 70%;
+  min-width: 40%;
+  display: inline-block;
+
+  background-color: GhostWhite;
+  border-radius: 4px;
+}
+
+.email__list{
+  padding: 0;
+}
+
+.item-sent{
+  background-color: Linen;
+}
+
 .tabulation {
   white-space: pre-wrap;
 }

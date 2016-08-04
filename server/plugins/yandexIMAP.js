@@ -300,7 +300,7 @@ function getUniqueDialogs(params, imap, boxName) {
 							item => {
 								var messageIsFromDialog = false;
 								for (var mes of messages) {
-									if (mes.from.toLowerCase() === item.from.toLowerCase() && mes.to.toLowerCase() === item.to.toLowerCase()) {
+									if (mes.from === item.from && mes.to === item.to) {
 										messageIsFromDialog = true;
 									}
 								}
@@ -325,6 +325,8 @@ function getUniqueDialogs(params, imap, boxName) {
 
 function getMessageFromBox(request) {
 	var Imap = Npm.require('imap');
+	var MailParser = require('mailparser').MailParser,
+		parser = new MailParser();
 
 	return new Promise(function(resolve, reject) {
 		request.on('message', function(msg, seqno) {
@@ -334,100 +336,92 @@ function getMessageFromBox(request) {
 				item.attr = attrs;
 				item.uid = attrs.uid;
 			});
-			msg.on('body', function(stream, info) {
-				var buffer = '';
+			msg.on('body', function(stream) {
 				stream.on('data', function(chunk) {
-					buffer += chunk;
-				});
-				stream.once('end', function() {
-					switch (info.which) {
-						case 'HEADER':
-							buffer = buffer.toString('utf8');
-							var i = Imap.parseHeader(buffer);
-							item.from = i.from ? i.from[0] : '';
-
-							if (item.from.indexOf('<') > -1 && item.from.indexOf('>') > -1) {
-								item.from = item.from.match(/<(.*?)>/i)[1];
-							}
-
-							item.subject = i.subject ? i.subject[0] : 'No subject';
-							item.date = i.date ? i.date[0] : '';
-							item.date = Date.parse(item.date) / 1000;
-							item.to = i.to ? i.to[0] : '';
-
-							if (item.to.indexOf('<') > -1 && item.to.indexOf('>') > -1) {
-								item.to = item.to.match(/<(.*?)>/i)[1];
-							}
-
-							break;
-						default:
-							item.body = buffer;
-							break;
-					}
+					parser.write(chunk.toString('utf8'));
 				});
 			});
 			msg.on('end', function() {
+				parser.end();
+			});
+			parser.on('end', function(result) {
+				item.from = result.from[0].address.toLowerCase();
+				item.fromName = result.from[0].name;
+
+				item.to = result.to ? result.to[0].address.toLowerCase() : '';
+				item.toName = result.to ? result.to[0].name : '';
+
+				item.subject = result.subject || 'No subject';
+
+				item.date = result.date || '';
+				console.log(result.date);
+				// item.date = Date.parse(item.date) / 1000;
+				item.date = moment(item.date, 'ddd MMM DD YYYY HH:mm:ss Z').valueOf() / 1000;
+
+				item.htmlBody = result.html;
+				item.plainText = result.text;
+
 				resolve(item);
 			});
 		});
 	});
 };
 
-function getFilteredMessages(imap, boxName, flag, key) {
-	var Imap = Npm.require('imap');
-	var MailParser = require('mailparser').MailParser;
-	var parser = new MailParser();
+// function getFilteredMessages(imap, boxName, flag, key) {
+// 	var Imap = Npm.require('imap');
+// 	var MailParser = require('mailparser').MailParser;
+// 	var parser = new MailParser();
 
-	return new Promise(function(resolve, reject) {
-		imap.openBox(boxName, false, function(err, box) {
-			var filter;
-			switch (flag) {
-				case 'FROM':
-					filter = ['FROM', key];
-					break;
-				default:
-					break;
-			}
+// 	return new Promise(function(resolve, reject) {
+// 		imap.openBox(boxName, false, function(err, box) {
+// 			var filter;
+// 			switch (flag) {
+// 				case 'FROM':
+// 					filter = ['FROM', key];
+// 					break;
+// 				default:
+// 					break;
+// 			}
 
-			imap.seq.search(['ALL', filter], function(err, results) {
+// 			imap.seq.search(['ALL', filter], function(err, results) {
 
-				var messages = [];
-				var lastMessages = results.length > 10 ? results.reverse().slice(0, 10) : results.reverse();
+// 				var messages = [];
+// 				var lastMessages = results.length > 10 ? results.reverse().slice(0, 10) : results.reverse();
 
-				function getMessages(index) {
-					if (index > 9 || index > (lastMessages.length - 1)) {
-						resolve({
-							dialogMessages: messages,
-							box: box,
-							partnerAddress: key
-						})
-						return;
-					} else {
-						var seqno = lastMessages[index];
-						var req = imap.seq.fetch(seqno + ':' + seqno, {
-							bodies: ['HEADER', ''],
-							struct: true
-						});
+// 				function getMessages(index) {
+// 					if (index > 9 || index > (lastMessages.length - 1)) {
+// 						resolve({
+// 							dialogMessages: messages,
+// 							box: box,
+// 							partnerAddress: key
+// 						})
+// 						return;
+// 					} else {
+// 						var seqno = lastMessages[index];
+// 						var req = imap.seq.fetch(seqno + ':' + seqno, {
+// 							bodies: ['HEADER', ''],
+// 							struct: true
+// 						});
 
-						return getMessageFromBox(req)
-							.then(
-								item => {
-									messages.push(item);
+// 						return getMessageFromBox(req)
+// 							.then(
+// 								item => {
+// 									messages.push(item);
 
-									index++;
+// 									index++;
 
-									return getMessages(index);
-								},
-								error => console.log(error)
-							);
-					}
-				};
+// 									return getMessages(index);
+// 								},
+// 								error => console.log(error)
+// 							);
+// 					}
+// 				};
 
-				getMessages(0);
-			});
-		});
-	});
-};
+// 				getMessages(0);
+// 			});
+// 		});
+// 	});
+// };
 
 function getDialogMessageIds(imap, boxName, key) {
 	return new Promise(function(resolve, reject) {
@@ -449,6 +443,8 @@ function getDialogMessageIds(imap, boxName, key) {
 								box: 'Отправленные'
 							})
 						});
+						// console.log(received);
+						// console.log(sent);
 						resolve({
 							ids: received.concat(sent),
 							imap: imap
@@ -467,7 +463,7 @@ function getMessagesByIds(imap, ids) {
 
 	var received = _.where(lastMessages, {
 		box: 'INBOX'
-	});
+	}) || [];
 
 	var sent = _.where(lastMessages, {
 		box: 'Отправленные'
@@ -496,6 +492,7 @@ function getMessagesByIds(imap, ids) {
 								return getMessageFromBox(req1)
 									.then(
 										item => {
+											item.isInbox = false;
 											messages.push(item);
 											return getSentMessages(++index);
 										},
@@ -504,7 +501,7 @@ function getMessagesByIds(imap, ids) {
 							}
 						};
 
-						getSentMessages(0);						
+						getSentMessages(0);
 					});
 					return;
 				} else {
@@ -517,6 +514,7 @@ function getMessagesByIds(imap, ids) {
 					return getMessageFromBox(req)
 						.then(
 							item => {
+								item.isInbox = true;
 								messages.push(item);
 								return getMessages(++index);
 							},

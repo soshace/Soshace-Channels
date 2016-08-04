@@ -54,20 +54,22 @@
 			</div>
 		{{/if}}
 
-		{{#each dialogMessages}}
-		<li class="media media-sm channel__resource-block">
-			<div class="p-10">
-				<p class="f-s-15 {{class}}">{{subject}}</p>
-				<em class="grey-text pull-right">{{formatDateTimeFromUnix date}}</em>
-				<div class="email__plain-text">
-					{{{plainText}}}
+		<ul class="email__list">
+			{{#each dialogMessages}}
+			<li class="media media-sm email__list">
+				<div class="email__dialog-item p-10 {{inboxClass}}">
+					<p class="f-s-15 {{class}}">{{subject}} by {{from}}</p>
+					<em class="grey-text pull-right">{{formatDateTimeFromUnix date}}</em>
+					<div class="email__plain-text">
+						{{{plainText}}}
+					</div>
+					<div>
+						{{{htmlBody}}}
+					</div>				
 				</div>
-				<div>
-					{{{htmlBody}}}
-				</div>				
-			</div>
-		</li>
-		{{/each}}
+			</li>
+			{{/each}}
+		</ul>
 
 	</div>
 </div>

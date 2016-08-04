@@ -116,25 +116,29 @@
 		});
 	};
 
-	YandexPlugin.prototype.getSingleBlock = function(getOneEmailCallback, uid) {
-		// var params = self.params;
-
-		// params.uid = uid;
-
-		// showReplyBlock = false;
-		// Meteor.call('getOneMessage', params, uid, function(error, results) {
-		// 	currentBlock = results;
-		// 	getOneEmailCallback(results);
-		// });
+	YandexPlugin.prototype.getSingleBlock = function(getOneEmailCallback, from) {
 		var params = self.params;
 
-		params.from = uid;
+		params.from = from;
 		params.boxName = 'INBOX';
 
 		showReplyBlock = false;
 		Meteor.call('getYandexDialog', params, function(error, result) {
 			console.log(result);
+			result.dialogMessages.forEach(function(item, index) {
+				if (!item.isInbox) {
+					result.dialogMessages[index].inboxClass = 'item-sent pull-right';					
+				}
+			});
+
+			result.dialogMessages = _.sortBy(result.dialogMessages, function(item) {
+				return item.date;
+			});
+
+			result.dialogMessages = result.dialogMessages.reverse();
+
 			currentBlock = result;
+			currentBlock.partnerAddress = from;
 			getOneEmailCallback(result);
 		});
 	};
