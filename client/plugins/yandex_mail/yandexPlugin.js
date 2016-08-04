@@ -132,10 +132,10 @@
 		params.boxName = 'INBOX';
 
 		showReplyBlock = false;
-		Meteor.call('getYandexMessagesFromAddress', params, function(error, results) {
-			currentBlock = results;
-			console.log(results);
-			getOneEmailCallback(results);
+		Meteor.call('getYandexDialog', params, function(error, result) {
+			console.log(result);
+			currentBlock = result;
+			getOneEmailCallback(result);
 		});
 	};
 
