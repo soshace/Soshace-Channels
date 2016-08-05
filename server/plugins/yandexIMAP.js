@@ -2,7 +2,6 @@ Meteor.methods({
 	'getYandexMessages': function(params) {
 		return initImap(params)
 			.then(
-				// imap => getImapMessages(params.page, imap, params.boxName),
 				imap => getUniqueDialogs(params.page, imap, params.boxName),
 				error => console.log(error)
 			)
@@ -22,32 +21,7 @@ Meteor.methods({
 				result => getMessagesByIds(result.imap, result.ids),
 				error => console.log(error)
 			)
-			// .then(
-			// 	result => result
-			// );
-
-		// return initImap(params)
-		// 	.then(
-		// 		imap => getFilteredMessages(imap, params.boxName, 'FROM', params.from),
-		// 		error => console.log(error)
-		// 	)
-		// 	.then(
-		// 		response => response,
-		// 		error => console.log(error)
-		// 	);
 	},
-
-	// 'getOneMessage': function(params) {
-	// 	return initImap(params)
-	// 		.then(
-	// 			imap => getImapMessage(params, imap),
-	// 			error => console.log(error)
-	// 		)
-	// 		.then(
-	// 			response => response,
-	// 			error => console.log(error)
-	// 		);
-	// },
 
 	'moveMessageToTrash': function(params) {
 		return initImap(params)
@@ -87,8 +61,8 @@ Meteor.methods({
 									res[key]['special_use_attrib'] = result[key]['special_use_attrib'];
 								}
 							}
-							resolve(res);
 							imap.end();
+							resolve(res);
 						})
 					});
 				},
@@ -111,9 +85,8 @@ function initImap(params) {
 		};
 
 	return new Promise(function(resolve, reject) {
-		var Imap = Npm.require('imap');
-
-		var imap = new Imap(connParams);
+		var Imap = Npm.require('imap'),
+			imap = new Imap(connParams);
 
 		imap.on('error', function(error) {
 			reject(error);
@@ -127,131 +100,15 @@ function initImap(params) {
 	});
 };
 
-// function getImapMessages(page, imap, boxName) {
-// 	var Imap = Npm.require('imap'),
-// 		messages = [];
-
-// 	return new Promise(function(resolve, error) {
-// 		imap.openBox(boxName, false, function(err, box) {
-// 			var total = box.messages.total,
-// 				end = total - 10 * (page - 1) > 0 ? total - 10 * (page - 1) : total - 10 * (page - 1),
-// 				start = (total - 10 * page) + 1 > 0 ? (total - 10 * page + 1) : 1,
-// 				f = imap.seq.fetch(start + ':' + end, {
-// 					bodies: ['HEADER', 'TEXT'],
-// 					struct: true
-// 				});
-
-// 			f.on('message', function(msg, seqno) {
-// 				var buffer = '',
-// 					item = {};
-// 				msg.on('attributes', function(attrs) {
-// 					item.attr = attrs;
-// 					item.uid = attrs.uid;
-// 				});
-// 				msg.on('body', function(stream, info) {
-// 					var buffer = '';
-// 					stream.on('data', function(chunk) {
-// 						buffer += chunk;
-// 					});
-// 					stream.once('end', function() {
-// 						switch (info.which) {
-// 							case 'HEADER':
-// 								buffer = buffer.toString('utf8');
-// 								var i = Imap.parseHeader(buffer);
-// 								item.from = i.from ? i.from[0] : '';
-
-// 								if (item.from.indexOf('<') > -1 && item.from.indexOf('>') > -1) {
-// 									item.from = item.from.match(/<(.*?)>/i)[1];
-// 								}
-
-// 								item.subject = i.subject ? i.subject[0] : 'No subject';
-// 								item.date = i.date ? i.date[0] : '';
-// 								item.date = Date.parse(item.date) / 1000;
-// 								item.to = i.to ? i.to[0] : '';
-
-// 								if (item.to.indexOf('<') > -1 && item.to.indexOf('>') > -1) {
-// 									item.to = item.to.match(/<(.*?)>/i)[1];
-// 								}
-
-// 								break;
-// 							default:
-// 								item.body = buffer;
-// 								break;
-// 						}
-// 					});
-// 				});
-// 				msg.on('end', function() {
-// 					messages.push(item);
-// 				});
-// 			});
-// 			f.once('error', function(err) {
-// 				reject(err);
-// 			});
-// 			f.once('end', function() {
-// 				imap.end();
-// 				mailBox = box;
-// 				resolve({
-// 					items: messages,
-// 					box: box
-// 				})
-// 			});
-// 		});
-// 	})
-// };
-
-// function getImapMessage(params, imap) {
-// 	var MailParser = require('mailparser').MailParser,
-// 		parser = new MailParser(),
-// 		item = {};
-
-// 	return new Promise(function(resolve, reject) {
-// 		imap.openBox('INBOX', false, function(err, box) {
-// 			imap.search(['ALL', ['UID', params.uid]], function(err, results) {
-// 				if (err) throw err;
-// 				var f = imap.fetch(results, {
-// 					bodies: [''],
-// 					markSeen: params.userIsHost
-// 				});
-// 				f.on('message', function(msg, seqno) {
-// 					msg.on('attributes', function(attrs) {
-// 						item.attr = attrs;
-// 						item.uid = attrs.uid;
-// 					});
-// 					msg.on('body', function(stream) {
-// 						stream.on('data', function(chunk) {
-// 							parser.write(chunk.toString('utf8'));
-// 						});
-// 					});
-// 					msg.once('end', function() {
-// 						parser.end();
-// 					});
-// 					parser.on('headers', function(result) {
-// 						item.from = result ? result.from : '';
-// 						item.subject = result ? result.subject : '';
-// 						item.date = result ? result.date : '';
-// 					});
-// 					parser.on('end', function(result) {
-// 						item.htmlBody = result.html;
-// 						item.plainText || result.text;
-
-// 						resolve(item);
-// 					});
-// 				});
-// 				f.once('error', function(err) {
-// 					reject(error);
-// 				});
-// 			});
-// 		});
-// 	});
-// };
-
 function moveMessageToBox(uid, imap, box) {
 	return new Promise(function(resolve, reject) {
 		imap.openBox('INBOX', false, function(err, bx) {
 			imap.search(['ALL', ['UID', uid]], function(err, results) {
+
 				if (err) {
 					reject(err);
 				}
+
 				if (results.length > 0) {
 					var f1 = imap.move(results, box, function(err) {
 						if (err) {
@@ -261,6 +118,7 @@ function moveMessageToBox(uid, imap, box) {
 						imap.end();
 					});
 				}
+
 				imap.closeBox(true, function(err) {
 					if (err) {
 						console.log(err);
@@ -288,34 +146,34 @@ function getUniqueDialogs(params, imap, boxName) {
 						box: box
 					});
 					return;
-				} else {
-					var messageIndex = total - index;
-					f = imap.seq.fetch(messageIndex + ':' + messageIndex, {
-						bodies: ['HEADER'],
-						struct: true
-					});
-
-					return getMessageFromBox(f)
-						.then(
-							item => {
-								var messageIsFromDialog = false;
-								for (var mes of messages) {
-									if (mes.from === item.from && mes.to === item.to) {
-										messageIsFromDialog = true;
-									}
-								}
-
-								if (!messageIsFromDialog) {
-									messages.push(item);
-								}
-
-								index++;
-
-								return getMessages(messages);
-							},
-							error => console.log(error)
-						);
 				}
+
+				var messageIndex = total - index;
+				f = imap.seq.fetch(messageIndex + ':' + messageIndex, {
+					bodies: ['HEADER'],
+					struct: true
+				});
+
+				return getMessageFromBox(f)
+					.then(
+						item => {
+							var messageIsFromDialog = false;
+							for (var mes of messages) {
+								if (mes.from === item.from && mes.to === item.to) {
+									messageIsFromDialog = true;
+								}
+							}
+
+							if (!messageIsFromDialog) {
+								messages.push(item);
+							}
+
+							index++;
+
+							return getMessages(messages);
+						},
+						error => console.log(error)
+					);
 			};
 
 			getMessages(messages);
@@ -324,26 +182,30 @@ function getUniqueDialogs(params, imap, boxName) {
 };
 
 function getMessageFromBox(request) {
-	var Imap = Npm.require('imap');
-	var MailParser = require('mailparser').MailParser,
+	var Imap = Npm.require('imap'),
+		MailParser = require('mailparser').MailParser,
 		parser = new MailParser();
 
 	return new Promise(function(resolve, reject) {
 		request.on('message', function(msg, seqno) {
 			var buffer = '',
 				item = {};
+
 			msg.on('attributes', function(attrs) {
 				item.attr = attrs;
 				item.uid = attrs.uid;
 			});
+
 			msg.on('body', function(stream) {
 				stream.on('data', function(chunk) {
 					parser.write(chunk.toString('utf8'));
 				});
 			});
+
 			msg.on('end', function() {
 				parser.end();
 			});
+
 			parser.on('end', function(result) {
 				item.from = result.from[0].address.toLowerCase();
 				item.fromName = result.from[0].name || result.from[0].address;
@@ -366,68 +228,15 @@ function getMessageFromBox(request) {
 	});
 };
 
-// function getFilteredMessages(imap, boxName, flag, key) {
-// 	var Imap = Npm.require('imap');
-// 	var MailParser = require('mailparser').MailParser;
-// 	var parser = new MailParser();
-
-// 	return new Promise(function(resolve, reject) {
-// 		imap.openBox(boxName, false, function(err, box) {
-// 			var filter;
-// 			switch (flag) {
-// 				case 'FROM':
-// 					filter = ['FROM', key];
-// 					break;
-// 				default:
-// 					break;
-// 			}
-
-// 			imap.seq.search(['ALL', filter], function(err, results) {
-
-// 				var messages = [];
-// 				var lastMessages = results.length > 10 ? results.reverse().slice(0, 10) : results.reverse();
-
-// 				function getMessages(index) {
-// 					if (index > 9 || index > (lastMessages.length - 1)) {
-// 						resolve({
-// 							dialogMessages: messages,
-// 							box: box,
-// 							partnerAddress: key
-// 						})
-// 						return;
-// 					} else {
-// 						var seqno = lastMessages[index];
-// 						var req = imap.seq.fetch(seqno + ':' + seqno, {
-// 							bodies: ['HEADER', ''],
-// 							struct: true
-// 						});
-
-// 						return getMessageFromBox(req)
-// 							.then(
-// 								item => {
-// 									messages.push(item);
-
-// 									index++;
-
-// 									return getMessages(index);
-// 								},
-// 								error => console.log(error)
-// 							);
-// 					}
-// 				};
-
-// 				getMessages(0);
-// 			});
-// 		});
-// 	});
-// };
-
 function getDialogMessageIds(imap, boxName, key) {
 	return new Promise(function(resolve, reject) {
-		console.log(boxName, key);
+
 		imap.openBox(boxName, false, function(err, box) {
+
 			imap.seq.search(['ALL', ['FROM', key]], function(err, receivedIds) {
+
 				var received = [];
+
 				receivedIds.forEach(function(item) {
 					received.push({
 						index: item,
@@ -436,15 +245,18 @@ function getDialogMessageIds(imap, boxName, key) {
 				});
 				imap.openBox('Отправленные', false, function(err, box) {
 					imap.seq.search(['ALL', ['TO', key]], function(err, sentIds) {
+
 						var sent = [];
+
 						sentIds.forEach(function(item) {
+
 							sent.push({
 								index: item,
 								box: 'Отправленные'
 							})
 						});
+
 						resolve({
-							// ids: received.concat(sent),
 							ids: {
 								sent: sent,
 								received: received
@@ -459,9 +271,8 @@ function getDialogMessageIds(imap, boxName, key) {
 };
 
 function getMessagesByIds(imap, ids) {
-	var received = ids.received.reverse().slice(0, 10);
-	var sent = ids.sent.reverse().slice(0, 10);
-
+	var received = ids.received.reverse().slice(0, 10),
+			sent = ids.sent.reverse().slice(0, 10);
 
 	return new Promise(function(resolve, reject) {
 		var messages = [];
@@ -480,48 +291,50 @@ function getMessagesByIds(imap, ids) {
 									dialogMessages: messages,
 								})
 								return;
-							} else {
-								var seqno = sent[index].index;
-								var req1 = imap.seq.fetch(seqno + ':' + seqno, {
-									bodies: '',
-									struct: true
-								});
-
-								return getMessageFromBox(req1)
-									.then(
-										item => {
-											item.isInbox = false;
-											messages.push(item);
-											return getSentMessages(++index);
-										},
-										error => console.log(error)
-									);
 							}
+
+							var seqno = sent[index].index;
+							var req1 = imap.seq.fetch(seqno + ':' + seqno, {
+								bodies: '',
+								struct: true
+							});
+
+							return getMessageFromBox(req1)
+								.then(
+									item => {
+										item.isInbox = false;
+										messages.push(item);
+
+										return getSentMessages(++index);
+									},
+									error => console.log(error)
+								);
 						};
 
 						getSentMessages(0);
 					});
 					return;
-				} else {
-					var seqno = received[index].index;
-					var req = imap.seq.fetch(seqno + ':' + seqno, {
-						bodies: '',
-						struct: true
-					});
-
-					return getMessageFromBox(req)
-						.then(
-							item => {
-								item.isInbox = true;
-								messages.push(item);
-								return getMessages(++index);
-							},
-							error => console.log(error)
-						);
 				}
-			};
-			getMessages(0);
 
+				var seqno = received[index].index;
+				var req = imap.seq.fetch(seqno + ':' + seqno, {
+					bodies: '',
+					struct: true
+				});
+
+				return getMessageFromBox(req)
+					.then(
+						item => {
+							item.isInbox = true;
+							messages.push(item);
+
+							return getMessages(++index);
+						},
+						error => console.log(error)
+					);
+			};
+
+			getMessages(0);
 		});
 	});
 };

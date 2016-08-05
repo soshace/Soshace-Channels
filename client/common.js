@@ -13,7 +13,6 @@ Template.registerHelper('formatDateTimeFromUnix', function(dt) {
 // });
 
 Meteor.startup(function(){
-	// Meteor.call('clearSession');
 	Meteor.subscribe('guestChannels');
 	Meteor.subscribe('hostChannels');
 });

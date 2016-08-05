@@ -9,51 +9,6 @@
 
 		<h3 class="channel-block__header f-s-20">{{partnerAddress}}</h3>
 
-<!-- 		<em class="channel-details__author grey-text">
-			By <span class="semi-bold">{{from}}</span> on {{formatDateTime date}}
-		</em> -->
-
-<!-- 		{{#if userIsChannelCreator}}
-			<div>
-				<a class="email__show-reply email__handler">
-					<i class="fa fa-reply" aria-hidden="true"></i>
-					Reply
-				</a>		
-
-				<a class="email__show-forward email__handler">
-					<i class="fa fa-share" aria-hidden="true"></i>
-					Forward
-				</a>		
-
-				<a class="email__delete email__handler">
-					<i class="fa fa-trash-o" aria-hidden="true"></i>
-					To bin
-				</a>		
-
-				<a class="email__spam email__handler">
-					<i class="fa fa-ban" aria-hidden="true"></i>
-					Spam
-				</a>			
-			</div>
-		{{/if}} -->
-
-<!-- 		{{#if showReplyBlock}}
-			{{#if showForwardBlock}}
-				<div class="email__forward-block">
-					<input type="text" class="form-control email__forward-address" placeholder="To:">
-				</div>
-			{{/if}}
-			<input type="text" class="form-control email__forward-subject" placeholder="Subject:" value="{{replySubject}}">				
-			{{> replyBlock}}
-		{{else}}
-			<div class="email__plain-text">
-				{{{plainText}}}
-			</div>
-			<div>
-				{{{htmlBody}}}
-			</div>
-		{{/if}} -->
-
 		{{#if showForwardBlock}}
 			<div class="email__forward-block">
 				<input type="text" class="form-control email__forward-address" placeholder="To:">
@@ -90,9 +45,11 @@
 
 
 					<em class="grey-text pull-right"></em>
-					<div class="email__plain-text">
-						{{{plainText}}}
-					</div>
+					{{#if plainText}}
+						<div class="email__plain-text">
+							{{{plainText}}}
+						</div>
+					{{/if}}
 					<div>
 						{{{htmlBody}}}
 					</div>				
