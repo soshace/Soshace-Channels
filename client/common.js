@@ -4,7 +4,7 @@ Template.registerHelper('formatDateTime', function(dt) {
 });
 
 Template.registerHelper('formatDateTimeFromUnix', function(dt) {
-  var dateTime = moment.unix(dt).format('MM/DD/YYYY HH:mm');
+  var dateTime = moment.unix(dt / 1000).format('MM/DD/YYYY HH:mm');
   return `${dateTime}`;
 });
 

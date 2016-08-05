@@ -355,7 +355,7 @@ function getMessageFromBox(request) {
 
 				item.date = result.date || '';
 				// item.date = Date.parse(item.date) / 1000;
-				item.date = moment(item.date, 'ddd MMM DD YYYY hh:mm:ss Z').valueOf() / 1000;
+				item.date = moment(item.date, 'ddd MMM DD YYYY hh:mm:ss Z').valueOf();
 
 				item.htmlBody = result.html;
 				item.plainText || result.text;
@@ -424,6 +424,7 @@ function getMessageFromBox(request) {
 
 function getDialogMessageIds(imap, boxName, key) {
 	return new Promise(function(resolve, reject) {
+		console.log(boxName, key);
 		imap.openBox(boxName, false, function(err, box) {
 			imap.seq.search(['ALL', ['FROM', key]], function(err, receivedIds) {
 				var received = [];
@@ -442,9 +443,12 @@ function getDialogMessageIds(imap, boxName, key) {
 								box: 'Отправленные'
 							})
 						});
-						console.log(received);
 						resolve({
-							ids: received.concat(sent),
+							// ids: received.concat(sent),
+							ids: {
+								sent: sent,
+								received: received
+							},
 							imap: imap
 						});
 					});
@@ -455,17 +459,9 @@ function getDialogMessageIds(imap, boxName, key) {
 };
 
 function getMessagesByIds(imap, ids) {
-	var lastMessages = _.sortBy(ids, function(item) {
-		return item.index
-	}).reverse().slice(0, 10);
+	var received = ids.received.reverse().slice(0, 10);
+	var sent = ids.sent.reverse().slice(0, 10);
 
-	var received = _.where(lastMessages, {
-		box: 'INBOX'
-	}) || [];
-
-	var sent = _.where(lastMessages, {
-		box: 'Отправленные'
-	}) || [];
 
 	return new Promise(function(resolve, reject) {
 		var messages = [];
@@ -476,6 +472,10 @@ function getMessagesByIds(imap, ids) {
 					imap.openBox('Отправленные', false, function(err, box) {
 						function getSentMessages(index) {
 							if (index > (sent.length - 1)) {
+								messages = _.sortBy(messages, function(item) {
+									return -item.date;
+								});
+								messages = messages.slice(0, 10);
 								resolve({
 									dialogMessages: messages,
 								})
