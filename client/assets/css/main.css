@@ -169,6 +169,7 @@
 .email__handler {
   cursor: pointer;
   margin: 10px;
+  color: CadetBlue;
 }
 
 .email__separator {
@@ -204,6 +205,23 @@
 
 .email__list{
   padding: 0;
+}
+
+.email__dialog-item .item__title{
+  font-size: 0.75em;
+  font-style: italic;
+}
+
+.email__dialog-item .item__handlers{
+  display: none;
+}
+
+.email__dialog-item:hover{
+  background-color: AliceBlue;
+}
+
+.email__dialog-item:hover .item__handlers{
+  display: inline-block;
 }
 
 .item-sent{

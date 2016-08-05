@@ -306,7 +306,7 @@
 
 	Template.replyBlock.onRendered(function() {
 		$('.summernote').summernote({
-			height: 500,
+			height: 200,
 			focus: true
 		});
 

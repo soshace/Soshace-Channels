@@ -354,7 +354,6 @@ function getMessageFromBox(request) {
 				item.subject = result.subject || 'No subject';
 
 				item.date = result.date || '';
-				console.log(result.date);
 				// item.date = Date.parse(item.date) / 1000;
 				item.date = moment(item.date, 'ddd MMM DD YYYY hh:mm:ss Z').valueOf() / 1000;
 
@@ -444,7 +443,6 @@ function getDialogMessageIds(imap, boxName, key) {
 							})
 						});
 						console.log(received);
-						console.log(sent);
 						resolve({
 							ids: received.concat(sent),
 							imap: imap
