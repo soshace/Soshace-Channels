@@ -1,10 +1,9 @@
 (function() {
 	var self,
-		login,
-		token,
-		currentBlock,
-		currentPage,
-		showReplyBlock,
+		// login,
+		// token,
+		dialog,
+		// currentPage,
 		showForwardBlock,
 		replySubject,
 		deps = new Deps.Dependency();
@@ -15,26 +14,32 @@
 		this.authTemplate = 'yandexAuthTemplate';
 		this.resourceId = 'INBOX';
 
-		currentPage = 1;
+		// currentPage = 1;
 		self = this;
 		this.channelId = channelData._id;
 		this.createdBy = channelData.createdBy;
-		this.login = channelData.login;
+		// login = channelData.login;
+
 		this.userIsHost = this.createdBy === Meteor.user()._id;
 
 		if (this.userIsHost) {
 			var tokens = Meteor.user().serviceTokens;
-			this.token = _.findWhere(tokens, {serviceName: 'yandex', login: this.login}).token;
+			this.token = _.findWhere(tokens, {
+				serviceName: 'yandex',
+				login: channelData.login
+			}).token;
 		} else {
 			console.log('Guest preview is in progress!');
 			return;
 		}
 
+		// login = login.indexOf('@') === -1 ? login + '@yandex.ru' : login;
+
 		this.params = {
 			channelId: this.channelId,
 			createdBy: this.createdBy,
 			userIsHost: this.userIsHost,
-			login: this.login,
+			login: channelData.login,
 			token: this.token
 		};
 
@@ -58,18 +63,18 @@
 	};
 
 	YandexPlugin.prototype.setNextPage = function() {
-		currentPage += 1;
+		// currentPage += 1;
 	};
 
 	YandexPlugin.prototype.setPreviousPage = function() {
-		currentPage -= 1;
-		currentPage = currentPage <= 0 ? 1 : currentPage;
+		// currentPage -= 1;
+		// currentPage = currentPage <= 0 ? 1 : currentPage;
 	};
 
 	YandexPlugin.prototype.getChannelBlocks = function(getEmailsData) {
 		var params = this.params;
 
-		params.page = currentPage;
+		// params.page = currentPage;
 		params.boxName = 'INBOX';
 
 		var messages = [];
@@ -94,25 +99,11 @@
 			params.boxName = 'Отправленные';
 
 			getEmailsData({
-				blocks: [{messages: messages}],
+				blocks: [{
+					messages: messages
+				}],
 				commonParams: results.box
 			});
-
-			// Meteor.call('getYandexMessages', params, function(error, results) {
-			// 	if (error) {
-			// 		console.log(error);
-			// 		return;
-			// 	}
-
-			// 	messages = messages.concat(results.items.reverse());
-
-			// 	console.log(messages);
-
-			// 	getEmailsData({
-			// 		blocks: messages,
-			// 		commonParams: results.box
-			// 	});
-			// });
 		});
 	};
 
@@ -122,12 +113,10 @@
 		params.from = from;
 		params.boxName = 'INBOX';
 
-		showReplyBlock = false;
 		Meteor.call('getYandexDialog', params, function(error, result) {
-			console.log(result);
 			result.dialogMessages.forEach(function(item, index) {
 				if (!item.isInbox) {
-					result.dialogMessages[index].inboxClass = 'item-sent pull-right';					
+					result.dialogMessages[index].inboxClass = 'item-sent pull-right';
 				}
 			});
 
@@ -137,8 +126,8 @@
 
 			result.dialogMessages = result.dialogMessages.reverse();
 
-			currentBlock = result;
-			currentBlock.partnerAddress = from;
+			dialog = result;
+			dialog.partnerAddress = from;
 			getOneEmailCallback(result);
 		});
 	};
@@ -170,17 +159,15 @@
 	function replyEmail(params) {
 		var message = {
 			bodyHtml: $('.summernote').summernote('code'),
-			receiver: currentBlock.from,
+			receiver: dialog.from,
 			subject: replySubject
 		};
-
-		var params = self.params;
 
 		if (!message.bodyHtml) {
 			return;
 		}
 
-		Meteor.call('replyEmail', params, message, function(error, results) {
+		Meteor.call('replyEmail', self.params, message, function(error, results) {
 			if (error) {
 				console.log(error);
 				return;
@@ -201,59 +188,57 @@
 			return;
 		}
 
-
 		message = {
 			bodyHtml: $('.summernote').summernote('code'),
 			receiver: receiver,
-			subject: replySubject
+			subject: replySubject,
+			login: self.params.login
 		};
 
 		if (!message.bodyHtml) {
 			return;
 		}
 
-		Meteor.call('replyEmail', message, function(error, results) {
+		Meteor.call('replyEmail', self.params, message, function(error, results) {
 			if (error) {
-				console.log(error);
+				Bert.alert(error.reason, 'error');
 				return;
 			}
-			Router.go('channel', {
-				_id: self.channelId
-			});
+			
+			Bert.alert('Message was successfully sent!', 'success');
+			showForwardBlock = false;
+			$('.summernote').summernote('code', '');
+			deps.changed();
 		});
 	};
 
-	function deleteEmail() {
+	function deleteEmail(uid) {
 		var params = self.params;
 
-		params.uid = currentBlock.uid;
+		params.uid = uid;
 		params.box = self.trashBox;
 
 		Meteor.call('moveMessageToTrash', params, function(error, results) {
 			if (error) {
-				console.log(error);
+				Bert.alert('Error with message deleting', 'error');
 				return;
 			}
-			Router.go('channel', {
-				_id: self.channelId
-			});
+			Bert.alert('Message was successfully deleted!', 'success');
 		});
 	};
 
 	function toSpam() {
 		var params = self.params;
 
-		params.uid = currentBlock.uid;
+		params.uid = uid;
 		params.box = self.spamBox;
 
 		Meteor.call('moveMessageToSpam', params, function(error, results) {
 			if (error) {
-				console.log(error);
+				Bert.alert('Error with moving message to spam', 'error');
 				return;
 			}
-			Router.go('channel', {
-				_id: self.channelId
-			});
+			Bert.alert('Message was moved to spam', 'success');
 		});
 	};
 
@@ -263,43 +248,58 @@
 
 			if (showForwardBlock) {
 				forwardEmail();
-			}
-			else{
-				replyEmail();				
+			} else {
+				replyEmail();
 			}
 		},
 
-		'click .email__show-reply': function(event) {
+		'click .js-item__reply': function(event) {
 			event.preventDefault();
-			showReplyBlock = !showReplyBlock;
-			if (!showReplyBlock) {
-				showForwardBlock = false;
-			}
+			console.log(event.target.id);
+			// showReplyBlock = !showReplyBlock;
+			// if (!showReplyBlock) {
+			// 	showForwardBlock = false;
+			// }
+			// deps.changed();
+		},
+
+		'click .js-item__forward': function(event) {
+			event.preventDefault();
+
+			showForwardBlock = true;
+
+			var selectedMessage = _.findWhere(dialog.dialogMessages, {
+					uid: +event.target.id
+				}),
+				separator = '<br/><div class="email__separator">',
+				date = moment.unix(selectedMessage.date / 1000),
+				body = '<div class="email__current-body">' + selectedMessage.htmlBody || selectedMessage.plainText + '</div>';
+
+			separator += date.format('MMMM Do YYYY, hh:mm,');
+			separator += selectedMessage.from + ':</div>';
+
+			$('.summernote').summernote('code', separator + body);
+
+			replySubject = selectedMessage.subject;
+
 			deps.changed();
 		},
 
-		'click .email__show-forward': function(event) {
+		'click .js-item__delete': function(event) {
 			event.preventDefault();
-			showForwardBlock = !showForwardBlock;
-			showReplyBlock = showForwardBlock;
-			deps.changed();
+			deleteEmail(+event.target.id);
 		},
 
-		'click .email__delete': function(event) {
+		'click .js-item__spam': function(event) {
 			event.preventDefault();
-			deleteEmail();
-		},
-
-		'click .email__spam': function(event) {
-			event.preventDefault();
-			toSpam();
+			toSpam(+event.target.id);
 		}
 	});
 
 	Template.replyBlock.events({
 		'click .email__show-reply': function(event) {
 			event.preventDefault();
-			showReplyBlock = !showReplyBlock;
+			// showReplyBlock = !showReplyBlock;
 			deps.changed();
 		},
 	});
@@ -309,23 +309,9 @@
 			height: 200,
 			focus: true
 		});
-
-		var separator = '<br/><div class="email__separator">',
-			date = moment(Date.parse(currentBlock.date)),
-			body = '<div class="email__current-body">' + currentBlock.htmlBody || currentBlock.plainText + '</div>';
-
-		separator += date.format('MMMM Do YYYY, hh:mm,');
-		separator += currentBlock.from + ':</div>';
-
-		$('.summernote').summernote('code', separator + body);
 	});
 
 	Template.yandexDetailsTemplate.helpers({
-		showReplyBlock: function() {
-			deps.depend();
-			return showReplyBlock;
-		},
-	
 		showForwardBlock: function() {
 			deps.depend();
 			return showForwardBlock;
@@ -333,16 +319,9 @@
 
 		replySubject: function() {
 			deps.depend();
-			replySubject = currentBlock.subject;
 			if (showForwardBlock) {
 				if (replySubject.indexOf('Fwd:') === -1) {
 					replySubject = 'Fwd: ' + replySubject;
-				}
-				return replySubject;
-			}
-			if (showReplyBlock) {
-				if (replySubject.indexOf('Re:') === -1) {
-					replySubject = 'Re: ' + replySubject;
 				}
 				return replySubject;
 			}

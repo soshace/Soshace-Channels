@@ -1,7 +1,8 @@
 Meteor.methods({
 	'replyEmail': function(params, message) {
 		var smtp = initSmtp(params);
-		replyEmail(params, message, smtp);
+		console.log(params);
+		replyEmail(message, smtp);
 	},
 });
 
@@ -14,24 +15,22 @@ function initSmtp(params) {
 		auth: {
 			xoauth2: xoauth2.createXOAuth2Generator({
 				user: params.login,
+				accessToken: params.token,
 				clientId: Meteor.settings.public.yandex_client_id,
-				clientSecret: Meteor.settings.private.yandex_client_secret,
-				accessToken: params.token
+				clientSecret: Meteor.settings.private.yandex_client_secret
 			})
 		}
 	});
 };
 
-function replyEmail(params, message, smtp) {
-	console.log(params);
-
+function replyEmail(message, smtp) {
 	var mailOptions = {
-		from: params.login,
+		from: message.login,
 		to: message.receiver,
 		subject: message.subject,
 		text: message.body,
 		html: message.bodyHtml,
-		bcc: params.login
+		bcc: message.login
 	};
 
 	smtp.sendMail(mailOptions, function(error, info) {

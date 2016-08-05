@@ -72,7 +72,7 @@ Meteor.methods({
 });
 
 function initImap(params) {
-	var s = 'user=' + params.login + '@yandex.ru\001auth=Bearer ' + params.token + '\001\001',
+	var s = 'user=' + params.login + '\001auth=Bearer ' + params.token + '\001\001',
 		t = new Buffer(s).toString('base64'),
 		connParams = {
 			xoauth2: t,
@@ -216,7 +216,6 @@ function getMessageFromBox(request) {
 				item.subject = result.subject || 'No subject';
 
 				item.date = result.date || '';
-				// item.date = Date.parse(item.date) / 1000;
 				item.date = moment(item.date, 'ddd MMM DD YYYY hh:mm:ss Z').valueOf();
 
 				item.htmlBody = result.html;
