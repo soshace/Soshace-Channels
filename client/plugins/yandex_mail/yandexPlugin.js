@@ -102,7 +102,7 @@
 		Meteor.call('getYandexDialog', params, function(error, result) {
 			result.dialogMessages.forEach(function(item, index) {
 				if (!item.isInbox) {
-					result.dialogMessages[index].inboxClass = 'item-sent pull-right';
+					result.dialogMessages[index].inboxClass = 'item-sent';
 				}
 			});
 

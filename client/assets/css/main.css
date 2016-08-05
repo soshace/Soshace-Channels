@@ -195,12 +195,13 @@
 }
 
 .email__dialog-item{
-  max-width: 70%;
-  min-width: 40%;
-  display: inline-block;
+/*  max-width: 70%;
+  min-width: 40%;*/
+  /*display: inline-block;*/
 
-  background-color: GhostWhite;
+  /*background-color: GhostWhite;*/
   border-radius: 4px;
+  border: Solid 1px LightGray;
 }
 
 .email__list{
@@ -224,7 +225,7 @@
   display: inline-block;
 }
 
-.item-sent{
+.item-sent:hover{
   background-color: Linen;
 }
 
