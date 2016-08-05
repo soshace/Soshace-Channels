@@ -1,8 +1,7 @@
 Meteor.methods({
 	'replyEmail': function(params, message) {
 		var smtp = initSmtp(params);
-		console.log(params);
-		replyEmail(message, smtp);
+		sendEmail(message, smtp);
 	},
 });
 
@@ -23,14 +22,15 @@ function initSmtp(params) {
 	});
 };
 
-function replyEmail(message, smtp) {
+function sendEmail(message, smtp) {
+
 	var mailOptions = {
-		from: message.login,
+		from: message.login.indexOf('@') === -1 ? message.login + '@yandex.ru' : message.login,
 		to: message.receiver,
 		subject: message.subject,
 		text: message.body,
 		html: message.bodyHtml,
-		bcc: message.login
+		bcc: message.login.indexOf('@') === -1 ? message.login + '@yandex.ru' : message.login
 	};
 
 	smtp.sendMail(mailOptions, function(error, info) {

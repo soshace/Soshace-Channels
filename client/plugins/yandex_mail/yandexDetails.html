@@ -24,9 +24,9 @@
 					<p class="f-s-15">
 						<span class="item__title">{{fromName}} wrote on {{formatDateTimeFromUnix date}}</span>
 						<div class="item__handlers">
-<!-- 							<a class="js-item__reply email__handler">
-								<i class="fa fa-reply" aria-hidden="true" id="{{attr.uid}}"></i>
-							</a>		 -->
+							<a class="js-item__reply email__handler">
+								<i class="fa fa-reply" aria-hidden="true" id={{attr.uid}}></i>
+							</a>		
 
 							<a class="js-item__forward email__handler">
 								<i class="fa fa-share" aria-hidden="true" id={{attr.uid}}></i>
@@ -67,6 +67,9 @@
 		<div class="summernote"></div>
 		<button class="btn btn-primary btn-lg channel-block__send-email">
 			Send
+		</button>
+		<button class="btn btn-default btn-lg js-email__clear">
+			Clear
 		</button>
 	</div>
 </template>

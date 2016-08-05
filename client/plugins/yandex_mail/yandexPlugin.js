@@ -1,9 +1,6 @@
 (function() {
 	var self,
-		// login,
-		// token,
 		dialog,
-		// currentPage,
 		showForwardBlock,
 		replySubject,
 		deps = new Deps.Dependency();
@@ -14,11 +11,9 @@
 		this.authTemplate = 'yandexAuthTemplate';
 		this.resourceId = 'INBOX';
 
-		// currentPage = 1;
 		self = this;
 		this.channelId = channelData._id;
 		this.createdBy = channelData.createdBy;
-		// login = channelData.login;
 
 		this.userIsHost = this.createdBy === Meteor.user()._id;
 
@@ -32,8 +27,6 @@
 			console.log('Guest preview is in progress!');
 			return;
 		}
-
-		// login = login.indexOf('@') === -1 ? login + '@yandex.ru' : login;
 
 		this.params = {
 			channelId: this.channelId,
@@ -74,10 +67,7 @@
 	YandexPlugin.prototype.getChannelBlocks = function(getEmailsData) {
 		var params = this.params;
 
-		// params.page = currentPage;
 		params.boxName = 'INBOX';
-
-		var messages = [];
 
 		Meteor.call('getYandexMessages', params, function(error, results) {
 			if (error) {
@@ -92,22 +82,18 @@
 				}
 			});
 
-			messages = results.items.reverse();
-
-			console.log(messages);
-
 			params.boxName = 'Отправленные';
 
 			getEmailsData({
 				blocks: [{
-					messages: messages
+					messages: results.items.reverse()
 				}],
 				commonParams: results.box
 			});
 		});
 	};
 
-	YandexPlugin.prototype.getSingleBlock = function(getOneEmailCallback, from) {
+	YandexPlugin.prototype.getSingleBlock = function(getDialogCallback, from) {
 		var params = self.params;
 
 		params.from = from;
@@ -128,7 +114,7 @@
 
 			dialog = result;
 			dialog.partnerAddress = from;
-			getOneEmailCallback(result);
+			getDialogCallback(result);
 		});
 	};
 
@@ -139,6 +125,7 @@
 	YandexPlugin.prototype.getSettings = function(func) {
 		var tokens = Meteor.user().serviceTokens,
 			logins = [];
+
 		if (tokens) {
 			_.each(tokens, function(item) {
 				if (item.serviceName === 'yandex') {
@@ -156,26 +143,15 @@
 		return login;
 	};
 
-	function replyEmail(params) {
+	function replyEmail() {
 		var message = {
 			bodyHtml: $('.summernote').summernote('code'),
-			receiver: dialog.from,
-			subject: replySubject
+			receiver: dialog.partnerAddress,
+			subject: replySubject,
+			login: self.params.login
 		};
 
-		if (!message.bodyHtml) {
-			return;
-		}
-
-		Meteor.call('replyEmail', self.params, message, function(error, results) {
-			if (error) {
-				console.log(error);
-				return;
-			}
-			Router.go('channel', {
-				_id: self.channelId
-			});
-		});
+		sendMessage(message);
 	};
 
 	function forwardEmail() {
@@ -195,21 +171,7 @@
 			login: self.params.login
 		};
 
-		if (!message.bodyHtml) {
-			return;
-		}
-
-		Meteor.call('replyEmail', self.params, message, function(error, results) {
-			if (error) {
-				Bert.alert(error.reason, 'error');
-				return;
-			}
-			
-			Bert.alert('Message was successfully sent!', 'success');
-			showForwardBlock = false;
-			$('.summernote').summernote('code', '');
-			deps.changed();
-		});
+		sendMessage(message);
 	};
 
 	function deleteEmail(uid) {
@@ -242,6 +204,48 @@
 		});
 	};
 
+	function selectMessage(uid) {
+		var selectedMessage = _.findWhere(dialog.dialogMessages, {
+				uid: +uid
+			}),
+			separator = '<br/><div class="email__separator">',
+			date = moment.unix(selectedMessage.date / 1000),
+			body = '<div class="email__current-body">' + selectedMessage.htmlBody || selectedMessage.plainText + '</div>';
+
+		separator += date.format('MMMM Do YYYY, hh:mm,');
+		separator += selectedMessage.from + ':</div>';
+
+		$('.summernote').summernote('code', separator + body);
+		$('.summernote').summernote({focus: true});
+
+		replySubject = selectedMessage.subject;
+
+		deps.changed();
+	};
+
+	function sendMessage(message) {
+		if (!message.bodyHtml) {
+			return;
+		}
+
+		Meteor.call('replyEmail', self.params, message, function(error, results) {
+			if (error) {
+				Bert.alert(error.reason, 'error');
+				return;
+			}
+
+			Bert.alert('Message was successfully sent!', 'success');
+
+			showForwardBlock = false;
+
+			$('.summernote').summernote('code', '');
+
+			replySubject = '';
+
+			deps.changed();
+		});
+	};
+
 	Template.yandexDetailsTemplate.events({
 		'click .channel-block__send-email': function(event) {
 			event.preventDefault();
@@ -253,14 +257,24 @@
 			}
 		},
 
+		'click .js-email__clear': function(event) {
+			event.preventDefault();
+
+			showForwardBlock = false;
+
+			replySubject = '';
+
+			$('.summernote').summernote('code', '');
+
+			deps.changed();
+		},
+
 		'click .js-item__reply': function(event) {
 			event.preventDefault();
-			console.log(event.target.id);
-			// showReplyBlock = !showReplyBlock;
-			// if (!showReplyBlock) {
-			// 	showForwardBlock = false;
-			// }
-			// deps.changed();
+
+			showForwardBlock = false;
+
+			selectMessage(event.target.id);
 		},
 
 		'click .js-item__forward': function(event) {
@@ -268,21 +282,7 @@
 
 			showForwardBlock = true;
 
-			var selectedMessage = _.findWhere(dialog.dialogMessages, {
-					uid: +event.target.id
-				}),
-				separator = '<br/><div class="email__separator">',
-				date = moment.unix(selectedMessage.date / 1000),
-				body = '<div class="email__current-body">' + selectedMessage.htmlBody || selectedMessage.plainText + '</div>';
-
-			separator += date.format('MMMM Do YYYY, hh:mm,');
-			separator += selectedMessage.from + ':</div>';
-
-			$('.summernote').summernote('code', separator + body);
-
-			replySubject = selectedMessage.subject;
-
-			deps.changed();
+			selectMessage(event.target.id);
 		},
 
 		'click .js-item__delete': function(event) {
@@ -323,8 +323,13 @@
 				if (replySubject.indexOf('Fwd:') === -1) {
 					replySubject = 'Fwd: ' + replySubject;
 				}
-				return replySubject;
 			}
+
+			if (replySubject && replySubject.indexOf('Re:') === -1) {
+				replySubject = 'Re: ' + replySubject;
+			}
+
+			return replySubject;
 		}
 	});
 
