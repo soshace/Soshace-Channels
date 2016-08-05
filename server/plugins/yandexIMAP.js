@@ -23,22 +23,10 @@ Meteor.methods({
 			)
 	},
 
-	'moveMessageToTrash': function(params) {
+	'moveMessageToBox': function(params) {
 		return initImap(params)
 			.then(
-				imap => moveMessageToBox(params.uid, imap, params.box),
-				error => console.log(error)
-			)
-			.then(
-				response => response,
-				error => console.log(error)
-			);
-	},
-
-	'moveMessageToSpam': function(params) {
-		return initImap(params)
-			.then(
-				imap => moveMessageToBox(params.uid, imap, params.box),
+				imap => moveMessageToBox(params.uid, imap, params.srcBox, params.destBox),
 				error => console.log(error)
 			)
 			.then(
@@ -54,21 +42,37 @@ Meteor.methods({
 					return new Promise(function(resolve, reject) {
 						imap.getBoxes(function(err, result) {
 							// TODO: Check for nested folders!!! Circular folders can't be passed to client
-							var res = {};
+							var boxes = {};
 							for (var key in result) {
 								if (result.hasOwnProperty(key)) {
-									res[key] = {};
-									res[key]['special_use_attrib'] = result[key]['special_use_attrib'];
+									boxes[key] = {};
+									boxes[key]['special_use_attrib'] = result[key]['special_use_attrib'];
 								}
 							}
 							imap.end();
-							resolve(res);
-						})
+							resolve(boxes);
+						});
+					});
+				},
+				error => console.log(error)
+			)
+	},
+
+	'moveMessageToSent': function(params) {
+		return initImap(params)
+			.then(
+				imap => {
+					return new Promise(function(resolve, reject) {
+						imap.openBox('INBOX', false, function(err, bx) {
+							var uid = bx.uidnext - 1;
+							resolve(moveMessageToBox(uid, imap, params.srcBox, params.destBox));
+						});
 					});
 				},
 				error => console.log(error)
 			)
 	}
+
 });
 
 function initImap(params) {
@@ -100,9 +104,10 @@ function initImap(params) {
 	});
 };
 
-function moveMessageToBox(uid, imap, box) {
+function moveMessageToBox(uid, imap, srcBox, destBox) {
+	console.log(srcBox, destBox);
 	return new Promise(function(resolve, reject) {
-		imap.openBox('INBOX', false, function(err, bx) {
+		imap.openBox(srcBox, false, function(err, bx) {
 			imap.search(['ALL', ['UID', uid]], function(err, results) {
 
 				if (err) {
@@ -110,7 +115,7 @@ function moveMessageToBox(uid, imap, box) {
 				}
 
 				if (results.length > 0) {
-					var f1 = imap.move(results, box, function(err) {
+					var f1 = imap.move(results, destBox, function(err) {
 						if (err) {
 							console.log(err);
 						}
@@ -271,7 +276,7 @@ function getDialogMessageIds(imap, boxName, key) {
 
 function getMessagesByIds(imap, ids) {
 	var received = ids.received.reverse().slice(0, 10),
-			sent = ids.sent.reverse().slice(0, 10);
+		sent = ids.sent.reverse().slice(0, 10);
 
 	return new Promise(function(resolve, reject) {
 		var messages = [];
@@ -336,4 +341,34 @@ function getMessagesByIds(imap, ids) {
 			getMessages(0);
 		});
 	});
+};
+
+function moveMessageToFolder(imap, sourceBox, destBox) {
+	// var attemptsCount = 0;
+	// var repeat = setInterval(function() {
+	// 	attemptsCount++;
+		imap.openBox(sourceBox, false, function(err, box) {
+			imap.search(['UNSEEN', ['UID', box.uidnext - 1]], function(err, results) {
+				if (err) {
+					console.log(err);
+					return;
+				}
+				if (results.length > 0) {
+					attemptsCount = 60;
+
+					var f2 = imap.addFlags(results, 'Seen', function() {
+						var f1 = imap.move(results, destBox, function(err) {
+							if (err) {
+								console.log(err);
+							}
+							return true;
+						});
+					});
+				}
+			});
+		});
+	// 	if (attemptsCount >= 60) {
+	// 		clearInterval(repeat);
+	// 	}
+	// }, 2000);
 };

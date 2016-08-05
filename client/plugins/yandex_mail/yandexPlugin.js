@@ -36,11 +36,11 @@
 			token: this.token
 		};
 
-		Meteor.call('getImapBoxes', self.params, function(error, results) {
-			self.boxes = results;
+		Meteor.call('getImapBoxes', self.params, function(error, result) {
+			self.boxes = result;
 
-			for (var box in results) {
-				var attr = results[box]['special_use_attrib'];
+			for (var box in result) {
+				var attr = result[box]['special_use_attrib'];
 
 				if (attr === '\\Trash') {
 					self.trashBox = box;
@@ -178,9 +178,10 @@
 		var params = self.params;
 
 		params.uid = uid;
-		params.box = self.trashBox;
+		params.destBox = self.trashBox;
+		params.srcBox = 'INBOX';
 
-		Meteor.call('moveMessageToTrash', params, function(error, results) {
+		Meteor.call('moveMessageToBox', params, function(error, results) {
 			if (error) {
 				Bert.alert('Error with message deleting', 'error');
 				return;
@@ -189,13 +190,14 @@
 		});
 	};
 
-	function toSpam() {
+	function toSpam(uid) {
 		var params = self.params;
 
 		params.uid = uid;
-		params.box = self.spamBox;
+		params.destBox = self.spamBox;
+		params.srcBox = 'INBOX';
 
-		Meteor.call('moveMessageToSpam', params, function(error, results) {
+		Meteor.call('moveMessageToBox', params, function(error, results) {
 			if (error) {
 				Bert.alert('Error with moving message to spam', 'error');
 				return;
@@ -233,6 +235,12 @@
 				Bert.alert(error.reason, 'error');
 				return;
 			}
+
+			var params = self.params;
+			params.uid = uid;
+			params.destBox = self.sentBox;
+			params.srcBox = 'INBOX';
+			Meteor.call('moveMessageToSent', params);
 
 			Bert.alert('Message was successfully sent!', 'success');
 
