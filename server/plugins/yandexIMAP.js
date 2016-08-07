@@ -78,8 +78,24 @@ Meteor.methods({
 													if (err) {
 														console.log(err);
 													}
-													resolve(1);
-													imap.end();
+													imap.openBox(params.destBox, false, function(err, bx) {
+														var lastUid = bx.messages.total;
+														var req1 = imap.seq.fetch(lastUid + ':*', {
+															bodies: '',
+															struct: true
+														});
+
+														return getMessageFromBox(req1)
+															.then(
+																item => {
+																	item.isInbox = false;
+																	item.boxName = params.destBox;
+																	resolve(item);
+																	imap.end();
+																},
+																error => console.log(error)
+															);
+													});
 												});												
 											});
 										} 
@@ -309,7 +325,8 @@ function getMessagesByIds(imap, ids, boxName) {
 						function getSentMessages(index) {
 							if (index > (sent.length - 1)) {
 								messages = _.sortBy(messages, function(item) {
-									return -item.date;
+									// return -item.date;
+									return -item.uid;
 								});
 								messages = messages.slice(0, 10);
 								resolve({

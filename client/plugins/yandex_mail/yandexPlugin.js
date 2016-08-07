@@ -3,7 +3,8 @@
 		dialog,
 		showForwardBlock,
 		replySubject,
-		deps = new Deps.Dependency();
+		deps = new Deps.Dependency(),
+		updateDialog;
 
 	this.YandexPlugin = function(channelData) {
 		this.settingsTemplateName = 'yandexSettingsTemplate';
@@ -113,6 +114,7 @@
 			dialog = result;
 			dialog.partnerAddress = from;
 			getDialogCallback(result);
+			updateDialog = getDialogCallback;
 		});
 	};
 
@@ -243,7 +245,11 @@
 			var params = self.params;
 			params.destBox = self.sentBox;
 			params.srcBox = 'INBOX';
-			Meteor.call('moveMessageToSent', params);
+			Meteor.call('moveMessageToSent', params, function(error, result) {
+				result.inboxClass = 'item-sent';
+				dialog.dialogMessages.unshift(result);
+				updateDialog(dialog);
+			});
 
 			Bert.alert('Message was successfully sent!', 'success');
 
