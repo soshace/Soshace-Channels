@@ -160,7 +160,7 @@
 }
 
 .email__plain-text {
-  white-space: pre;
+  white-space: pre-wrap;
   overflow: auto;
   position: relative;
   width: 100%;

@@ -271,7 +271,7 @@ function getMessageFromBox(request) {
 				item.date = moment(item.date, 'ddd MMM DD YYYY hh:mm:ss Z').valueOf();
 
 				item.htmlBody = result.html;
-				item.plainText || result.text;
+				item.plainText = result.html ? '' : result.text;
 
 				resolve(item);
 			});
