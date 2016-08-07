@@ -23,6 +23,16 @@ Meteor.methods({
 			)
 	},
 
+	'loadMoreMessages': function(params) {
+		return initImap(params)
+			.then(
+				imap => getMessagesByIds(imap, params.ids, params.boxName),
+				error => console.log(error)
+			).then(
+				result => result
+			)
+	},
+
 	'moveMessageToBox': function(params) {
 		return initImap(params)
 			.then(
@@ -324,12 +334,20 @@ function getMessagesByIds(imap, ids, boxName) {
 					imap.openBox('Отправленные', false, function(err, box) {
 						function getSentMessages(index) {
 							if (index > (sent.length - 1)) {
-								console.log(_.pluck(messages, 'uid'));
 								messages = _.sortBy(messages, function(item) {
 									return -item.date;
 									// return -item.uid;
 								});
 								messages = messages.slice(0, 10);
+
+								ids.received = ids.received.filter(function(id) {
+									return !_.findWhere(messages, {seqno: id.index, box: id.boxName});
+								});
+
+								ids.sent = ids.sent.filter(function(id) {
+									return !_.findWhere(messages, {seqno: id.index, box: id.boxName});
+								});
+
 								resolve({
 									dialogMessages: messages,
 									allMessageIds: ids,
@@ -349,6 +367,7 @@ function getMessagesByIds(imap, ids, boxName) {
 									item => {
 										item.isInbox = false;
 										item.boxName = 'Отправленные';
+										item.seqno = seqno;
 										messages.push(item);
 
 										return getSentMessages(++index);
@@ -373,6 +392,7 @@ function getMessagesByIds(imap, ids, boxName) {
 						item => {
 							item.isInbox = true;
 							item.boxName = boxName;
+							item.seqno = seqno;
 							messages.push(item);
 
 							return getMessages(++index);

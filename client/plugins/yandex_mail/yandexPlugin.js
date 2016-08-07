@@ -115,7 +115,6 @@
 			dialog.partnerAddress = from;
 			getDialogCallback(result);
 			updateDialog = getDialogCallback;
-			console.log(result);
 		});
 	};
 
@@ -324,7 +323,34 @@
 
 		'click .js-email__load': function(event) {
 			event.preventDefault();
-			console.log('in progress');
+
+			if (dialog.allMessageIds.sent.length + dialog.allMessageIds.received.length === 0) {
+				return;
+			}
+
+			var params = self.params;
+
+			params.boxName = 'INBOX';
+			params.ids = dialog.allMessageIds;
+
+			Meteor.call('loadMoreMessages', params, function(error, result) {
+				result.dialogMessages.forEach(function(item, index) {
+					if (!item.isInbox) {
+						result.dialogMessages[index].inboxClass = 'item-sent';
+					}
+				});
+
+				result.dialogMessages = _.sortBy(result.dialogMessages, function(item) {
+					return item.date;
+				});
+
+				result.dialogMessages = result.dialogMessages.reverse();
+
+				dialog.dialogMessages = dialog.dialogMessages.concat(result.dialogMessages);
+				dialog.allMessageIds = result.allMessageIds;
+
+				updateDialog(dialog);
+			});
 		}
 	});
 
