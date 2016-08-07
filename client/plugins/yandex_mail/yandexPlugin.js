@@ -189,6 +189,7 @@
 				Bert.alert('Error with message deleting', 'error');
 				return;
 			}
+			removeMessage(uid);
 			Bert.alert('Message was successfully deleted!', 'success');
 		});
 	};
@@ -208,6 +209,7 @@
 				Bert.alert('Error with moving message to spam', 'error');
 				return;
 			}
+			removeMessage(uid);
 			Bert.alert('Message was moved to spam', 'success');
 		});
 	};
@@ -229,6 +231,13 @@
 		replySubject = selectedMessage.subject;
 
 		deps.changed();
+	};
+
+	function removeMessage(uid) {
+		dialog.dialogMessages = dialog.dialogMessages.filter(function(item) {
+			return item.uid !== uid;
+		});
+		updateDialog(dialog);
 	};
 
 	function sendMessage(message) {
