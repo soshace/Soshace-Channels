@@ -23,7 +23,6 @@ function initSmtp(params) {
 };
 
 function sendEmail(message, smtp) {
-
 	var mailOptions = {
 		from: message.login.indexOf('@') === -1 ? message.login + '@yandex.ru' : message.login,
 		to: message.receiver,

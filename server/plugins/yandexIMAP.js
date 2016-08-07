@@ -324,14 +324,16 @@ function getMessagesByIds(imap, ids, boxName) {
 					imap.openBox('Отправленные', false, function(err, box) {
 						function getSentMessages(index) {
 							if (index > (sent.length - 1)) {
+								console.log(_.pluck(messages, 'uid'));
 								messages = _.sortBy(messages, function(item) {
-									// return -item.date;
-									return -item.uid;
+									return -item.date;
+									// return -item.uid;
 								});
 								messages = messages.slice(0, 10);
 								resolve({
 									dialogMessages: messages,
-								})
+									allMessageIds: ids,
+								});
 								imap.end();
 								return;
 							}

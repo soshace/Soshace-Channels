@@ -115,6 +115,7 @@
 			dialog.partnerAddress = from;
 			getDialogCallback(result);
 			updateDialog = getDialogCallback;
+			console.log(result);
 		});
 	};
 
