@@ -186,8 +186,9 @@
   margin: 10px 0;
 }
 
-.email__forward-subject{
+.email__reply-subject{
   margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .email__forward-address{

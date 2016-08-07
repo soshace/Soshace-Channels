@@ -82,8 +82,6 @@
 				}
 			});
 
-			params.boxName = 'Отправленные';
-
 			getEmailsData({
 				blocks: [{
 					messages: results.items.reverse()
@@ -147,7 +145,7 @@
 		var message = {
 			bodyHtml: $('.summernote').summernote('code'),
 			receiver: dialog.partnerAddress,
-			subject: replySubject,
+			subject: $('.email__reply-subject').val() || 'No subject',
 			login: self.params.login
 		};
 
@@ -167,7 +165,7 @@
 		message = {
 			bodyHtml: $('.summernote').summernote('code'),
 			receiver: receiver,
-			subject: replySubject,
+			subject: $('.email__reply-subject').val() || 'No subject',
 			login: self.params.login
 		};
 
@@ -175,11 +173,14 @@
 	};
 
 	function deleteEmail(uid) {
-		var params = self.params;
+		var params = self.params, 
+			selectedMessage = _.findWhere(dialog.dialogMessages, {
+				uid: +uid
+			});
 
 		params.uid = uid;
 		params.destBox = self.trashBox;
-		params.srcBox = 'INBOX';
+		params.srcBox = selectedMessage.boxName;
 
 		Meteor.call('moveMessageToBox', params, function(error, results) {
 			if (error) {
@@ -191,11 +192,14 @@
 	};
 
 	function toSpam(uid) {
-		var params = self.params;
+		var params = self.params, 
+			selectedMessage = _.findWhere(dialog.dialogMessages, {
+				uid: +uid
+			});
 
 		params.uid = uid;
 		params.destBox = self.spamBox;
-		params.srcBox = 'INBOX';
+		params.srcBox = selectedMessage.boxName;
 
 		Meteor.call('moveMessageToBox', params, function(error, results) {
 			if (error) {
@@ -237,7 +241,6 @@
 			}
 
 			var params = self.params;
-			params.uid = uid;
 			params.destBox = self.sentBox;
 			params.srcBox = 'INBOX';
 			Meteor.call('moveMessageToSent', params);
@@ -307,7 +310,6 @@
 	Template.replyBlock.events({
 		'click .email__show-reply': function(event) {
 			event.preventDefault();
-			// showReplyBlock = !showReplyBlock;
 			deps.changed();
 		},
 	});
@@ -319,12 +321,7 @@
 		});
 	});
 
-	Template.yandexDetailsTemplate.helpers({
-		showForwardBlock: function() {
-			deps.depend();
-			return showForwardBlock;
-		},
-
+	Template.replyBlock.helpers({
 		replySubject: function() {
 			deps.depend();
 			if (showForwardBlock) {
@@ -339,6 +336,13 @@
 
 			return replySubject;
 		}
+	});
+
+	Template.yandexDetailsTemplate.helpers({
+		showForwardBlock: function() {
+			deps.depend();
+			return showForwardBlock;
+		},
 	});
 
 	Template.yandexSettingsTemplate.events({

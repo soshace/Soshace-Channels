@@ -18,7 +18,7 @@ Meteor.methods({
 				.then(item => item),
 			)
 			.then(
-				result => getMessagesByIds(result.imap, result.ids),
+				result => getMessagesByIds(result.imap, result.ids, params.boxName),
 				error => console.log(error)
 			)
 	},
@@ -63,16 +63,38 @@ Meteor.methods({
 			.then(
 				imap => {
 					return new Promise(function(resolve, reject) {
-						imap.openBox('INBOX', false, function(err, bx) {
-							var uid = bx.uidnext - 1;
-							resolve(moveMessageToBox(uid, imap, params.srcBox, params.destBox));
+						imap.openBox(params.srcBox, false, function(err, bx) {
+							var nextUid = bx.uidnext;
+
+							function getLastMessage(flag) {
+								if (flag) {
+									return;
+								}
+								imap.openBox(params.srcBox, false, function(err, bx) {
+									imap.search(['UNSEEN', ['UID', nextUid]], function(err, result) {
+										if (result.length > 0) {
+											imap.addFlags(result, 'Seen', function() {
+												imap.move(result, params.destBox, function(err) {
+													if (err) {
+														console.log(err);
+													}
+													resolve(1);
+													imap.end();
+												});												
+											});
+										} 
+										return(getLastMessage(result.length > 0));
+									});
+								});
+							}
+
+							getLastMessage(false);
 						});
 					});
 				},
 				error => console.log(error)
 			)
 	}
-
 });
 
 function initImap(params) {
@@ -105,7 +127,6 @@ function initImap(params) {
 };
 
 function moveMessageToBox(uid, imap, srcBox, destBox) {
-	console.log(srcBox, destBox);
 	return new Promise(function(resolve, reject) {
 		imap.openBox(srcBox, false, function(err, bx) {
 			imap.search(['ALL', ['UID', uid]], function(err, results) {
@@ -244,7 +265,7 @@ function getDialogMessageIds(imap, boxName, key) {
 				receivedIds.forEach(function(item) {
 					received.push({
 						index: item,
-						box: 'INBOX'
+						box: boxName
 					})
 				});
 				imap.openBox('Отправленные', false, function(err, box) {
@@ -274,14 +295,14 @@ function getDialogMessageIds(imap, boxName, key) {
 	});
 };
 
-function getMessagesByIds(imap, ids) {
+function getMessagesByIds(imap, ids, boxName) {
 	var received = ids.received.reverse().slice(0, 10),
 		sent = ids.sent.reverse().slice(0, 10);
 
 	return new Promise(function(resolve, reject) {
 		var messages = [];
 
-		imap.openBox('INBOX', false, function(err, box) {
+		imap.openBox(boxName, false, function(err, box) {
 			function getMessages(index) {
 				if (index > (received.length - 1)) {
 					imap.openBox('Отправленные', false, function(err, box) {
@@ -294,6 +315,7 @@ function getMessagesByIds(imap, ids) {
 								resolve({
 									dialogMessages: messages,
 								})
+								imap.end();
 								return;
 							}
 
@@ -307,6 +329,7 @@ function getMessagesByIds(imap, ids) {
 								.then(
 									item => {
 										item.isInbox = false;
+										item.boxName = 'Отправленные';
 										messages.push(item);
 
 										return getSentMessages(++index);
@@ -330,6 +353,7 @@ function getMessagesByIds(imap, ids) {
 					.then(
 						item => {
 							item.isInbox = true;
+							item.boxName = boxName;
 							messages.push(item);
 
 							return getMessages(++index);
@@ -341,34 +365,4 @@ function getMessagesByIds(imap, ids) {
 			getMessages(0);
 		});
 	});
-};
-
-function moveMessageToFolder(imap, sourceBox, destBox) {
-	// var attemptsCount = 0;
-	// var repeat = setInterval(function() {
-	// 	attemptsCount++;
-		imap.openBox(sourceBox, false, function(err, box) {
-			imap.search(['UNSEEN', ['UID', box.uidnext - 1]], function(err, results) {
-				if (err) {
-					console.log(err);
-					return;
-				}
-				if (results.length > 0) {
-					attemptsCount = 60;
-
-					var f2 = imap.addFlags(results, 'Seen', function() {
-						var f1 = imap.move(results, destBox, function(err) {
-							if (err) {
-								console.log(err);
-							}
-							return true;
-						});
-					});
-				}
-			});
-		});
-	// 	if (attemptsCount >= 60) {
-	// 		clearInterval(repeat);
-	// 	}
-	// }, 2000);
 };

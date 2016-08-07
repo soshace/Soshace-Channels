@@ -14,7 +14,7 @@
 				<input type="text" class="form-control email__forward-address" placeholder="To:">
 			</div>
 		{{/if}}
-		<input type="text" class="form-control email__forward-subject" placeholder="Subject:" value="{{replySubject}}">				
+				
 		{{> replyBlock}}
 
 		<ul class="email__list">
@@ -66,6 +66,7 @@
 
 <template name="replyBlock">
 	<div class="email__reply-block">
+		<input type="text" class="form-control email__reply-subject" placeholder="Subject:" value="{{replySubject}}">
 		<div class="summernote"></div>
 		<button class="btn btn-primary btn-lg channel-block__send-email">
 			Send
