@@ -22,7 +22,11 @@
 			<li class="media media-sm">
 				<div class="email__dialog-item p-10 {{inboxClass}}">
 					<p class="f-s-15">
-						<span class="item__title">{{fromName}} wrote on {{formatDateTimeFromUnix date}}</span>
+						{{#if isInbox}}
+						<span class="item__title">Received from {{fromName}} on {{formatDateTimeFromUnix date}}</span>
+						{{else}}
+						<span class="item__title">Sent on {{formatDateTimeFromUnix date}}</span>
+						{{/if}}
 						<div class="item__handlers">
 							<a class="js-item__reply email__handler">
 								<i class="fa fa-reply" aria-hidden="true" id={{attr.uid}}></i>

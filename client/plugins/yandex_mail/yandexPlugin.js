@@ -319,14 +319,15 @@
 		'click .js-item__spam': function(event) {
 			event.preventDefault();
 			toSpam(+event.target.id);
+		},
+
+		'click .js-email__load': function(event) {
+			event.preventDefault();
+			console.log('in progress');
 		}
 	});
 
 	Template.replyBlock.events({
-		'click .email__show-reply': function(event) {
-			event.preventDefault();
-			deps.changed();
-		},
 	});
 
 	Template.replyBlock.onRendered(function() {
