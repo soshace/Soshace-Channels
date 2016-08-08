@@ -1,10 +1,13 @@
 (function() {
 	var self,
 		dialog,
+		dialogsWith,
 		showForwardBlock,
 		replySubject,
 		deps = new Deps.Dependency(),
-		updateDialog;
+		updateDialog,
+		updateDialogs,
+		lastDialogsIndex;
 
 	this.YandexPlugin = function(channelData) {
 		this.settingsTemplateName = 'yandexSettingsTemplate';
@@ -69,26 +72,33 @@
 		var params = this.params;
 
 		params.boxName = 'INBOX';
+		params.lastIndex = 0;
 
-		Meteor.call('getYandexMessages', params, function(error, results) {
+		Meteor.call('getYandexMessages', params, function(error, result) {
 			if (error) {
 				console.log(error);
 				return;
 			}
 
-			_.map(results.items, function(item) {
+			_.map(result.items, function(item) {
 				item.channelId = self.channelId;
 				if (item.attr.flags.indexOf('\\Seen') === -1) {
 					item.class = ' message__unseen';
 				}
 			});
 
+			lastDialogsIndex = result.lastIndex;
+
+			dialogsWith = result.items.reverse();
+
 			getEmailsData({
 				blocks: [{
-					messages: results.items.reverse()
+					messages: dialogsWith
 				}],
-				commonParams: results.box
+				commonParams: result.box
 			});
+
+			updateDialogs = getEmailsData;
 		});
 	};
 
@@ -403,9 +413,37 @@
 	});
 
 	Template.yandexPreviewTemplate.events({
-		'change .js-yandex__load-more': function(event) {
+		'click .js-yandex__load-more': function(event) {
 			event.preventDefault();
-			console.log('In progress...');
+
+			var params = self.params;
+
+			params.boxName = 'INBOX';
+			params.lastIndex = lastDialogsIndex;
+			params.dialogsWith = _.pluck(dialogsWith, 'from');
+
+			Meteor.call('getYandexMessages', params, function(error, results) {
+				if (error) {
+					console.log(error);
+					return;
+				}
+
+				_.map(results.items, function(item) {
+					item.channelId = self.channelId;
+					if (item.attr.flags.indexOf('\\Seen') === -1) {
+						item.class = ' message__unseen';
+					}
+				});
+
+				dialogsWith = dialogsWith.concat(results.items.reverse());
+
+				updateDialogs({
+					blocks: [{
+						messages: dialogsWith 
+					}],
+					commonParams: results.box
+				});
+			});
 		}
 	});
 

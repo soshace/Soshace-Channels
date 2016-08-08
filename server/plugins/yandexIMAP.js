@@ -2,7 +2,7 @@ Meteor.methods({
 	'getYandexMessages': function(params) {
 		return initImap(params)
 			.then(
-				imap => getUniqueDialogs(params.page, imap, params.boxName),
+				imap => getUniqueDialogs(imap, params),
 				error => console.log(error)
 			)
 	},
@@ -177,21 +177,25 @@ function moveMessageToBox(uid, imap, srcBox, destBox) {
 	});
 };
 
-function getUniqueDialogs(params, imap, boxName) {
+function getUniqueDialogs(imap, params) {
 	var messages = [];
 
 	return new Promise(function(resolve, error) {
-		imap.openBox(boxName, false, function(err, box) {
+		imap.openBox(params.boxName, false, function(err, box) {
 			var f,
 				dialogsCount = 0,
 				total = box.messages.total,
-				index = 0;
+				index = params.lastIndex,
+				dialogsWith = params.dialogsWith || [];
+
+			console.log(dialogsWith);
 
 			function getMessages(messages) {
 				if (messages.length > 10 || (total - index === 0)) {
 					resolve({
 						items: messages.reverse(),
-						box: box
+						box: box,
+						lastIndex: index
 					});
 					return;
 				}
@@ -208,6 +212,12 @@ function getUniqueDialogs(params, imap, boxName) {
 							var messageIsFromDialog = false;
 							for (var mes of messages) {
 								if (mes.from === item.from && mes.to === item.to) {
+									messageIsFromDialog = true;
+								}
+							}
+
+							for (var mes of dialogsWith) {
+								if (mes === item.from) {
 									messageIsFromDialog = true;
 								}
 							}
@@ -258,7 +268,8 @@ function getMessageFromBox(request) {
 				item.from = result.from[0].address.toLowerCase();
 				item.fromName = result.from[0].name || result.from[0].address;
 
-				item.to = result.to ? result.to[0].address.toLowerCase() : '';
+				item.to = result.to ? result.to[0].address : '';
+				item.to = item.to && item.to.toLowerCase();
 				item.toName = result.to ? result.to[0].name : '';
 
 				item.subject = result.subject || 'No subject';
@@ -332,7 +343,6 @@ function getMessagesByIds(imap, ids, boxName) {
 							if (index > (sent.length - 1)) {
 								messages = _.sortBy(messages, function(item) {
 									return -item.date;
-									// return -item.uid;
 								});
 								messages = messages.slice(0, 10);
 
