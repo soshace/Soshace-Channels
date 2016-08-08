@@ -5,10 +5,6 @@ Meteor.methods({
 				imap => getUniqueDialogs(params.page, imap, params.boxName),
 				error => console.log(error)
 			)
-			.then(
-				response => response,
-				error => error
-			);
 	},
 
 	'getYandexDialog': function(params) {

@@ -354,9 +354,6 @@
 		}
 	});
 
-	Template.replyBlock.events({
-	});
-
 	Template.replyBlock.onRendered(function() {
 		$('.summernote').summernote({
 			height: 200,
@@ -403,6 +400,13 @@
 		clientId: function() {
 			return Meteor.settings.public.yandex_client_id;
 		},
+	});
+
+	Template.yandexPreviewTemplate.events({
+		'change .js-yandex__load-more': function(event) {
+			event.preventDefault();
+			console.log('In progress...');
+		}
 	});
 
 })();
