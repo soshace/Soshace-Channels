@@ -188,8 +188,6 @@ function getUniqueDialogs(imap, params) {
 				index = params.lastIndex,
 				dialogsWith = params.dialogsWith || [];
 
-			console.log(dialogsWith);
-
 			function getMessages(messages) {
 				if (messages.length > 10 || (total - index === 0)) {
 					resolve({
@@ -254,10 +252,11 @@ function getMessageFromBox(request) {
 				item.uid = attrs.uid;
 			});
 
-			msg.on('body', function(stream) {
+			msg.on('body', function(stream, info) {
 				stream.on('data', function(chunk) {
 					parser.write(chunk.toString('utf8'));
 				});
+
 			});
 
 			msg.on('end', function() {
@@ -266,6 +265,7 @@ function getMessageFromBox(request) {
 
 			parser.on('end', function(result) {
 				item.from = result.from[0].address.toLowerCase();
+
 				item.fromName = result.from[0].name || result.from[0].address;
 
 				item.to = result.to ? result.to[0].address : '';
@@ -277,9 +277,14 @@ function getMessageFromBox(request) {
 				item.date = result.date || '';
 				item.date = moment(item.date, 'ddd MMM DD YYYY hh:mm:ss Z').valueOf();
 
+				item.plainText = result.text;
 				item.htmlBody = result.html;
-				item.plainText = result.html ? '' : result.text;
 
+				// if (item.plainText) {
+				// 	item.plainText = getInboxText(item.plainText);
+				// }
+
+				// item.plainText = result.html ? '' : result.text;
 				resolve(item);
 			});
 		});
@@ -287,13 +292,15 @@ function getMessageFromBox(request) {
 };
 
 function getDialogMessageIds(imap, boxName, key) {
+	console.log(boxName, key);
 	return new Promise(function(resolve, reject) {
 
 		imap.openBox(boxName, false, function(err, box) {
-
-			imap.seq.search(['ALL', ['FROM', key]], function(err, receivedIds) {
-
+			console.log(box);
+			imap.seq.search(['SEEN', ['FROM', key]], function(err, receivedIds) {
+			// imap.seq.search(['ALL', ['UID', '3247']], function(err, receivedIds) {				
 				var received = [];
+				console.log(receivedIds);
 
 				receivedIds.forEach(function(item) {
 					received.push({
@@ -301,6 +308,7 @@ function getDialogMessageIds(imap, boxName, key) {
 						box: boxName
 					})
 				});
+
 				imap.openBox('Отправленные', false, function(err, box) {
 					imap.seq.search(['ALL', ['TO', key]], function(err, sentIds) {
 
@@ -311,7 +319,7 @@ function getDialogMessageIds(imap, boxName, key) {
 							sent.push({
 								index: item,
 								box: 'Отправленные'
-							})
+							});
 						});
 
 						resolve({
@@ -411,3 +419,13 @@ function getMessagesByIds(imap, ids, boxName) {
 		});
 	});
 };
+
+function getInboxText(text) {
+	var lines = text.split(/\r\n|\r|\n/g);
+
+	return lines.filter(function(item) {
+		return item[0] !== '>'
+	}).join('\n');
+};
+
+

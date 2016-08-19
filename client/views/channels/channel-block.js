@@ -82,24 +82,24 @@ function getSingleBlockCallback(data) {
 };
 
 function loadComments() {
-  var messages = channelData.messages;
+  // var messages = channelData.messages;
 
-  singleBlock.messages = [];
-  for (var i = messages.length - 1; i >= 0; i--) {
-    if (messages[i].resourceBlockId === singleBlock.sha) {
-      messages[i].author = Meteor.users.findOne({
-        _id: messages[i].author
-      }).username;
-      singleBlock.messages.push(messages[i]);
-    }
-  }
+  // singleBlock.messages = [];
+  // for (var i = messages.length - 1; i >= 0; i--) {
+  //   if (messages[i].resourceBlockId === singleBlock.sha) {
+  //     messages[i].author = Meteor.users.findOne({
+  //       _id: messages[i].author
+  //     }).username;
+  //     singleBlock.messages.push(messages[i]);
+  //   }
+  // }
 };
 
 function addComment(resourceBlockId) {
-  var message = _commentTextArea.value;
-  if (message) {
-    console.log(channelData._id, singleBlock);
-    Meteor.call('addComment', message, channelData._id, singleBlock.hash, Meteor.userId());
-    _commentTextArea.value = '';
-  }
+  // var message = _commentTextArea.value;
+  // if (message) {
+  //   console.log(channelData._id, singleBlock);
+  //   Meteor.call('addComment', message, channelData._id, singleBlock.hash, Meteor.userId());
+  //   _commentTextArea.value = '';
+  // }
 };

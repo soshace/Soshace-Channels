@@ -123,6 +123,12 @@
 
 			dialog = result;
 			dialog.partnerAddress = from;
+
+			dialog.dialogMessages.forEach(function(item) {
+				if (item.plainText) {
+					item.plainText = getInboxText(item.plainText);							
+				}
+			});
 			getDialogCallback(result);
 			updateDialog = getDialogCallback;
 		});
@@ -280,6 +286,14 @@
 
 			deps.changed();
 		});
+	};
+
+	function getInboxText(text) {
+		var lines = text.split(/\r\n|\r|\n/g);
+
+		return lines.filter(function(item) {
+			return (item.trim().length > 0) && (item[0] !== '>')
+		}).join('\n');
 	};
 
 	Template.yandexDetailsTemplate.events({

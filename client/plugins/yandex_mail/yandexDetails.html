@@ -23,7 +23,7 @@
 				<div class="email__dialog-item p-10 {{inboxClass}}">
 					<p class="f-s-15">
 						{{#if isInbox}}
-						<span class="item__title">Received from {{fromName}} on {{formatDateTimeFromUnix date}}</span>
+						<span class="item__title">Received from {{fromName}} ({{from}}) on {{formatDateTimeFromUnix date}}</span>
 						{{else}}
 						<span class="item__title">Sent on {{formatDateTimeFromUnix date}}</span>
 						{{/if}}
@@ -47,12 +47,17 @@
 					</p>
 
 
-					<em class="grey-text pull-right"></em>
+					<!-- <em class="grey-text pull-right"></em> -->
+
 					{{#if plainText}}
-						<div class="email__plain-text">{{{plainText}}}</div>
+						<div class="email__plain-text">{{plainText}}</div>
 					{{/if}}
 					<div>
-						{{{htmlBody}}}
+						<br/>
+						<br/>
+						<br/>
+						*********************************html**************************
+						{{htmlBody}}
 					</div>				
 				</div>
 			</li>
