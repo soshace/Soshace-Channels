@@ -124,6 +124,8 @@
 			dialog = result;
 			dialog.partnerAddress = from;
 
+			console.log(dialog);
+
 			dialog.dialogMessages.forEach(function(item) {
 				if (item.plainText) {
 					item.plainText = getInboxText(item.plainText);							

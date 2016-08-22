@@ -219,7 +219,7 @@
 }
 
 .email__dialog-item:hover{
-  background-color: AliceBlue;
+  border: Solid 1px LightGreen;
 }
 
 .email__dialog-item:hover .item__handlers{
@@ -227,7 +227,7 @@
 }
 
 .item-sent:hover{
-  background-color: Linen;
+  border: Solid 1px LightSalmon;
 }
 
 .tabulation {

@@ -102,10 +102,10 @@ Meteor.methods({
 																error => console.log(error)
 															);
 													});
-												});												
+												});
 											});
-										} 
-										return(getLastMessage(result.length > 0));
+										}
+										return (getLastMessage(result.length > 0));
 									});
 								});
 							}
@@ -264,6 +264,9 @@ function getMessageFromBox(request) {
 			});
 
 			parser.on('end', function(result) {
+				item.inReplyTo = result.inReplyTo ? result.inReplyTo[0] : false;
+				item.messageId = result.messageId;
+
 				item.from = result.from[0].address.toLowerCase();
 
 				item.fromName = result.from[0].name || result.from[0].address;
@@ -278,13 +281,22 @@ function getMessageFromBox(request) {
 				item.date = moment(item.date, 'ddd MMM DD YYYY hh:mm:ss Z').valueOf();
 
 				item.plainText = result.text;
-				item.htmlBody = result.html;
 
-				// if (item.plainText) {
-				// 	item.plainText = getInboxText(item.plainText);
-				// }
+				if (result.html) {
+					if (item.inReplyTo) {
+						item.htmlBody = removeBlockquote(result.html);
+					} else {
+						item.htmlBody = result.html;
+					}
+				}
 
-				// item.plainText = result.html ? '' : result.text;
+				// item.htmlBody = result.html;
+
+				item.plainText = result.html ? '' : result.text;
+				if (item.plainText && item.inReplyTo) {
+					item.plainText = getInboxText(item.plainText);
+				}
+
 				resolve(item);
 			});
 		});
@@ -296,12 +308,8 @@ function getDialogMessageIds(imap, boxName, key) {
 	return new Promise(function(resolve, reject) {
 
 		imap.openBox(boxName, false, function(err, box) {
-			console.log(box);
-			imap.seq.search(['SEEN', ['FROM', key]], function(err, receivedIds) {
-			// imap.seq.search(['ALL', ['UID', '3247']], function(err, receivedIds) {				
+			imap.seq.search(['ALL', ['FROM', key]], function(err, receivedIds) {
 				var received = [];
-				console.log(receivedIds);
-
 				receivedIds.forEach(function(item) {
 					received.push({
 						index: item,
@@ -355,11 +363,17 @@ function getMessagesByIds(imap, ids, boxName) {
 								messages = messages.slice(0, 10);
 
 								ids.received = ids.received.filter(function(id) {
-									return !_.findWhere(messages, {seqno: id.index, box: id.boxName});
+									return !_.findWhere(messages, {
+										seqno: id.index,
+										box: id.boxName
+									});
 								});
 
 								ids.sent = ids.sent.filter(function(id) {
-									return !_.findWhere(messages, {seqno: id.index, box: id.boxName});
+									return !_.findWhere(messages, {
+										seqno: id.index,
+										box: id.boxName
+									});
 								});
 
 								resolve({
@@ -423,9 +437,52 @@ function getMessagesByIds(imap, ids, boxName) {
 function getInboxText(text) {
 	var lines = text.split(/\r\n|\r|\n/g);
 
-	return lines.filter(function(item) {
-		return item[0] !== '>'
-	}).join('\n');
+	// return lines.filter(function(item, index) {
+	// 	return (item[0] !== '>')
+	// }).join('\n');
+
+	var startIndex;
+	lines.some(function(item, index) {
+		if (item[0] === '>') {
+			startIndex = index;
+			return true;
+		}
+		return false;
+	});
+
+	lines.length = startIndex - 1;
+
+	return lines.join('\n');
 };
 
+function removeBlockquote(html) {
+	var citeOpenTag = '<blockquote';
+	var citeCloseTag = '</blockquote>';
 
+	var firstIndex = html.indexOf(citeOpenTag);
+
+	if (firstIndex > -1) {
+		var lastIndex = html.lastIndexOf(citeCloseTag);
+
+		var openDiv = '<div';
+		var closeDiv = '</div>';
+
+		var clearHtml = html.replace(html.substring(firstIndex, lastIndex + citeCloseTag.length), '');
+		var replyRemoved = false;
+
+		while (!replyRemoved) {
+			var openDivIndex = clearHtml.lastIndexOf(openDiv);
+			var closeDivIndex = clearHtml.lastIndexOf(closeDiv);
+
+			if (clearHtml.substring(openDivIndex, closeDivIndex).trim()) {
+				replyRemoved = true;
+			}
+
+			clearHtml = clearHtml.replace(clearHtml.substring(openDivIndex, closeDivIndex + closeDiv.length), '');
+		}
+
+		return clearHtml
+	}
+
+	return html;
+}
