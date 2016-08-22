@@ -166,8 +166,11 @@
 			bodyHtml: $('.summernote').summernote('code'),
 			receiver: dialog.partnerAddress,
 			subject: $('.email__reply-subject').val() || 'No subject',
-			login: self.params.login
+			login: self.params.login,
+			inReplyTo: replyedMessageId
 		};
+
+		console.log(message);
 
 		sendMessage(message);
 	};
@@ -236,17 +239,19 @@
 		var selectedMessage = _.findWhere(dialog.dialogMessages, {
 				uid: +uid
 			}),
-			separator = '<br/><div class="email__separator">',
+			separator = '<br/><div class="qoute">',
 			date = moment.unix(selectedMessage.date / 1000),
-			body = '<div class="email__current-body">' + selectedMessage.htmlBody || selectedMessage.plainText + '</div>';
+			body = '<blockquote>' + selectedMessage.htmlBody || selectedMessage.plainText + '<blockquote>';
 
 		separator += date.format('MMMM Do YYYY, hh:mm,');
-		separator += selectedMessage.from + ':</div>';
+		separator += selectedMessage.from + ' wrote:</div>';
 
 		$('.summernote').summernote('code', separator + body);
 		$('.summernote').summernote({focus: true});
 
 		replySubject = selectedMessage.subject;
+
+		replyedMessageId = selectedMessage.messageId;
 
 		deps.changed();
 	};

@@ -172,12 +172,12 @@
   color: CadetBlue;
 }
 
-.email__separator {
+.quote {
   color: #CCCCCC;
   font-style: italic;
 }
 
-.email__current-body {
+.blockquote {
   padding-left: 10px;
   border-left: Solid 2px #CCCCCC;
 }

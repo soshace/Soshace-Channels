@@ -29,7 +29,8 @@ function sendEmail(message, smtp) {
 		subject: message.subject,
 		text: message.body,
 		html: message.bodyHtml,
-		bcc: message.login.indexOf('@') === -1 ? message.login + '@yandex.ru' : message.login
+		bcc: message.login.indexOf('@') === -1 ? message.login + '@yandex.ru' : message.login,
+		inReplyTo: message.inReplyTo
 	};
 
 	smtp.sendMail(mailOptions, function(error, info) {
