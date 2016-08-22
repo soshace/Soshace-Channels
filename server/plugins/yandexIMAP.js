@@ -282,6 +282,8 @@ function getMessageFromBox(request) {
 
 				item.plainText = result.text;
 
+				item.fullHtml = result.html;
+
 				if (result.html) {
 					if (item.inReplyTo) {
 						item.htmlBody = removeBlockquote(result.html);
