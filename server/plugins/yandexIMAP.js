@@ -96,6 +96,7 @@ Meteor.methods({
 																item => {
 																	item.isInbox = false;
 																	item.boxName = params.destBox;
+																	item.compressed = true;
 																	resolve(item);
 																	imap.end();
 																},
@@ -418,15 +419,16 @@ function getMessageFromBox(request) {
 				if (result.html) {
 					if (item.inReplyTo) {
 						item.htmlBody = removeBlockquote(result.html);
-						item.htmlBody = removeQuoteDeclaration(item.htmlBody);
+						// item.htmlBody = removeQuoteDeclaration(item.htmlBody);
 					} else {
 						item.htmlBody = result.html;
 					}
 				}
 
 				item.plainText = result.text;
+				item.compressedText = result.text;
 				if (item.plainText && item.inReplyTo) {
-					item.compressedText = getInboxText(item.plainText);
+					item.compressedText = removeQuotesFromText(item.plainText);
 				}
 
 				item.compressed = true;
@@ -437,7 +439,7 @@ function getMessageFromBox(request) {
 	});
 };
 
-function getInboxText(text) {
+function removeQuotesFromText(text) {
 	var lines = text.split(/\r\n|\r|\n/g);
 
 	var startIndex;
@@ -449,7 +451,9 @@ function getInboxText(text) {
 		return false;
 	});
 
-	lines.length = startIndex - 1;
+	if (startIndex) {
+		lines.length = startIndex - 1;		
+	}
 
 	return lines.join('\n');
 };
@@ -463,10 +467,17 @@ function removeBlockquote(html) {
 	if (firstIndex > -1) {
 		var lastIndex = html.lastIndexOf(citeCloseTag);
 
-		var clearHtml = html.replace(html.substring(firstIndex, lastIndex + citeCloseTag.length), '');
+		var html1 = html.substr(0, firstIndex);
+		var html2 = html.substr(lastIndex + citeCloseTag.length, html.length);
+		html1 = removeQuoteDeclaration(html1);
 
-		return clearHtml
+
+		// var clearHtml = html.replace(html.substring(firstIndex, lastIndex + citeCloseTag.length), '');
+
+		return (html1 + html2);
+		// return clearHtml
 	}
+
 
 	return html;
 }
@@ -479,18 +490,18 @@ function removeQuoteDeclaration(html) {
 			gmailQuoteIndex = clearHtml.indexOf(gmailQuote),
 			replyRemoved = false;
 
-	if (gmailQuoteIndex > -1) {
-		var quotePart = clearHtml.substr(gmailQuoteIndex, clearHtml.length);
+	// if (gmailQuoteIndex > -1) {
+	// 	var quotePart = clearHtml.substr(gmailQuoteIndex, clearHtml.length);
 
-		closeDiv.exec(quotePart);
-		quotePart = quotePart.substr(closeDiv.lastIndex, quotePart.length);
+	// 	closeDiv.exec(quotePart);
+	// 	quotePart = quotePart.substr(closeDiv.lastIndex, quotePart.length);
 
-		clearHtml = clearHtml.substr(0, gmailQuoteIndex);
+	// 	clearHtml = clearHtml.substr(0, gmailQuoteIndex);
 
-		clearHtml += quotePart;
+	// 	clearHtml += quotePart;
 
-		return clearHtml;
-	}
+	// 	return clearHtml;
+	// }
 
 	openDiv = '<div';
 	closeDiv = '</div>';
