@@ -127,9 +127,12 @@
 			console.log(dialog);
 
 			dialog.dialogMessages.forEach(function(item) {
-				if (item.plainText) {
-					item.plainText = getInboxText(item.plainText);							
-				}
+				// if (item.plainText) {
+				// 	item.plainText = getInboxText(item.plainText);
+				// }
+				// if (item.htmlBody && item.inReplyTo) {
+				// 	item.htmlBody = parseHtml(item.htmlBody);
+				// }
 			});
 			getDialogCallback(result);
 			updateDialog = getDialogCallback;
@@ -239,9 +242,9 @@
 		var selectedMessage = _.findWhere(dialog.dialogMessages, {
 				uid: +uid
 			}),
-			separator = '<br/><div class="qoute">',
+			separator = '<br/><div class="quote">',
 			date = moment.unix(selectedMessage.date / 1000),
-			body = '<blockquote>' + selectedMessage.htmlBody || selectedMessage.plainText + '<blockquote>';
+			body = '<blockquote>' + selectedMessage.fullHtml || selectedMessage.plainText + '<blockquote>';
 
 		separator += date.format('MMMM Do YYYY, hh:mm,');
 		separator += selectedMessage.from + ' wrote:</div>';
@@ -302,6 +305,29 @@
 			return (item.trim().length > 0) && (item[0] !== '>')
 		}).join('\n');
 	};
+
+	function parseHtml(html) {
+		var openDiv = /\<div/g,
+				closeDiv = /\<\/div\>/g,
+				clearHtml = html,
+				gmailQuote = '<div class="gmail_quote">',
+				gmailQuoteIndex = clearHtml.indexOf(gmailQuote);
+
+		if (gmailQuoteIndex > -1) {
+			var quotePart = clearHtml.substr(gmailQuoteIndex, clearHtml.length);
+
+			closeDiv.exec(quotePart);
+			quotePart = quotePart.substr(closeDiv.lastIndex, quotePart.length);
+
+			clearHtml = clearHtml.substr(0, gmailQuoteIndex);
+
+			clearHtml += quotePart;
+
+			return clearHtml;
+		}
+
+		return html;
+	}
 
 	Template.yandexDetailsTemplate.events({
 		'click .channel-block__send-email': function(event) {

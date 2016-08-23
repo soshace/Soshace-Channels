@@ -418,13 +418,11 @@ function getMessageFromBox(request) {
 				if (result.html) {
 					if (item.inReplyTo) {
 						item.htmlBody = removeBlockquote(result.html);
-						// item.htmlBody = removeQuoteDeclaration(item.htmlBody);
+						item.htmlBody = removeQuoteDeclaration(item.htmlBody);
 					} else {
 						item.htmlBody = result.html;
 					}
 				}
-
-				// item.htmlBody = result.html;
 
 				item.plainText = result.html ? '' : result.text;
 				if (item.plainText && item.inReplyTo) {
@@ -439,10 +437,6 @@ function getMessageFromBox(request) {
 
 function getInboxText(text) {
 	var lines = text.split(/\r\n|\r|\n/g);
-
-	// return lines.filter(function(item, index) {
-	// 	return (item[0] !== '>')
-	// }).join('\n');
 
 	var startIndex;
 	lines.some(function(item, index) {
@@ -476,19 +470,28 @@ function removeBlockquote(html) {
 }
 
 function removeQuoteDeclaration(html) {
-	var openDiv = '<div';
-	var closeDiv = '</div>';
+	var openDiv = /\<div/g,
+			closeDiv = /\<\/div\>/g,
+			clearHtml = html,
+			gmailQuote = '<div class="gmail_quote">',
+			gmailQuoteIndex = clearHtml.indexOf(gmailQuote),
+			replyRemoved = false;
 
-	var clearHtml = html;
-
-	var replyRemoved = false;
-
-	var gmailQuote = '<div class="gmail_quote">';
-	var gmailQuoteIndex = clearHtml.indexOf(gmailQuote);
 	if (gmailQuoteIndex > -1) {
-		var str = clearHtml.substr(gmailQuoteIndex, clearHtml.length);
-		console.log(str);
+		var quotePart = clearHtml.substr(gmailQuoteIndex, clearHtml.length);
+
+		closeDiv.exec(quotePart);
+		quotePart = quotePart.substr(closeDiv.lastIndex, quotePart.length);
+
+		clearHtml = clearHtml.substr(0, gmailQuoteIndex);
+
+		clearHtml += quotePart;
+
+		return clearHtml;
 	}
+
+	openDiv = '<div';
+	closeDiv = '</div>';
 
 	while (!replyRemoved) {
 		var openDivIndex = clearHtml.lastIndexOf(openDiv);
