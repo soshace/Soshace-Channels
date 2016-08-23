@@ -424,10 +424,12 @@ function getMessageFromBox(request) {
 					}
 				}
 
-				item.plainText = result.html ? '' : result.text;
+				item.plainText = result.text;
 				if (item.plainText && item.inReplyTo) {
-					item.plainText = getInboxText(item.plainText);
+					item.compressedText = getInboxText(item.plainText);
 				}
+
+				item.compressed = true;
 
 				resolve(item);
 			});

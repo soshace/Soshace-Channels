@@ -42,17 +42,41 @@
 
 							<a class="js-item__spam email__handler">
 								<i class="fa fa-ban" aria-hidden="true" id={{attr.uid}}></i>
-							</a>									
+							</a>
+							{{#if inReplyTo}}
+								{{#if compressed}}
+									<a class="js-item__show-full email__handler">
+										<i class="fa fa-expand" aria-hidden="true" id={{attr.uid}}></i>
+									</a>
+								{{else}}
+									<a class="js-item__show-full email__handler">
+										<i class="fa fa-compress" aria-hidden="true" id={{attr.uid}}></i>
+									</a>
+								{{/if}}
+							{{/if}}
 						</div>
 					</p>
 
 					<!-- <em class="grey-text pull-right"></em> -->
-					{{#if plainText}}
-						<div class="email__plain-text">{{plainText}}</div>
+					{{#if htmlBody}}
+
+						{{#if compressed}}
+							{{{htmlBody}}}
+						{{else}}
+							{{{fullHtml}}}
+						{{/if}}
+
+					{{else}}
+
+						{{#if plainText}}
+							{{#if compressed}}
+								<div class="email__plain-text">{{compressedText}}</div>
+							{{else}}
+								<div class="email__plain-text">{{plainText}}</div>
+							{{/if}}
+						{{/if}}
+
 					{{/if}}
-					<div>
-						{{{htmlBody}}}
-					</div>
 				</div>
 			</li>
 			{{/each}}

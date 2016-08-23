@@ -229,6 +229,15 @@
 		});
 	};
 
+	function showFullEmail(uid) {
+		var selectedMessage = _.findWhere(dialog.dialogMessages, {
+				uid: +uid
+			});
+
+		selectedMessage.compressed = !selectedMessage.compressed;
+		updateDialog(dialog);
+	};
+
 	function selectMessage(uid) {
 		var selectedMessage = _.findWhere(dialog.dialogMessages, {
 				uid: +uid
@@ -367,6 +376,11 @@
 		'click .js-item__spam': function(event) {
 			event.preventDefault();
 			toSpam(+event.target.id);
+		},
+
+		'click .js-item__show-full': function(event) {
+			event.preventDefault();
+			showFullEmail(+event.target.id);
 		},
 
 		'click .js-email__load': function(event) {
