@@ -7,7 +7,8 @@
 		deps = new Deps.Dependency(),
 		updateDialog,
 		updateDialogs,
-		lastDialogsIndex;
+		lastDialogsIndex,
+		repliedMessageId;
 
 	this.YandexPlugin = function(channelData) {
 		this.settingsTemplateName = 'yandexSettingsTemplate';
@@ -60,12 +61,10 @@
 	};
 
 	YandexPlugin.prototype.setNextPage = function() {
-		// currentPage += 1;
 	};
 
 	YandexPlugin.prototype.setPreviousPage = function() {
-		// currentPage -= 1;
-		// currentPage = currentPage <= 0 ? 1 : currentPage;
+
 	};
 
 	YandexPlugin.prototype.getChannelBlocks = function(getEmailsData) {
@@ -126,14 +125,6 @@
 
 			console.log(dialog);
 
-			dialog.dialogMessages.forEach(function(item) {
-				// if (item.plainText) {
-				// 	item.plainText = getInboxText(item.plainText);
-				// }
-				// if (item.htmlBody && item.inReplyTo) {
-				// 	item.htmlBody = parseHtml(item.htmlBody);
-				// }
-			});
 			getDialogCallback(result);
 			updateDialog = getDialogCallback;
 		});
@@ -170,7 +161,7 @@
 			receiver: dialog.partnerAddress,
 			subject: $('.email__reply-subject').val() || 'No subject',
 			login: self.params.login,
-			inReplyTo: replyedMessageId
+			inReplyTo: repliedMessageId || ''
 		};
 
 		console.log(message);
@@ -254,7 +245,7 @@
 
 		replySubject = selectedMessage.subject;
 
-		replyedMessageId = selectedMessage.messageId;
+		repliedMessageId = selectedMessage.messageId;
 
 		deps.changed();
 	};

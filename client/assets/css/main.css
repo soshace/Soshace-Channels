@@ -226,6 +226,10 @@
   display: inline-block;
 }
 
+blockquote {
+  font-size: 1em;
+}
+
 .item-sent:hover{
   border: Solid 1px LightSalmon;
 }
