@@ -3,7 +3,7 @@ Meteor.methods({
 		return initImap(params)
 			.then(
 				imap => getUniqueDialogs(imap, params),
-				error => console.log(error)
+				error => console.log('Error with getting messages: ' + error)
 			)
 	},
 
@@ -15,7 +15,7 @@ Meteor.methods({
 			)
 			.then(
 				result => getMessagesByIds(result.imap, result.ids, params.boxName),
-				error => console.log(error)
+				error => console.log('Error with getting dialog: ' + error)
 			)
 	},
 
@@ -237,74 +237,6 @@ function getUniqueDialogs(imap, params) {
 	});
 };
 
-function getMessageFromBox(request) {
-	var Imap = Npm.require('imap'),
-		MailParser = require('mailparser').MailParser,
-		parser = new MailParser();
-
-	return new Promise(function(resolve, reject) {
-		request.on('message', function(msg, seqno) {
-			var buffer = '',
-				item = {};
-
-			msg.on('attributes', function(attrs) {
-				item.attr = attrs;
-				item.uid = attrs.uid;
-			});
-
-			msg.on('body', function(stream, info) {
-				stream.on('data', function(chunk) {
-					parser.write(chunk.toString('utf8'));
-				});
-
-			});
-
-			msg.on('end', function() {
-				parser.end();
-			});
-
-			parser.on('end', function(result) {
-				item.inReplyTo = result.inReplyTo ? result.inReplyTo[0] : false;
-				item.messageId = result.messageId;
-
-				item.from = result.from[0].address.toLowerCase();
-
-				item.fromName = result.from[0].name || result.from[0].address;
-
-				item.to = result.to ? result.to[0].address : '';
-				item.to = item.to && item.to.toLowerCase();
-				item.toName = result.to ? result.to[0].name : '';
-
-				item.subject = result.subject || 'No subject';
-
-				item.date = result.date || '';
-				item.date = moment(item.date, 'ddd MMM DD YYYY hh:mm:ss Z').valueOf();
-
-				item.plainText = result.text;
-
-				item.fullHtml = result.html;
-
-				if (result.html) {
-					if (item.inReplyTo) {
-						item.htmlBody = removeBlockquote(result.html);
-					} else {
-						item.htmlBody = result.html;
-					}
-				}
-
-				// item.htmlBody = result.html;
-
-				item.plainText = result.html ? '' : result.text;
-				if (item.plainText && item.inReplyTo) {
-					item.plainText = getInboxText(item.plainText);
-				}
-
-				resolve(item);
-			});
-		});
-	});
-};
-
 function getDialogMessageIds(imap, boxName, key) {
 	console.log(boxName, key);
 	return new Promise(function(resolve, reject) {
@@ -436,6 +368,75 @@ function getMessagesByIds(imap, ids, boxName) {
 	});
 };
 
+function getMessageFromBox(request) {
+	var Imap = Npm.require('imap'),
+		MailParser = require('mailparser').MailParser,
+		parser = new MailParser();
+
+	return new Promise(function(resolve, reject) {
+		request.on('message', function(msg, seqno) {
+			var buffer = '',
+				item = {};
+
+			msg.on('attributes', function(attrs) {
+				item.attr = attrs;
+				item.uid = attrs.uid;
+			});
+
+			msg.on('body', function(stream, info) {
+				stream.on('data', function(chunk) {
+					parser.write(chunk.toString('utf8'));
+				});
+
+			});
+
+			msg.on('end', function() {
+				parser.end();
+			});
+
+			parser.on('end', function(result) {
+				item.inReplyTo = result.inReplyTo ? result.inReplyTo[0] : false;
+				item.messageId = result.messageId;
+
+				item.from = result.from[0].address.toLowerCase();
+
+				item.fromName = result.from[0].name || result.from[0].address;
+
+				item.to = result.to ? result.to[0].address : '';
+				item.to = item.to && item.to.toLowerCase();
+				item.toName = result.to ? result.to[0].name : '';
+
+				item.subject = result.subject || 'No subject';
+
+				item.date = result.date || '';
+				item.date = moment(item.date, 'ddd MMM DD YYYY hh:mm:ss Z').valueOf();
+
+				item.plainText = result.text;
+
+				item.fullHtml = result.html;
+
+				if (result.html) {
+					if (item.inReplyTo) {
+						item.htmlBody = removeBlockquote(result.html);
+						// item.htmlBody = removeQuoteDeclaration(item.htmlBody);
+					} else {
+						item.htmlBody = result.html;
+					}
+				}
+
+				// item.htmlBody = result.html;
+
+				item.plainText = result.html ? '' : result.text;
+				if (item.plainText && item.inReplyTo) {
+					item.plainText = getInboxText(item.plainText);
+				}
+
+				resolve(item);
+			});
+		});
+	});
+};
+
 function getInboxText(text) {
 	var lines = text.split(/\r\n|\r|\n/g);
 
@@ -466,25 +467,39 @@ function removeBlockquote(html) {
 	if (firstIndex > -1) {
 		var lastIndex = html.lastIndexOf(citeCloseTag);
 
-		var openDiv = '<div';
-		var closeDiv = '</div>';
-
 		var clearHtml = html.replace(html.substring(firstIndex, lastIndex + citeCloseTag.length), '');
-		var replyRemoved = false;
-
-		while (!replyRemoved) {
-			var openDivIndex = clearHtml.lastIndexOf(openDiv);
-			var closeDivIndex = clearHtml.lastIndexOf(closeDiv);
-
-			if (clearHtml.substring(openDivIndex, closeDivIndex).trim()) {
-				replyRemoved = true;
-			}
-
-			clearHtml = clearHtml.replace(clearHtml.substring(openDivIndex, closeDivIndex + closeDiv.length), '');
-		}
 
 		return clearHtml
 	}
 
 	return html;
+}
+
+function removeQuoteDeclaration(html) {
+	var openDiv = '<div';
+	var closeDiv = '</div>';
+
+	var clearHtml = html;
+
+	var replyRemoved = false;
+
+	var gmailQuote = '<div class="gmail_quote">';
+	var gmailQuoteIndex = clearHtml.indexOf(gmailQuote);
+	if (gmailQuoteIndex > -1) {
+		var str = clearHtml.substr(gmailQuoteIndex, clearHtml.length);
+		console.log(str);
+	}
+
+	while (!replyRemoved) {
+		var openDivIndex = clearHtml.lastIndexOf(openDiv);
+		var closeDivIndex = clearHtml.lastIndexOf(closeDiv);
+
+		if (clearHtml.substring(openDivIndex, closeDivIndex).trim()) {
+			replyRemoved = true;
+		}
+
+		clearHtml = clearHtml.replace(clearHtml.substring(openDivIndex, closeDivIndex + closeDiv.length), '');
+	}
+
+	return clearHtml;
 }
