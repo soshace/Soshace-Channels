@@ -186,7 +186,7 @@
 			login: self.params.login
 		};
 
-		sendMessage(message);
+		sendMessage(message, true);
 	};
 
 	function deleteEmail(uid) {
@@ -263,10 +263,11 @@
 		dialog.dialogMessages = dialog.dialogMessages.filter(function(item) {
 			return item.uid !== uid;
 		});
+		
 		updateDialog(dialog);
 	};
 
-	function sendMessage(message) {
+	function sendMessage(message, isForwarded = false) {
 		if (!message.bodyHtml) {
 			return;
 		}
@@ -282,8 +283,11 @@
 			params.srcBox = 'INBOX';
 			Meteor.call('moveMessageToSent', params, function(error, result) {
 				result.inboxClass = 'item-sent';
-				dialog.dialogMessages.unshift(result);
-				updateDialog(dialog);
+
+				if (!isForwarded) {
+					dialog.dialogMessages.unshift(result);					
+					updateDialog(dialog);
+				}
 			});
 
 			Bert.alert('Message was successfully sent!', 'success');
