@@ -64,40 +64,78 @@
 	};
 
 	YandexPlugin.prototype.setPreviousPage = function() {
-
 	};
 
 	YandexPlugin.prototype.getChannelBlocks = function(getEmailsData) {
 		var params = this.params;
 
-		params.boxName = 'INBOX';
-		params.lastIndex = 0;
+		// 1. check if it initial loading
+		// 2. if initial - load data, save it to db, show dialogs
+		// 3. if not - get data from db, show it, check for updates
 
-		Meteor.call('getYandexMessages', params, function(error, result) {
+		// Meteor.call('saveDialogsToDatabase', params.channelId, [{one: 'wow'}, {two: 'owo'}], function(error, result) {
+		// 	if (error) {
+		// 		console.log(error);
+		// 		return;
+		// 	}
+		// 	console.log('Result after saving mail to db:');
+		// 	console.log(result);
+		// });
+
+		// Meteor.subscribe('invites', params.channelId);
+
+		Meteor.call('checkMailboxesDB', params.channelId, function(error, result) {
 			if (error) {
 				console.log(error);
 				return;
 			}
+			console.log('Result after checking mail db:');
+			console.log(result);
 
-			_.map(result.items, function(item) {
-				item.channelId = self.channelId;
-				if (item.attr.flags.indexOf('\\Seen') === -1) {
-					item.class = ' message__unseen';
-				}
-			});
+			if (result) {
 
-			lastDialogsIndex = result.lastIndex;
+				getEmailsData({
+					blocks: [{
+						messages: result.dialogs
+					}]
+					//,
+					//commonParams: result.box TODO: need to save result.box to DB also
+				});
 
-			dialogsWith = result.items.reverse();
+			} else {
 
-			getEmailsData({
-				blocks: [{
-					messages: dialogsWith
-				}],
-				commonParams: result.box
-			});
+				// code f
+				params.boxName = 'INBOX';
+				params.lastIndex = 0;
 
-			updateDialogs = getEmailsData;
+				Meteor.call('getYandexMessages', params, function(error, result) {
+					if (error) {
+						console.log(error);
+						return;
+					}
+
+					_.map(result.items, function(item) {
+						item.channelId = self.channelId;
+						if (item.attr.flags.indexOf('\\Seen') === -1) {
+							item.class = ' message__unseen';
+						}
+					});
+
+					lastDialogsIndex = result.lastIndex;
+
+					dialogsWith = result.items.reverse();
+
+					getEmailsData({
+						blocks: [{
+							messages: dialogsWith
+						}],
+						commonParams: result.box
+					});
+
+					updateDialogs = getEmailsData;
+				});
+				// -----
+			}
 		});
 	};
 
@@ -190,7 +228,7 @@
 	};
 
 	function deleteEmail(uid) {
-		var params = self.params, 
+		var params = self.params,
 			selectedMessage = _.findWhere(dialog.dialogMessages, {
 				uid: +uid
 			});
@@ -210,7 +248,7 @@
 	};
 
 	function toSpam(uid) {
-		var params = self.params, 
+		var params = self.params,
 			selectedMessage = _.findWhere(dialog.dialogMessages, {
 				uid: +uid
 			});
@@ -263,7 +301,7 @@
 		dialog.dialogMessages = dialog.dialogMessages.filter(function(item) {
 			return item.uid !== uid;
 		});
-		
+
 		updateDialog(dialog);
 	};
 
@@ -285,7 +323,7 @@
 				result.inboxClass = 'item-sent';
 
 				if (!isForwarded) {
-					dialog.dialogMessages.unshift(result);					
+					dialog.dialogMessages.unshift(result);
 					updateDialog(dialog);
 				}
 			});
@@ -495,7 +533,7 @@
 
 				updateDialogs({
 					blocks: [{
-						messages: dialogsWith 
+						messages: dialogsWith
 					}],
 					commonParams: results.box
 				});
