@@ -118,3 +118,10 @@ Meteor.publish('guestChannelCreators', function() {
 		}
 	});
 });
+
+Meteor.publish('mailboxes', function(channelId) {
+	check(channelId, String);
+	return Mailboxes.find({
+		'channelId': channelId
+	})
+})
