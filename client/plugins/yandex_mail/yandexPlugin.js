@@ -73,17 +73,6 @@
 		// 2. if initial - load data, save it to db, show dialogs
 		// 3. if not - get data from db, show it, check for updates
 
-		// Meteor.call('saveDialogsToDatabase', params.channelId, [{one: 'wow'}, {two: 'owo'}], function(error, result) {
-		// 	if (error) {
-		// 		console.log(error);
-		// 		return;
-		// 	}
-		// 	console.log('Result after saving mail to db:');
-		// 	console.log(result);
-		// });
-
-		// Meteor.subscribe('invites', params.channelId);
-
 		Meteor.call('checkMailboxesDB', params.channelId, function(error, result) {
 			if (error) {
 				console.log(error);
@@ -97,9 +86,8 @@
 				getEmailsData({
 					blocks: [{
 						messages: result.dialogs
-					}]
-					//,
-					//commonParams: result.box TODO: need to save result.box to DB also
+					}],
+					commonParams: result.commonParams
 				});
 
 			} else {
@@ -124,7 +112,8 @@
 					lastDialogsIndex = result.lastIndex;
 
 					dialogsWith = result.items.reverse();
-
+					console.log(result.box);
+					console.log(dialogsWith)
 					getEmailsData({
 						blocks: [{
 							messages: dialogsWith
@@ -133,6 +122,17 @@
 					});
 
 					updateDialogs = getEmailsData;
+
+					Meteor.call('saveDialogsToDatabase', params.channelId, dialogsWith, result.box, function(error, result) {
+						if (error) {
+							console.log(error);
+							return;
+						}
+						console.log('Result after saving mail to db:');
+						console.log(result);
+					});
+
+
 				});
 				// -----
 			}
