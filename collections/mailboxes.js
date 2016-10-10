@@ -4,6 +4,42 @@ Mailboxes = new Mongo.Collection('mailboxes');
 
 var Schemas = {};
 
+Schemas.CommonParams = new SimpleSchema({
+  flags: {
+    type: Array
+  },
+  keywords: {
+    type: Array
+  },
+  messages: {
+    type: Object
+  },
+  name: {
+    type: String
+  },
+  newKeywords: {
+    type: Boolean
+  },
+  nomodseq: {
+    type: Boolean
+  },
+  permFlags: {
+    type: Array
+  },
+  persistentUIDs: {
+    type: Boolean
+  },
+  readOnly: {
+    type: Boolean
+  },
+  uidnext: {
+    type: Number
+  },
+  uidvalidity: {
+    type: Number
+  }
+});
+
 Schemas.ChannelMessage = new SimpleSchema({
   attr: {
     type: Object
@@ -35,6 +71,9 @@ Schemas.ChannelMessage = new SimpleSchema({
   subject: {
     type: String
   },
+  to: {
+    type: String
+  },
   toName: {
     type: String
   },
@@ -57,7 +96,7 @@ Schemas.Mail = new SimpleSchema({
     type: [Schemas.MailDialog]
   },
   commonParams: {
-    type: Object
+    type: Schemas.CommonParams
   }
 });
 
