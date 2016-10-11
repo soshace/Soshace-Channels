@@ -69,17 +69,11 @@
 	YandexPlugin.prototype.getChannelBlocks = function(getEmailsData) {
 		var params = this.params;
 
-		// 1. check if it initial loading
-		// 2. if initial - load data, save it to db, show dialogs
-		// 3. if not - get data from db, show it, check for updates
-
 		Meteor.call('checkMailboxesDB', params.channelId, function(error, result) {
 			if (error) {
 				console.log(error);
 				return;
 			}
-			console.log('Result after checking mail db:');
-			console.log(result);
 
 			if (result) {
 
@@ -92,7 +86,6 @@
 
 			} else {
 
-				// code f
 				params.boxName = 'INBOX';
 				params.lastIndex = 0;
 
@@ -112,8 +105,7 @@
 					lastDialogsIndex = result.lastIndex;
 
 					dialogsWith = result.items.reverse();
-					console.log(result.box);
-					console.log(dialogsWith)
+
 					getEmailsData({
 						blocks: [{
 							messages: dialogsWith
@@ -128,13 +120,8 @@
 							console.log(error);
 							return;
 						}
-						console.log('Result after saving mail to db:');
-						console.log(result);
 					});
-
-
 				});
-				// -----
 			}
 		});
 	};

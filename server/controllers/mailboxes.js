@@ -13,7 +13,7 @@ Meteor.methods({
     if (!currentUserId) {
       throw new Meteor.Error('not-logged-in', 'You are not logged-in.');
     }
-    console.log(newMailData);
+
     return Mailboxes.insert(newMailData);
   },
 
