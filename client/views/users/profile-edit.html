@@ -13,17 +13,22 @@
               <div class="m-b-20" id="image-upload">
                   <span class="lead">Upload new picture:</span>
               </div>
-              {{> upload_bootstrap fileTypes='image/*' formData=myFormData}}
+
+              <label class="btn btn-default btn-file img-upload">
+                  Browse <input type="file" style="display: none;" class="img-upload">
+              </label>
+
+              <!-- {{> upload_bootstrap fileTypes='image/*' formData=myFormData}} -->
 
               <div class="m-t-20 m-b-20 user-image text-center">
                 <div class="m-b-20 text-left">
                   <span class="lead">Current picture:</span>
                 </div>
-                {{#unless currentUser.personalData.picPath}}
+<!--                 {{#unless currentUser.personalData.picPath}}
                 <img src="/images/user.png" alt="User Picture">
-                {{else}}
+                {{else}} -->
                 <div class="m-b-20">
-                  <img class="user-uploaded-img" src="/upload/{{currentUser.personalData.picPath}}" width="300" alt="User Picture">
+                  <img class="user-uploaded-img" src="{{userImagePath}}" width="300" alt="User Picture">
                 </div>
                 <div>
                   <p class="m-b-10 f-s-14 invisible"><em>Select area to crop and press OK</em></p>
@@ -33,7 +38,7 @@
                   <button id="cancelCrop" class="btn btn-danger pull-right hidden">Cancel</button>
                 </div>
 
-                {{/unless}}
+                <!-- {{/unless}} -->
               </div>
 
             </div>
