@@ -4,7 +4,7 @@ Mailboxes = new Mongo.Collection('mailboxes');
 
 var Schemas = {};
 
-Schemas.ChannelMessage = new SimpleSchema({
+Schemas.MailDialog = new SimpleSchema({
   attr: {
     type: Object,
     blackbox: true

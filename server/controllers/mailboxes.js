@@ -1,6 +1,6 @@
 // Methods working with 'Mailboxes' collection
 Meteor.methods({
-  'saveDialogsToDatabase': function(channelId, dialogs, commonParams) {
+  'saveDialogsToDB': function(channelId, dialogs, commonParams) {
     var currentUserId = this.userId,
         newMailData = {
           userId: currentUserId,
@@ -33,5 +33,23 @@ Meteor.methods({
         commonParams: 1
       }
     });
+  },
+
+  'saveDialogMessagesToDB': function(channelId, dialog) {
+    var currentUserId = this.userId,
+        newMaildialogData = {
+          userId: currentUserId,
+          channelId: channelId,
+          createdAt: new Date(),
+          dialogsContent: dialog
+        };
+
+    if (!currentUserId) {
+      throw new Meteor.Error('not-logged-in', 'You are not logged-in.');
+    }
+
+    return Maildialogs.insert(newMaildialogData);
   }
+
+  // 'checkMaildialogDB'
 })
