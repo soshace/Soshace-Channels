@@ -24,6 +24,7 @@ Meteor.startup(function () {
       return fileInfo.name;
     },
     finished: function(fileInfo, formData) {
+      console.log(fileInfo)
       // double slash bug because of 'getDirectory' method
       fileInfo.path = fileInfo.path.replace("images//", "images/");
       fileInfo.url = fileInfo.url.replace("images//", "images/");
