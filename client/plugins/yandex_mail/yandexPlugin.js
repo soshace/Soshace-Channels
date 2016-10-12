@@ -115,51 +115,56 @@
 
 					updateDialogs = getEmailsData;
 
-					Meteor.call('saveDialogsToDB', params.channelId, dialogsWith, result.box, function(error, result) {
+					Meteor.call('saveMailboxesToDB', params.channelId, dialogsWith, result.box, function(error, result) {
 						if (error) {
 							console.log(error);
 							return;
 						}
 
-						// get all current mail messages and save it to db
-						dialogsWith.forEach(function(dialog) {
-							var paramsForDialog = self.params;
-							paramsForDialog.from = dialog.from;
-							paramsForDialog.boxName = 'INBOX';
-							delete paramsForDialog.lastIndex;
+						// get all mail messages for loaded dialogs and save it to db
 
-							Meteor.call('getYandexDialog', paramsForDialog, function(error, result) {
-								if (error) {
-									console.log(error);
-									return;
-								}
-
-								// same handle part as in getSingleBlock()
-								result.dialogMessages.forEach(function(item, index) {
-									if (!item.isInbox) {
-										result.dialogMessages[index].inboxClass = 'item-sent';
-									}
-								});
-
-								result.dialogMessages = _.sortBy(result.dialogMessages, function(item) {
-									return item.date;
-								});
-
-								result.dialogMessages = result.dialogMessages.reverse();
-								result.partnerAddress = dialog.from;
-								//////////////////////////////////////////
-
-								console.log('dialog RESULT:');
-								console.log(dialogResult);
-								console.log('___________________');
-
-								// TODO: need to save dialogResult to db Maildialogs
-								// Meteor.call('saveDialogMessagesToDB', paramsForDialog.channelId, dialogResult, function(error, result) {
-								//
-								// });
-
-							});
-						});
+						// dialogsWith.forEach(function(dialog) {
+						// 	var paramsForDialog = self.params;
+						// 	paramsForDialog.from = dialog.from;
+						// 	paramsForDialog.boxName = 'INBOX';
+						// 	delete paramsForDialog.lastIndex;
+						//
+						// 	Meteor.call('getYandexDialog', paramsForDialog, function(error, result) {
+						// 		if (error) {
+						// 			console.log(error);
+						// 			return;
+						// 		}
+						//
+						// 		console.log('dialog RESULT:');
+						// 		console.log(result);
+						// 		console.log('___________________');
+						//
+						// 		// same handle part as in getSingleBlock()
+						// 		result.dialogMessages.forEach(function(item, index) {
+						// 			if (!item.isInbox) {
+						// 				result.dialogMessages[index].inboxClass = 'item-sent';
+						// 			}
+						// 		});
+						//
+						// 		result.dialogMessages = _.sortBy(result.dialogMessages, function(item) {
+						// 			return item.date;
+						// 		});
+						//
+						// 		result.dialogMessages = result.dialogMessages.reverse();
+						// 		result.partnerAddress = dialog.from;
+						// 		//////////////////////////////////////////
+						//
+						// 		// console.log('dialog RESULT:');
+						// 		// console.log(result);
+						// 		// console.log('___________________');
+						//
+						// 		// TODO: need to save dialogResult to db Maildialogs
+						// 		// Meteor.call('saveDialogMessagesToDB', paramsForDialog.channelId, dialogResult, function(error, result) {
+						// 		//
+						// 		// });
+						//
+						// 	});
+						// });
 
 					});
 				});
