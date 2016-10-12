@@ -173,36 +173,44 @@
 	};
 
 	YandexPlugin.prototype.getSingleBlock = function(getDialogCallback, from) {
-		// TODO: need to add check for data from DB
-
 		var params = self.params;
 
-		params.from = from;
-		params.boxName = 'INBOX';
+		Meteor.call('checkMaildialogsDB', params.channelId, from, function(error, result) {
+			if (error) {
+				console.log(error);
+				return;
+			}
 
-		Meteor.call('getYandexDialog', params, function(error, result) {
-			console.log('getYandexDialog');
-			console.log(params);
-			console.log(result);
-			result.dialogMessages.forEach(function(item, index) {
-				if (!item.isInbox) {
-					result.dialogMessages[index].inboxClass = 'item-sent';
-				}
-			});
+			if (result) {
 
-			result.dialogMessages = _.sortBy(result.dialogMessages, function(item) {
-				return item.date;
-			});
+				getDialogCallback(result);
 
-			result.dialogMessages = result.dialogMessages.reverse();
+			} else {
 
-			dialog = result;
-			dialog.partnerAddress = from;
+				params.from = from;
+				params.boxName = 'INBOX';
 
-			console.log(dialog);
+				Meteor.call('getYandexDialog', params, function(error, result) {
+					result.dialogMessages.forEach(function(item, index) {
+						if (!item.isInbox) {
+							result.dialogMessages[index].inboxClass = 'item-sent';
+						}
+					});
 
-			getDialogCallback(result);
-			updateDialog = getDialogCallback;
+					result.dialogMessages = _.sortBy(result.dialogMessages, function(item) {
+						return item.date;
+					});
+
+					result.dialogMessages = result.dialogMessages.reverse();
+
+					dialog = result;
+					dialog.partnerAddress = from;
+
+					getDialogCallback(result);
+					updateDialog = getDialogCallback;
+				});
+
+			}
 		});
 	};
 

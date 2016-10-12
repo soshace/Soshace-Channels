@@ -28,6 +28,9 @@ Schemas.MailMessages = new SimpleSchema({
   createdAt: {
     type: Date
   },
+  address: {
+    type: String
+  },
   dialogsContent: {
     type: [Schemas.MailDialogMessages],
     blackbox: true,
