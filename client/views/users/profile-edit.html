@@ -8,40 +8,7 @@
         <div class="panel-body">
           <div class="row">
 
-            <div class="col-xs-6">
-
-              <div class="m-b-20" id="image-upload">
-                  <span class="lead">Upload new picture:</span>
-              </div>
-
-              <label class="btn btn-default btn-file img-upload">
-                  Browse <input type="file" style="display: none;" class="img-upload">
-              </label>
-
-              <!-- {{> upload_bootstrap fileTypes='image/*' formData=myFormData}} -->
-
-              <div class="m-t-20 m-b-20 user-image text-center">
-                <div class="m-b-20 text-left">
-                  <span class="lead">Current picture:</span>
-                </div>
-<!--                 {{#unless currentUser.personalData.picPath}}
-                <img src="/images/user.png" alt="User Picture">
-                {{else}} -->
-                <div class="m-b-20">
-                  <img class="user-uploaded-img" src="{{userImagePath}}" width="300" alt="User Picture">
-                </div>
-                <div>
-                  <p class="m-b-10 f-s-14 invisible"><em>Select area to crop and press OK</em></p>
-                  <button id="cropUserPic" class="btn btn-info pull-left">Crop Picture</button>
-                  <button id="deleteUserPic" class="btn btn-danger pull-right">Delete Picture</button>
-                  <button id="acceptCrop" class="btn btn-info pull-left hidden">Ok</button>
-                  <button id="cancelCrop" class="btn btn-danger pull-right hidden">Cancel</button>
-                </div>
-
-                <!-- {{/unless}} -->
-              </div>
-
-            </div>
+          {{> userImage userImage=currentUser.personalData.userImage}}
 
             <div class="col-xs-6">
 

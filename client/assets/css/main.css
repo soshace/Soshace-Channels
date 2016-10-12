@@ -549,6 +549,23 @@ code {
 	background-color: #4DCACA;
 }
 
+.preview__container {
+  height: 100px;
+  width: 100px;
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: top;
+  margin-left: 20px;
+}
+
+.round-preview {
+  border-radius: 50%;
+}
+
+.image__container {
+  display: inline-block;
+}
+
 
 /*Sticky footer*/
 html, body, #page-container {

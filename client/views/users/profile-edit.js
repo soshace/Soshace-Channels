@@ -1,6 +1,3 @@
-var userImagePath = '';
-var deps = new Deps.Dependency();
-
 Template.profileEdit.helpers({
   myFormData: function() {
     // this.what = 'lol';
@@ -8,95 +5,10 @@ Template.profileEdit.helpers({
       directoryName: 'images',
       user: Meteor.userId()
     }
-  },
-
-  userImagePath: function() {
-    deps.depend();
-
-    return userImagePath;
   }
 });
 
 Template.profileEdit.events({
-  'click #cropUserPic': function() {
-    var img = $('.user-uploaded-img'),
-      realWidth = img[0].naturalWidth,
-      realHeight = img[0].naturalHeight,
-      okBtn = $('#acceptCrop'),
-      cancelBtn = $('#cancelCrop'),
-      deleteBtn = $('#deleteUserPic'),
-      cropBtn = $('#cropUserPic'),
-      legend = $('.user-image p'),
-      coords;
-
-    deleteBtn.addClass('hidden');
-    cropBtn.addClass('hidden');
-    legend.removeClass('hidden');
-    okBtn.removeClass('hidden');
-    cancelBtn.removeClass('hidden');
-
-    img.Jcrop({
-      boxWidth: 300,
-      boxHeight: 300,
-      trueSize: [realWidth, realHeight],
-      onSelect: function(c) {
-        coords = {
-          x: c.x,
-          y: c.y,
-          width: c.w,
-          height: c.h
-        };
-      },
-      setSelect: [100, 100, 50, 50]
-    });
-
-    cancelBtn.click(function() {
-      legend.addClass('hidden');
-      okBtn.addClass('hidden');
-      cancelBtn.addClass('hidden');
-      deleteBtn.removeClass('hidden');
-      cropBtn.removeClass('hidden');
-
-      var JcropAPI = img.data('Jcrop');
-      JcropAPI.destroy();
-    });
-
-    okBtn.click(function() {
-      legend.addClass('hidden');
-      okBtn.addClass('hidden');
-      cancelBtn.addClass('hidden');
-      deleteBtn.removeClass('hidden');
-      cropBtn.removeClass('hidden');
-
-      Meteor.call('cropFile', coords, function(error) {
-        if (error) {
-          Bert.alert('Error while reading image file. Please contact support about this problem.', 'warning');
-        } else {
-          legend.addClass('hidden');
-          okBtn.addClass('hidden');
-          cancelBtn.addClass('hidden');
-          deleteBtn.removeClass('hidden');
-          cropBtn.removeClass('hidden');
-
-          Router.go('profile');
-          Bert.alert('Image was successfully cropped.', 'success');
-        }
-      })
-    });
-  },
-
-  'click #deleteUserPic': function() {
-    var userId = Meteor.userId();
-    if (confirm('Are you sure?')) {
-      Meteor.call('deleteFile', userId, true, function(error) {
-        if (error) {
-          Bert.alert('Error while reading image file. Please contact support about this problem.', 'warning');
-        }
-      });
-      Router.go('profile');
-    }
-  },
-
   'submit .user-info-edit': function(event, template) {
     event.preventDefault();
 
@@ -166,84 +78,5 @@ Template.profileEdit.events({
         $(item).remove();
       });
     }
-  },
-
-  'change .img-upload': function(event) {
-    var reader = new FileReader();
-    reader.onload = onImageLoaded;
-    reader.readAsDataURL(event.target.files[0]);
   }
 })
-
-var onImageLoaded = function(e) {
-  userImagePath = event.target.result
-  deps.changed();
-}
-
-function startCrop() {
-  var img = $('.user-uploaded-img');
-  var okBtn = $('#acceptCrop'),
-      cancelBtn = $('#cancelCrop'),
-      deleteBtn = $('#deleteUserPic'),
-      cropBtn = $('#cropUserPic'),
-      legend = $('.user-image p');
-
-  var realWidth = img[0].naturalWidth,
-      realHeight = img[0].naturalHeight,
-      coords;
-
-  deleteBtn.addClass('hidden');
-  cropBtn.addClass('hidden');
-  legend.removeClass('hidden');
-  okBtn.removeClass('hidden');
-  cancelBtn.removeClass('hidden');
-
-  img.Jcrop({
-    boxWidth: 300,
-    boxHeight: 300,
-    trueSize: [realWidth, realHeight],
-    onSelect: function(c) {
-      coords = {
-        x: c.x,
-        y: c.y,
-        width: c.w,
-        height: c.h
-      };
-    },
-    setSelect: [100, 100, 150, 50]
-  });
-
-  cancelBtn.click(function() {
-    legend.addClass('hidden');
-    okBtn.addClass('hidden');
-    cancelBtn.addClass('hidden');
-    deleteBtn.removeClass('hidden');
-    cropBtn.removeClass('hidden');
-
-    var JcropAPI = img.data('Jcrop');
-    JcropAPI.destroy();
-  });
-
-  okBtn.click(function() {
-    legend.addClass('hidden');
-    okBtn.addClass('hidden');
-    cancelBtn.addClass('hidden');
-    deleteBtn.removeClass('hidden');
-    cropBtn.removeClass('hidden');
-
-    Meteor.call('cropFile', coords, function(error) {
-      if (error) {
-        Bert.alert('Error while reading image file. Please contact support about this problem.', 'warning');
-      } else {
-        legend.addClass('hidden');
-        okBtn.addClass('hidden');
-        cancelBtn.addClass('hidden');
-        deleteBtn.removeClass('hidden');
-        cropBtn.removeClass('hidden');
-
-        Router.go('profile');
-        Bert.alert('Image was successfully cropped.', 'success');
-      }
-    })
-  });
-}
