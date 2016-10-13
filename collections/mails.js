@@ -20,6 +20,9 @@ Schemas.Message = new SimpleSchema({
   to: {
     type: String
   },
+  date: {
+    type: Date
+  },
   additionalInfo: {
     type: Object,
     blackbox: true

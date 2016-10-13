@@ -60,82 +60,85 @@
 		});
 	};
 
-	YandexPlugin.prototype.setNextPage = function() {
-	};
-
-	YandexPlugin.prototype.setPreviousPage = function() {
-	};
-
 	YandexPlugin.prototype.getChannelBlocks = function(getEmailsData) {
 		var params = this.params;
 
-		Meteor.call('checkMailboxesDB', params.channelId, function(error, result) {
+		Meteor.call('getMailDialogs', params.channelId, function(error, result) {
 			if (error) {
 				console.log(error);
 				return;
 			}
 
-			if (result) {
+			// TODO: result will be dialogs with messages from/to same address
+			// need to change data in templates and form new output
+			getEmailsData({
+				blocks: [{
+					messages: result
+				}]
+			});
+		});
 
-				getEmailsData({
-					blocks: [{
-						messages: result.dialogs
-					}],
-					commonParams: result.commonParams
-				});
-
-			} else {
-
-				params.boxName = 'INBOX';
-				params.lastIndex = 0;
-
-				Meteor.call('getYandexMessages', params, function(error, result) {
-					if (error) {
-						console.log(error);
-						return;
-					}
-
-					_.map(result.items, function(item) {
-						item.channelId = self.channelId;
-						if (item.attr.flags.indexOf('\\Seen') === -1) {
-							item.class = ' message__unseen';
-						}
-					});
-
-					lastDialogsIndex = result.lastIndex;
-
-					dialogsWith = result.items.reverse();
-
-					getEmailsData({
-						blocks: [{
-							messages: dialogsWith
-						}],
-						commonParams: result.box
-					});
-
-					updateDialogs = getEmailsData;
-
-					Meteor.call('saveMailboxesToDB', params.channelId, dialogsWith, result.box, function(error, result) {
-						if (error) {
-							console.log(error);
-							return;
-						}
-
-						// get all mail messages for loaded dialogs and save it to db
-						console.log('---- params :');
-						console.log(params);
-						console.log('***************');
-						console.log('---- dialogs :');
-						console.log(dialogsWith);
-						console.log('***************');
-						Meteor.call('getYandexDialogs', params, dialogsWith, function(error, result) {
-							if (error) {
-								console.log(error);
-								return;
-							}
-
-							// TODO: need to save result to db Maildialogs
-						});
+		// Meteor.call('checkMailboxesDB', params.channelId, function(error, result) {
+		// 	if (error) {
+		// 		console.log(error);
+		// 		return;
+		// 	}
+		//
+		// 	if (result) {
+		//
+		// 		getEmailsData({
+		// 			blocks: [{
+		// 				messages: result.dialogs
+		// 			}],
+		// 			commonParams: result.commonParams
+		// 		});
+		//
+		// 	} else {
+		//
+		// 		params.boxName = 'INBOX';
+		// 		params.lastIndex = 0;
+		//
+		// 		Meteor.call('getYandexMessages', params, function(error, result) {
+		// 			if (error) {
+		// 				console.log(error);
+		// 				return;
+		// 			}
+		//
+		// 			_.map(result.items, function(item) {
+		// 				item.channelId = self.channelId;
+		// 				if (item.attr.flags.indexOf('\\Seen') === -1) {
+		// 					item.class = ' message__unseen';
+		// 				}
+		// 			});
+		//
+		// 			lastDialogsIndex = result.lastIndex;
+		//
+		// 			dialogsWith = result.items.reverse();
+		//
+		// 			getEmailsData({
+		// 				blocks: [{
+		// 					messages: dialogsWith
+		// 				}],
+		// 				commonParams: result.box
+		// 			});
+		//
+		// 			updateDialogs = getEmailsData;
+		//
+		// 			Meteor.call('saveMailboxesToDB', params.channelId, dialogsWith, result.box, function(error, result) {
+		// 				if (error) {
+		// 					console.log(error);
+		// 					return;
+		// 				}
+		//
+		// 				// get all mail messages for loaded dialogs and save it to db
+		// 				Meteor.call('getYandexDialogs', params, dialogsWith, function(error, result) {
+		// 					if (error) {
+		// 						console.log(error);
+		// 						return;
+		// 					}
+		//
+		// 					// TODO: need to save result to db Maildialogs
+		// 				});
 
 						// dialogsWith.forEach(function(dialog) {
 						// 	var paramsForDialog = self.params;
