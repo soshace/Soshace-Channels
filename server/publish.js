@@ -16,10 +16,6 @@ Meteor.publish('selectedChannel', function(channelId) {
 	});
 });
 
-// Meteor.publish('Meteor.users', function() {
-// 	return Meteor.users.find();
-// });
-
 Meteor.publish(null, function() {
 	return Meteor.users.find({
 		_id: this.userId
@@ -69,14 +65,6 @@ Meteor.publish('userContacts', function() {
 	});
 });
 
-// Meteor.publish('allUsers', function() {
-// 	return Meteor.users.find({}, {
-// 		fields: {
-// 			'username': 1
-// 		}
-// 	});
-// });
-
 Meteor.publish('userByEmail', function(emails) {
 	return Meteor.users.find({
 		$in: {
@@ -118,10 +106,3 @@ Meteor.publish('guestChannelCreators', function() {
 		}
 	});
 });
-
-Meteor.publish('mailboxes', function(channelId) {
-	check(channelId, String);
-	return Mailboxes.find({
-		'channelId': channelId
-	})
-})
