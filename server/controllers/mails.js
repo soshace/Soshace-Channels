@@ -1,5 +1,31 @@
 // Methods working with 'Mailboxes' collection
 Meteor.methods({
+  'getMailDialogs': function(channelId) {
+    var currentUserId = this.userId;
+
+    if (!currentUserId) {
+      throw new Meteor.Error('not-logged-in', 'You are not logged-in.');
+    }
+
+    var allMailsFromChannel = Mails.findOne({
+      'channelId': channelId,
+      'userId': currentUserId
+    }, {
+      fields: {
+        folders: 1
+      }
+    });
+
+    var dialogs = [];
+
+    if (allMailsFromChannel.isArray() && allMailsFromChannel.length) {
+      // Now we have only 1 folder (INBOX), so we take [0] element
+      allMailsFromChannel[0].messages.forEach({
+        // TODO: make dialogs here: collect all mails with the same address
+      });
+    }
+  },
+
   'saveMailboxesToDB': function(channelId, dialogs, commonParams) {
     var currentUserId = this.userId,
         newMailData = {
