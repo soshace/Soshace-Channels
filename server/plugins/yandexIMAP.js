@@ -134,6 +134,17 @@ Meteor.methods({
 				},
 				error => console.log(error)
 			)
+	},
+
+	'loadMessagesFromBoxToDataBase': function(params) {
+		return initImap(params)
+			.then(
+				imap => getMessagesFromBoxes(imap, params),
+				error => console.log('Error with getting messages: ' + error)
+			)
+			.then(
+				result => console.log(result)
+			)
 	}
 });
 
@@ -497,7 +508,7 @@ function removeBlockquote(html) {
 
 
 	return html;
-}
+};
 
 function removeQuoteDeclaration(html) {
 	var openDiv = /\<div/g,
@@ -535,4 +546,94 @@ function removeQuoteDeclaration(html) {
 	}
 
 	return clearHtml;
+};
+
+// function getMessagesFromBox(imap, boxName) {
+// 	return new Promise(function(resolve, reject) {
+// 		var messages = [];
+
+// 		imap.openBox(boxName, false, function(err, box) {
+// 			var totalCount = box.messages.total
+
+// 			console.log(totalCount)
+
+// 			var f = imap.seq.fetch((totalCount - 10) + ':' + totalCount, {
+// 								bodies: '',
+// 								struct: true
+// 							});
+
+// 			console.log(f)
+
+// 			getMessageFromBox(f)
+// 			.then(
+// 				item => {
+// 					item.boxName = boxName;
+// 					item.seqno = seqno;
+// 					messages.push(item);
+// 					console.log(messages)
+// 					resolve(messages)
+// 				},
+// 				error => console.log(error)
+// 			);
+// 		});
+// 	});
+// };
+
+function getMessagesFromBox(imap, boxName) {
+	var messages = [];
+
+	return new Promise(function(resolve, error) {
+		imap.openBox(boxName, false, function(err, box) {
+			var f,
+				total = box.messages.total;
+
+			function getMessages(messages) {
+				if (total > 0) {
+					resolve({
+						items: messages.reverse(),
+						box: box
+					});
+					return;
+				}
+
+				var messageIndex = total;
+				f = imap.seq.fetch(messageIndex + ':' + messageIndex, {
+					bodies: ['HEADER'],
+					struct: true
+				});
+
+				return getMessageFromBox(f)
+					.then(
+						item => {
+							console.log(item.from)
+							messages.push(item);
+							total = total - 1;
+							return getMessages(messages);
+						},
+						error => console.log(error)
+					);
+			};
+
+			getMessages(messages);
+		});
+	});
 }
+
+Meteor.startup(function () {
+	testParams = {
+		channelId: 'fy7BJG5LRZ5j2QWjx',
+		createdBy: 'sAfjdSzTdrJLfutFs',
+		userIsHost: true,
+		login: 'Zhukov-Vit',
+		token: 'AQAAAAAAh11IAAM6LPo5rt8Tj03cnKQnUgRl5iY'
+	};
+
+	initImap(testParams)
+		.then(
+			imap => getMessagesFromBox(imap, 'INBOX'),
+			error => console.log('Error with getting messages: ' + error)
+		)
+		.then(
+			result => console.log(result.items.length)
+		)
+})
