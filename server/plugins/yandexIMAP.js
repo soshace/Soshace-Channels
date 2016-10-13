@@ -19,6 +19,23 @@ Meteor.methods({
 			)
 	},
 
+	'getYandexDialogs': function(params, dialogs) {
+		// const fromArr = [];
+		// dialogs.forEach((dialog) => {
+		// 	fromArr.push(dialog.from);
+		// });
+		//
+		// return initImap(params)
+		// 	.then(
+		// 		imap => getDialogMessageIds(imap, params.boxName, fromArr)
+		// 		.then(item => item),
+		// 	)
+		// 	.then(
+		// 		result => getMessagesByIds(result.imap, result.ids, params.boxName),
+		// 		error => console.log('Error with getting dialog: ' + error)
+		// 	)
+	},
+
 	'loadMoreMessages': function(params) {
 		return initImap(params)
 			.then(
@@ -452,7 +469,7 @@ function removeQuotesFromText(text) {
 	});
 
 	if (startIndex) {
-		lines.length = startIndex - 1;		
+		lines.length = startIndex - 1;
 	}
 
 	return lines.join('\n');

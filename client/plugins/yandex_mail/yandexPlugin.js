@@ -122,6 +122,20 @@
 						}
 
 						// get all mail messages for loaded dialogs and save it to db
+						console.log('---- params :');
+						console.log(params);
+						console.log('***************');
+						console.log('---- dialogs :');
+						console.log(dialogsWith);
+						console.log('***************');
+						Meteor.call('getYandexDialogs', params, dialogsWith, function(error, result) {
+							if (error) {
+								console.log(error);
+								return;
+							}
+
+							// TODO: need to save result to db Maildialogs
+						});
 
 						// dialogsWith.forEach(function(dialog) {
 						// 	var paramsForDialog = self.params;
@@ -134,10 +148,6 @@
 						// 			console.log(error);
 						// 			return;
 						// 		}
-						//
-						// 		console.log('dialog RESULT:');
-						// 		console.log(result);
-						// 		console.log('___________________');
 						//
 						// 		// same handle part as in getSingleBlock()
 						// 		result.dialogMessages.forEach(function(item, index) {
@@ -152,16 +162,19 @@
 						//
 						// 		result.dialogMessages = result.dialogMessages.reverse();
 						// 		result.partnerAddress = dialog.from;
-						// 		//////////////////////////////////////////
+						// 		//
 						//
-						// 		// console.log('dialog RESULT:');
-						// 		// console.log(result);
-						// 		// console.log('___________________');
+						// 		console.log('dialog RESULT:');
+						// 		console.log(result);
+						// 		console.log('___________________');
 						//
 						// 		// TODO: need to save dialogResult to db Maildialogs
-						// 		// Meteor.call('saveDialogMessagesToDB', paramsForDialog.channelId, dialogResult, function(error, result) {
-						// 		//
-						// 		// });
+						// 		Meteor.call('saveDialogMessagesToDB', paramsForDialog.channelId, result, paramsForDialog.from, function(error, result) {
+						// 			if (error) {
+						// 				console.log(error);
+						// 				return;
+						// 			}
+						// 		});
 						//
 						// 	});
 						// });
