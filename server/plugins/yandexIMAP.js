@@ -19,23 +19,6 @@ Meteor.methods({
 			)
 	},
 
-	'getYandexDialogs': function(params, dialogs) {
-		// const fromArr = [];
-		// dialogs.forEach((dialog) => {
-		// 	fromArr.push(dialog.from);
-		// });
-		//
-		// return initImap(params)
-		// 	.then(
-		// 		imap => getDialogMessageIds(imap, params.boxName, fromArr)
-		// 		.then(item => item),
-		// 	)
-		// 	.then(
-		// 		result => getMessagesByIds(result.imap, result.ids, params.boxName),
-		// 		error => console.log('Error with getting dialog: ' + error)
-		// 	)
-	},
-
 	'loadMoreMessages': function(params) {
 		return initImap(params)
 			.then(
@@ -152,8 +135,6 @@ Meteor.methods({
 
 	  if (!mails) {
 	    addChannelMail(params.channelId);
-	  	
-	  	console.log('mails added');
 
 	    initImap(params)
 	    .then(
@@ -162,12 +143,15 @@ Meteor.methods({
 	    .then(
 	      imap => getMessagesFromBox(imap, 'Отправленные', params.channelId)
 	    )
+
+	    return;
 	  }
 
-
-	  return 123;
+	  initImap(params)
+	  .then(
+	  	imap => updateBox(imap, params, 'INBOX') 	
+	  )
 	}
-
 });
 
 function initImap(params) {
@@ -199,225 +183,225 @@ function initImap(params) {
 	});
 };
 
-function moveMessageToBox(uid, imap, srcBox, destBox) {
-	return new Promise(function(resolve, reject) {
-		imap.openBox(srcBox, false, function(err, bx) {
-			imap.search(['ALL', ['UID', uid]], function(err, results) {
+// function moveMessageToBox(uid, imap, srcBox, destBox) {
+// 	return new Promise(function(resolve, reject) {
+// 		imap.openBox(srcBox, false, function(err, bx) {
+// 			imap.search(['ALL', ['UID', uid]], function(err, results) {
 
-				if (err) {
-					reject(err);
-				}
+// 				if (err) {
+// 					reject(err);
+// 				}
 
-				if (results.length > 0) {
-					var f1 = imap.move(results, destBox, function(err) {
-						if (err) {
-							console.log(err);
-						}
-						resolve(1);
-						imap.end();
-					});
-				}
+// 				if (results.length > 0) {
+// 					var f1 = imap.move(results, destBox, function(err) {
+// 						if (err) {
+// 							console.log(err);
+// 						}
+// 						resolve(1);
+// 						imap.end();
+// 					});
+// 				}
 
-				imap.closeBox(true, function(err) {
-					if (err) {
-						console.log(err);
-					}
-				});
-			});
-		});
-	});
-};
+// 				imap.closeBox(true, function(err) {
+// 					if (err) {
+// 						console.log(err);
+// 					}
+// 				});
+// 			});
+// 		});
+// 	});
+// };
 
-function getUniqueDialogs(imap, params) {
-	var messages = [];
+// function getUniqueDialogs(imap, params) {
+// 	var messages = [];
 
-	return new Promise(function(resolve, error) {
-		imap.openBox(params.boxName, false, function(err, box) {
-			var f,
-				dialogsCount = 0,
-				total = box.messages.total,
-				index = params.lastIndex,
-				dialogsWith = params.dialogsWith || [];
+// 	return new Promise(function(resolve, error) {
+// 		imap.openBox(params.boxName, false, function(err, box) {
+// 			var f,
+// 				dialogsCount = 0,
+// 				total = box.messages.total,
+// 				index = params.lastIndex,
+// 				dialogsWith = params.dialogsWith || [];
 
-			function getMessages(messages) {
-				if (messages.length > 10 || (total - index === 0)) {
-					resolve({
-						items: messages.reverse(),
-						box: box,
-						lastIndex: index
-					});
-					return;
-				}
+// 			function getMessages(messages) {
+// 				if (messages.length > 10 || (total - index === 0)) {
+// 					resolve({
+// 						items: messages.reverse(),
+// 						box: box,
+// 						lastIndex: index
+// 					});
+// 					return;
+// 				}
 
-				var messageIndex = total - index;
-				f = imap.seq.fetch(messageIndex + ':' + messageIndex, {
-					bodies: ['HEADER'],
-					struct: true
-				});
+// 				var messageIndex = total - index;
+// 				f = imap.seq.fetch(messageIndex + ':' + messageIndex, {
+// 					bodies: ['HEADER'],
+// 					struct: true
+// 				});
 
-				return getMessageFromBox(f)
-					.then(
-						item => {
-							var messageIsFromDialog = false;
-							for (var mes of messages) {
-								if (mes.from === item.from && mes.to === item.to) {
-									messageIsFromDialog = true;
-								}
-							}
+// 				return getMessageFromBox(f)
+// 					.then(
+// 						item => {
+// 							var messageIsFromDialog = false;
+// 							for (var mes of messages) {
+// 								if (mes.from === item.from && mes.to === item.to) {
+// 									messageIsFromDialog = true;
+// 								}
+// 							}
 
-							for (var mes of dialogsWith) {
-								if (mes === item.from) {
-									messageIsFromDialog = true;
-								}
-							}
+// 							for (var mes of dialogsWith) {
+// 								if (mes === item.from) {
+// 									messageIsFromDialog = true;
+// 								}
+// 							}
 
-							if (!messageIsFromDialog) {
-								messages.push(item);
-							}
+// 							if (!messageIsFromDialog) {
+// 								messages.push(item);
+// 							}
 
-							index++;
+// 							index++;
 
-							return getMessages(messages);
-						},
-						error => console.log(error)
-					);
-			};
+// 							return getMessages(messages);
+// 						},
+// 						error => console.log(error)
+// 					);
+// 			};
 
-			getMessages(messages);
-		});
-	});
-};
+// 			getMessages(messages);
+// 		});
+// 	});
+// };
 
-function getDialogMessageIds(imap, boxName, key) {
-	console.log(boxName, key);
-	return new Promise(function(resolve, reject) {
+// function getDialogMessageIds(imap, boxName, key) {
+// 	console.log(boxName, key);
+// 	return new Promise(function(resolve, reject) {
 
-		imap.openBox(boxName, false, function(err, box) {
-			imap.seq.search(['ALL', ['FROM', key]], function(err, receivedIds) {
-				var received = [];
-				receivedIds.forEach(function(item) {
-					received.push({
-						index: item,
-						box: boxName
-					})
-				});
+// 		imap.openBox(boxName, false, function(err, box) {
+// 			imap.seq.search(['ALL', ['FROM', key]], function(err, receivedIds) {
+// 				var received = [];
+// 				receivedIds.forEach(function(item) {
+// 					received.push({
+// 						index: item,
+// 						box: boxName
+// 					})
+// 				});
 
-				imap.openBox('Отправленные', false, function(err, box) {
-					imap.seq.search(['ALL', ['TO', key]], function(err, sentIds) {
+// 				imap.openBox('Отправленные', false, function(err, box) {
+// 					imap.seq.search(['ALL', ['TO', key]], function(err, sentIds) {
 
-						var sent = [];
+// 						var sent = [];
 
-						sentIds.forEach(function(item) {
+// 						sentIds.forEach(function(item) {
 
-							sent.push({
-								index: item,
-								box: 'Отправленные'
-							});
-						});
+// 							sent.push({
+// 								index: item,
+// 								box: 'Отправленные'
+// 							});
+// 						});
 
-						resolve({
-							ids: {
-								sent: sent,
-								received: received
-							},
-							imap: imap
-						});
-					});
-				});
-			});
-		});
-	});
-};
+// 						resolve({
+// 							ids: {
+// 								sent: sent,
+// 								received: received
+// 							},
+// 							imap: imap
+// 						});
+// 					});
+// 				});
+// 			});
+// 		});
+// 	});
+// };
 
-function getMessagesByIds(imap, ids, boxName) {
-	var received = ids.received.reverse().slice(0, 10),
-		sent = ids.sent.reverse().slice(0, 10);
+// function getMessagesByIds(imap, ids, boxName) {
+// 	var received = ids.received.reverse().slice(0, 10),
+// 		sent = ids.sent.reverse().slice(0, 10);
 
-	return new Promise(function(resolve, reject) {
-		var messages = [];
+// 	return new Promise(function(resolve, reject) {
+// 		var messages = [];
 
-		imap.openBox(boxName, false, function(err, box) {
-			function getMessages(index) {
-				if (index > (received.length - 1)) {
-					imap.openBox('Отправленные', false, function(err, box) {
-						function getSentMessages(index) {
-							if (index > (sent.length - 1)) {
-								messages = _.sortBy(messages, function(item) {
-									return -item.date;
-								});
-								messages = messages.slice(0, 10);
+// 		imap.openBox(boxName, false, function(err, box) {
+// 			function getMessages(index) {
+// 				if (index > (received.length - 1)) {
+// 					imap.openBox('Отправленные', false, function(err, box) {
+// 						function getSentMessages(index) {
+// 							if (index > (sent.length - 1)) {
+// 								messages = _.sortBy(messages, function(item) {
+// 									return -item.date;
+// 								});
+// 								messages = messages.slice(0, 10);
 
-								ids.received = ids.received.filter(function(id) {
-									return !_.findWhere(messages, {
-										seqno: id.index,
-										box: id.boxName
-									});
-								});
+// 								ids.received = ids.received.filter(function(id) {
+// 									return !_.findWhere(messages, {
+// 										seqno: id.index,
+// 										box: id.boxName
+// 									});
+// 								});
 
-								ids.sent = ids.sent.filter(function(id) {
-									return !_.findWhere(messages, {
-										seqno: id.index,
-										box: id.boxName
-									});
-								});
+// 								ids.sent = ids.sent.filter(function(id) {
+// 									return !_.findWhere(messages, {
+// 										seqno: id.index,
+// 										box: id.boxName
+// 									});
+// 								});
 
-								resolve({
-									dialogMessages: messages,
-									allMessageIds: ids,
-								});
-								imap.end();
-								return;
-							}
+// 								resolve({
+// 									dialogMessages: messages,
+// 									allMessageIds: ids,
+// 								});
+// 								imap.end();
+// 								return;
+// 							}
 
-							var seqno = sent[index].index;
-							var req1 = imap.seq.fetch(seqno + ':' + seqno, {
-								bodies: '',
-								struct: true
-							});
+// 							var seqno = sent[index].index;
+// 							var req1 = imap.seq.fetch(seqno + ':' + seqno, {
+// 								bodies: '',
+// 								struct: true
+// 							});
 
-							return getMessageFromBox(req1)
-								.then(
-									item => {
-										item.isInbox = false;
-										item.boxName = 'Отправленные';
-										item.seqno = seqno;
-										messages.push(item);
+// 							return getMessageFromBox(req1)
+// 								.then(
+// 									item => {
+// 										item.isInbox = false;
+// 										item.boxName = 'Отправленные';
+// 										item.seqno = seqno;
+// 										messages.push(item);
 
-										return getSentMessages(++index);
-									},
-									error => console.log(error)
-								);
-						};
+// 										return getSentMessages(++index);
+// 									},
+// 									error => console.log(error)
+// 								);
+// 						};
 
-						getSentMessages(0);
-					});
-					return;
-				}
+// 						getSentMessages(0);
+// 					});
+// 					return;
+// 				}
 
-				var seqno = received[index].index;
-				var req = imap.seq.fetch(seqno + ':' + seqno, {
-					bodies: '',
-					struct: true
-				});
+// 				var seqno = received[index].index;
+// 				var req = imap.seq.fetch(seqno + ':' + seqno, {
+// 					bodies: '',
+// 					struct: true
+// 				});
 
-				return getMessageFromBox(req)
-					.then(
-						item => {
-							item.isInbox = true;
-							item.boxName = boxName;
-							item.seqno = seqno;
-							messages.push(item);
+// 				return getMessageFromBox(req)
+// 					.then(
+// 						item => {
+// 							item.isInbox = true;
+// 							item.boxName = boxName;
+// 							item.seqno = seqno;
+// 							messages.push(item);
 
-							return getMessages(++index);
-						},
-						error => console.log(error)
-					);
-			};
+// 							return getMessages(++index);
+// 						},
+// 						error => console.log(error)
+// 					);
+// 			};
 
-			getMessages(0);
-		});
-	});
-};
+// 			getMessages(0);
+// 		});
+// 	});
+// };
 
 function getMessageFromBox(request) {
 	var Imap = Npm.require('imap'),
@@ -468,8 +452,6 @@ function getMessageFromBox(request) {
 				item.plainText = result.text;
 
 				item.fullHtml = result.html;
-
-				// console.log(result)
 
 				if (result.html) {
 					if (item.inReplyTo) {
@@ -607,19 +589,13 @@ function removeQuoteDeclaration(html) {
 // };
 
 function getMessagesFromBox(imap, boxName, channelId) {
-	var messages = [];
-
 	return new Promise(function(resolve, error) {
 		imap.openBox(boxName, false, function(err, box) {
 			var f,
 				total = box.messages.total;
 
-			function getMessages(messages) {
+			function getMessages() {
 				if (total === 0) {
-					// resolve({
-					// 	items: messages.reverse(),
-					// 	box: box
-					// });
 					resolve(imap);
 					return;
 				}
@@ -632,19 +608,18 @@ function getMessagesFromBox(imap, boxName, channelId) {
 				return getMessageFromBox(f)
 					.then(
 						item => {
-							messages.push(item);
 							total = total - 1;
 							saveMessageToDB(channelId, boxName, item);
-							return getMessages(messages);
+							return getMessages();
 						},
 						error => console.log(error)
 					);
 			};
 
-			getMessages(messages);
+			getMessages();
 		});
 	});
-}
+};
 
 function saveMessageToDB(channelId, boxName, message) {
   var box = Mails.findOne({channelId: channelId});
@@ -664,12 +639,15 @@ function saveMessageToDB(channelId, boxName, message) {
   	}
 
   	Mails.update({channelId: channelId}, {$push: {'folders': newFolder}})
+  	console.log(channelId)
   }
+
+  console.log(message.subject, message.uid)
 
   Mails.update({channelId: channelId, 'folders.name': boxName}, {
     $push: {'folders.$.messages': message}
   })
-}
+};
 
 function addChannelMail(channelId) {
   var newMailBox = {
@@ -678,24 +656,40 @@ function addChannelMail(channelId) {
   }
 
   return Mails.insert(newMailBox);
-}
+};
 
+function updateBox(imap, params, boxName) {
+	console.log(boxName)
+	imap.openBox(boxName, false, function(err, box) {
+		console.log(box)
+	});
+}
 
 Meteor.startup(function () {
 	testParams = {
-		channelId: 'fy7BJG5LRZ5j2QWjx',
-		createdBy: 'sAfjdSzTdrJLfutFs',
+		channelId: 'DNk9QzsqRSgEDqa7h',
+		createdBy: 'Y6n3Kw9n3pxaKtL2M',
 		userIsHost: true,
 		login: 'Zhukov-Vit',
-		token: 'AQAAAAAAh11IAAM6LPo5rt8Tj03cnKQnUgRl5iY'
+		token: 'AQAAAAAT13jUAAM6LHnbxGzK7k7Ymxhj7p7bd-I'
 	};
 
-	// initImap(testParams)
+	// return initImap(testParams)
 	// 	.then(
-	// 		imap => getMessagesFromBox(imap, 'INBOX'),
-	// 		error => console.log('Error with getting messages: ' + error)
-	// 	)
-	// 	.then(
-	// 		result => console.log(result.items.length)
+	// 		imap => {
+	// 			imap.getBoxes(function(err, result) {
+
+	// 				// console.log(result)
+	// 				// for (var key in result) {
+	// 				// 	if (result.hasOwnProperty(key)) {
+	// 				// 		boxes[key] = {};
+	// 				// 		boxes[key]['special_use_attrib'] = result[key]['special_use_attrib'];
+	// 				// 	}
+	// 				// }
+	// 				// imap.end();
+	// 				// resolve(boxes);
+	// 			});
+	// 		},
+	// 		error => console.log(error)
 	// 	)
 })
