@@ -39,14 +39,8 @@ Schemas.Folder = new SimpleSchema({
 });
 
 Schemas.Mail = new SimpleSchema({
-  userId: {
-    type: String
-  },
   channelId: {
     type: String
-  },
-  createdAt: {
-    type: Date
   },
   folders: {
     type: [Schemas.Folder]

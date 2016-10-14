@@ -587,6 +587,8 @@ function getMessagesFromBox(imap, boxName) {
 			var f,
 				total = box.messages.total;
 
+			console.log(box)
+
 			function getMessages(messages) {
 				if (total > 0) {
 					resolve({
@@ -628,12 +630,13 @@ Meteor.startup(function () {
 		token: 'AQAAAAAAh11IAAM6LPo5rt8Tj03cnKQnUgRl5iY'
 	};
 
-	initImap(testParams)
-		.then(
-			imap => getMessagesFromBox(imap, 'INBOX'),
-			error => console.log('Error with getting messages: ' + error)
-		)
-		.then(
-			result => console.log(result.items.length)
-		)
+	// initImap(testParams)
+	// 	.then(
+	// 		imap => getMessagesFromBox(imap, 'INBOX'),
+	// 		error => console.log('Error with getting messages: ' + error)
+	// 	)
+	// 	.then(
+	// 		result => console.log(result.items.length)
+	// 	)
 })
+
