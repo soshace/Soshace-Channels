@@ -144,12 +144,30 @@ Meteor.methods({
 	      imap => getMessagesFromBox(imap, 'Отправленные', params.channelId)
 	    )
 
+	    console.log('boxes created');
+
 	    return;
+	  }
+
+	  console.log(mails);
+
+	  var inbox = mails.folders[0]
+
+	  if (!inbox) {
+	  	return;
+	  }
+
+	  var dbBox = {
+	  	totalCount: inbox.messages.length,
+	  	uidNext: inbox.uidNext || 0
 	  }
 
 	  initImap(params)
 	  .then(
-	  	imap => updateBox(imap, params, 'INBOX') 	
+	  	imap => isBoxUpdated(imap, params, dbBox)
+	  	.then(
+	  		result => console.log(result)
+	  	)
 	  )
 	}
 });
@@ -596,6 +614,7 @@ function getMessagesFromBox(imap, boxName, channelId) {
 
 			function getMessages() {
 				if (total === 0) {
+					updateBoxParameters(channelId, boxName, box.uidnext);
 					resolve(imap);
 					return;
 				}
@@ -635,14 +654,12 @@ function saveMessageToDB(channelId, boxName, message) {
   if (!folderCreated) {
   	var newFolder = {
   		name: boxName,
-  		messages: []
+  		messages: [],
+  		uidNext: 0
   	}
 
   	Mails.update({channelId: channelId}, {$push: {'folders': newFolder}})
-  	console.log(channelId)
   }
-
-  console.log(message.subject, message.uid)
 
   Mails.update({channelId: channelId, 'folders.name': boxName}, {
     $push: {'folders.$.messages': message}
@@ -658,11 +675,39 @@ function addChannelMail(channelId) {
   return Mails.insert(newMailBox);
 };
 
-function updateBox(imap, params, boxName) {
-	console.log(boxName)
-	imap.openBox(boxName, false, function(err, box) {
-		console.log(box)
-	});
+function isBoxUpdated(imap, params, dbBox) {
+	var boxName = 'INBOX';
+	return new Promise(function(resolve, error) {
+		imap.openBox(boxName, false, function(err, box) {
+			var uidNext = box.uidnext;
+			var totalCount = box.total;
+
+			var dbUid = dbBox.uidNext;
+			var dbTotalCount = dbBox.totalCount;
+
+			var result;
+
+			if (dbTotalCount !== totalCount || uidNext !== dbUid) {
+				result = {
+					isUpdated: true,
+					totalCount: box.total
+				}
+			}
+
+			result = {
+				isUpdated: false,
+				totalCount: totalCount
+			}
+
+			resolve(result);
+		});
+	})
+};
+
+function updateBoxParameters(channelId, boxName, uidNext) {
+	Mails.update({channelId: channelId, 'folders.name': boxName}, {
+	  $set: {'folders.$.uidNext': uidNext}
+	})	
 }
 
 Meteor.startup(function () {

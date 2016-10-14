@@ -78,6 +78,9 @@ Schemas.Folder = new SimpleSchema({
   },
   messages: {
     type: [Schemas.Message]
+  },
+  uidNext: {
+    type: Number
   }
 });
 
