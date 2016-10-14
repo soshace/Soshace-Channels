@@ -5,27 +5,70 @@ Mails = new Mongo.Collection('mails');
 var Schemas = {};
 
 Schemas.Message = new SimpleSchema({
+  uid: {
+    type: Number,
+    optional: true
+  },
   messageId: {
-    type: String
+    type: String,
+    optional: true
   },
   subject: {
-    type: String
+    type: String,
+    optional: true
   },
-  body: {
-    type: String
+  htmlBody: {
+    type: String,
+    optional: true
   },
   from: {
-    type: String
+    type: String,
+    optional: true
+  },
+  fromName: {
+    type: String,
+    optional: true
   },
   to: {
-    type: String
+    type: String,
+    optional: true
+  },
+  toName: {
+    type: String,
+    optional: true
   },
   date: {
-    type: Date
+    type: Number,
+    optional: true
   },
-  additionalInfo: {
+  inReplyTo: {
+    type: String,
+    optional: true
+  },
+  plainText: {
+    type: String,
+    optional: true
+  },
+  fullHtml: {
+    type: String,
+    optional: true
+  },
+  htmlBody: {
+    type: String,
+    optional: true
+  },
+  compressedText: {
+    type: String,
+    optional: true
+  },
+  compressed: {
+    type: Boolean,
+    optional: true
+  },
+  attr: {
     type: Object,
-    blackbox: true
+    blackbox: true,
+    optional: true
   }
 });
 

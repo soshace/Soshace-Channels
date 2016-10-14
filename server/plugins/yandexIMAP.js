@@ -145,7 +145,29 @@ Meteor.methods({
 			.then(
 				result => console.log(result)
 			)
+	},
+
+	'checkMails': function(params) {
+	  var mails = Mails.findOne({channelId: params.channelId});
+
+	  if (!mails) {
+	    addChannelMail(params.channelId);
+	  	
+	  	console.log('mails added');
+
+	    initImap(params)
+	    .then(
+	      imap => getMessagesFromBox(imap, 'INBOX', params.channelId)
+	    )
+	    .then(
+	      imap => getMessagesFromBox(imap, 'Отправленные', params.channelId)
+	    )
+	  }
+
+
+	  return 123;
 	}
+
 });
 
 function initImap(params) {
@@ -424,7 +446,7 @@ function getMessageFromBox(request) {
 			});
 
 			parser.on('end', function(result) {
-				item.inReplyTo = result.inReplyTo ? result.inReplyTo[0] : false;
+				item.inReplyTo = result.inReplyTo ? result.inReplyTo[0] : '';
 				item.messageId = result.messageId;
 
 				item.from = result.from[0].address.toLowerCase();
@@ -437,12 +459,17 @@ function getMessageFromBox(request) {
 
 				item.subject = result.subject || 'No subject';
 
-				item.date = result.date || '';
-				item.date = moment(item.date, 'ddd MMM DD YYYY hh:mm:ss Z').valueOf();
+				item.date = result.date || 0;
+
+				if (item.date) {
+					item.date = moment(item.date, 'ddd MMM DD YYYY hh:mm:ss Z').valueOf();				
+				} 
 
 				item.plainText = result.text;
 
 				item.fullHtml = result.html;
+
+				// console.log(result)
 
 				if (result.html) {
 					if (item.inReplyTo) {
@@ -579,7 +606,7 @@ function removeQuoteDeclaration(html) {
 // 	});
 // };
 
-function getMessagesFromBox(imap, boxName) {
+function getMessagesFromBox(imap, boxName, channelId) {
 	var messages = [];
 
 	return new Promise(function(resolve, error) {
@@ -587,29 +614,27 @@ function getMessagesFromBox(imap, boxName) {
 			var f,
 				total = box.messages.total;
 
-			console.log(box)
-
 			function getMessages(messages) {
-				if (total > 0) {
-					resolve({
-						items: messages.reverse(),
-						box: box
-					});
+				if (total === 0) {
+					// resolve({
+					// 	items: messages.reverse(),
+					// 	box: box
+					// });
+					resolve(imap);
 					return;
 				}
 
-				var messageIndex = total;
-				f = imap.seq.fetch(messageIndex + ':' + messageIndex, {
-					bodies: ['HEADER'],
+				f = imap.seq.fetch(total + ':' + total, {
+					bodies: '',
 					struct: true
 				});
 
 				return getMessageFromBox(f)
 					.then(
 						item => {
-							console.log(item.from)
 							messages.push(item);
 							total = total - 1;
+							saveMessageToDB(channelId, boxName, item);
 							return getMessages(messages);
 						},
 						error => console.log(error)
@@ -620,6 +645,41 @@ function getMessagesFromBox(imap, boxName) {
 		});
 	});
 }
+
+function saveMessageToDB(channelId, boxName, message) {
+  var box = Mails.findOne({channelId: channelId});
+
+  var folders = box.folders;
+  var folderCreated = false;
+  folders.forEach(item => {
+  	if (item.name === boxName) {
+  		folderCreated = true;
+  	}
+  })
+
+  if (!folderCreated) {
+  	var newFolder = {
+  		name: boxName,
+  		messages: []
+  	}
+
+  	Mails.update({channelId: channelId}, {$push: {'folders': newFolder}})
+  }
+
+  Mails.update({channelId: channelId, 'folders.name': boxName}, {
+    $push: {'folders.$.messages': message}
+  })
+}
+
+function addChannelMail(channelId) {
+  var newMailBox = {
+    channelId: channelId,
+    folders: []
+  }
+
+  return Mails.insert(newMailBox);
+}
+
 
 Meteor.startup(function () {
 	testParams = {
@@ -639,4 +699,3 @@ Meteor.startup(function () {
 	// 		result => console.log(result.items.length)
 	// 	)
 })
-

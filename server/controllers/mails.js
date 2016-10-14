@@ -95,38 +95,4 @@ Meteor.methods({
       }
     });
   },
-
-  'checkMails': function(params) {
-    var mails = Mails.findOne({channelId: params.channelId});
-
-    if (!mails) {
-      addChannelMail(params.channelId)
-    }
-
-    console.log(mails);
-
-    return 123;
-  }
 })
-
-
-function saveMessageToDB(channelId, boxName, message) {
-  var box = Mails.findOne({channelId: channelId, 'folders.name': boxName});
-
-  console.log(box);
-
-  // Mails.update({channelId: channelId, 'folders.name': 'boxName'}, {
-  //   $push: {
-  //     item: message
-  //   }
-  // })
-}
-
-function addChannelMail(channelId) {
-  var newMailBox = {
-    channelId: channelId,
-    folders: []
-  }
-
-  return Mails.insert(newMailBox);
-}
