@@ -63,50 +63,62 @@
 	YandexPlugin.prototype.getChannelBlocks = function(getEmailsData) {
 		var params = this.params;
 
-		Meteor.call('checkMails', params, function(error, result) {
-			console.log(result);
-		})
+		Meteor.call('checkMails', this.params, function(error, result) {
+			if (error) {
+				console.log(error);
+				return;
+			}
+		});
+
+		var timerId = setTimeout(getMailDialogs, 1000, params.channelId, getEmailsData);
 	};
 
-	YandexPlugin.prototype.getSingleBlock = function(getDialogCallback, from) {
-		var params = self.params;
-
-		Meteor.call('checkMaildialogsDB', params.channelId, from, function(error, result) {
+	function getMailDialogs(channelId, getEmailsData) {
+		Meteor.call('getMailDialogs', channelId, function(error, result) {
 			if (error) {
 				console.log(error);
 				return;
 			}
 
-			if (result) {
+			console.log(result);
 
-				getDialogCallback(result);
+			result = result.map(function(dialog) {
+				dialog.channelId = channelId;
+				return dialog;
+			});
 
-			} else {
+			getEmailsData({
+				blocks: [{
+					messages: result
+				}]
+			});
 
-				params.from = from;
-				params.boxName = 'INBOX';
+			updateDialogs = getEmailsData;
+		});
+	}
 
-				Meteor.call('getYandexDialog', params, function(error, result) {
-					result.dialogMessages.forEach(function(item, index) {
-						if (!item.isInbox) {
-							result.dialogMessages[index].inboxClass = 'item-sent';
-						}
-					});
+	YandexPlugin.prototype.getSingleBlock = function(getDialogCallback, from) {
+		var params = self.params;
 
-					result.dialogMessages = _.sortBy(result.dialogMessages, function(item) {
-						return item.date;
-					});
-
-					result.dialogMessages = result.dialogMessages.reverse();
-
-					dialog = result;
-					dialog.partnerAddress = from;
-
-					getDialogCallback(result);
-					updateDialog = getDialogCallback;
-				});
-
+		Meteor.call('getMailDialog', params.channelId, from, function(error, result) {
+			if (error) {
+				console.log(error);
+				return;
 			}
+
+			result = result.map(function(message) {
+				message.isInbox = message.from === from
+				message.inboxClass = message.isInbox ? '' : 'item-sent';
+				return message;
+			});
+
+			var messages = {
+				partnerAddress: from,
+				dialogMessages: result
+			};
+
+			getDialogCallback(messages);
+			updateDialog = getDialogCallback;
 		});
 	};
 

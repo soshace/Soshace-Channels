@@ -8,91 +8,59 @@ Meteor.methods({
     }
 
     var allMailsFromChannel = Mails.findOne({
-      'channelId': channelId,
-      'userId': currentUserId
+      'channelId': channelId
     }, {
       fields: {
         folders: 1
       }
     });
 
-    var dialogs = [];
+    var dialogs = [],
+        addresses = [];
 
-    if (allMailsFromChannel.isArray() && allMailsFromChannel.length) {
+    if (Array.isArray(allMailsFromChannel.folders) && allMailsFromChannel.folders.length) {
       // Now we have only 1 folder (INBOX), so we take [0] element
-      allMailsFromChannel[0].messages.forEach({
-        // TODO: make dialogs here: collect all mails with the same address
+      allMailsFromChannel.folders[0].messages.forEach(function(message, i, arr) {
+        var hasElement = checkAvailability(addresses, message.from);
+        if (!hasElement) {
+          addresses.push(message.from);
+          dialogs.push(message);
+        }
       });
     }
+
+    return dialogs;
   },
 
-  'saveMailboxesToDB': function(channelId, dialogs, commonParams) {
-    var currentUserId = this.userId,
-        newMailData = {
-          userId: currentUserId,
-          channelId: channelId,
-          createdAt: new Date(),
-          dialogs: dialogs,
-          commonParams: commonParams
-        };
-
-    if (!currentUserId) {
-      throw new Meteor.Error('not-logged-in', 'You are not logged-in.');
-    }
-
-    return Mailboxes.insert(newMailData);
-  },
-
-  'checkMailboxesDB': function(channelId) {
+  'getMailDialog': function(channelId, address) {
     var currentUserId = this.userId;
 
     if (!currentUserId) {
       throw new Meteor.Error('not-logged-in', 'You are not logged-in.');
     }
 
-    return Mailboxes.findOne({
-      'channelId': channelId,
-      'userId': currentUserId
+    var allMailsFromChannel = Mails.findOne({
+      'channelId': channelId
     }, {
       fields: {
-        dialogs: 1,
-        commonParams: 1
+        'folders': 1
       }
     });
-  },
 
-  'saveMaildialogsToDB': function(channelId, dialog, address) {
-    var currentUserId = this.userId,
-        newMaildialogData = {
-          userId: currentUserId,
-          channelId: channelId,
-          createdAt: new Date(),
-          dialogsContent: dialog,
-          address: address
-        };
+    var messages = [];
 
-    if (!currentUserId) {
-      throw new Meteor.Error('not-logged-in', 'You are not logged-in.');
+    if (Array.isArray(allMailsFromChannel.folders) && allMailsFromChannel.folders.length) {
+      allMailsFromChannel.folders[0].messages.forEach(function(message) {
+        if (message.from === address) messages.push(message);
+      });
     }
 
-    return Maildialogs.insert(newMaildialogData);
-  },
+    return messages;
+  }
+});
 
-  'checkMaildialogsDB': function(channelId, address) {
-    var currentUserId = this.userId;
-
-    if (!currentUserId) {
-      throw new Meteor.Error('not-logged-in', 'You are not logged-in.');
-    }
-
-    return Maildialogs.findOne({
-      'channelId': channelId,
-      'userId': currentUserId,
-      'address': address
-    }, {
-      fields: {
-        dialogsContent: 1
-      }
-    });
-  },
-})
+function checkAvailability(arr, val) {
+  return arr.some(function(arrVal) {
+    return val === arrVal;
+  });
+}

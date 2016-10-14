@@ -14,7 +14,7 @@
 				<input type="text" class="form-control email__forward-address" placeholder="To:">
 			</div>
 		{{/if}}
-				
+
 		{{> replyBlock}}
 
 		<ul class="email__list">
@@ -29,28 +29,28 @@
 						{{/if}}
 						<div class="item__handlers">
 							<a class="js-item__reply email__handler">
-								<i class="fa fa-reply" aria-hidden="true" id={{attr.uid}}></i>
-							</a>		
+								<i class="fa fa-reply" aria-hidden="true" id={{uid}}></i>
+							</a>
 
 							<a class="js-item__forward email__handler">
-								<i class="fa fa-share" aria-hidden="true" id={{attr.uid}}></i>
-							</a>		
+								<i class="fa fa-share" aria-hidden="true" id={{uid}}></i>
+							</a>
 
 							<a class="js-item__delete email__handler">
-								<i class="fa fa-trash-o" aria-hidden="true" id={{attr.uid}}></i>
-							</a>		
+								<i class="fa fa-trash-o" aria-hidden="true" id={{uid}}></i>
+							</a>
 
 							<a class="js-item__spam email__handler">
-								<i class="fa fa-ban" aria-hidden="true" id={{attr.uid}}></i>
+								<i class="fa fa-ban" aria-hidden="true" id={{uid}}></i>
 							</a>
 							{{#if inReplyTo}}
 								{{#if compressed}}
 									<a class="js-item__show-full email__handler">
-										<i class="fa fa-expand" aria-hidden="true" id={{attr.uid}}></i>
+										<i class="fa fa-expand" aria-hidden="true" id={{uid}}></i>
 									</a>
 								{{else}}
 									<a class="js-item__show-full email__handler">
-										<i class="fa fa-compress" aria-hidden="true" id={{attr.uid}}></i>
+										<i class="fa fa-compress" aria-hidden="true" id={{uid}}></i>
 									</a>
 								{{/if}}
 							{{/if}}
