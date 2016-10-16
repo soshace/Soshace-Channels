@@ -20,12 +20,14 @@ Meteor.methods({
 
     if (Array.isArray(allMailsFromChannel.folders) && allMailsFromChannel.folders.length) {
       // Now we have only 1 folder (INBOX), so we take [0] element
-      allMailsFromChannel.folders[0].messages.every(function(message) {
+      allMailsFromChannel.folders[0].messages.every(function(message, index) {
         var hasElement = checkAvailability(addresses, message.from);
         if (!hasElement) {
           addresses.push(message.from);
           dialogs.push(message);
         }
+
+        // TODO: save array of added addresses and/or index of last checked message
 
         if (dialogs.length > 20) {
           return false;
@@ -33,7 +35,48 @@ Meteor.methods({
       });
     }
 
-    return dialogs;
+    return {
+      dialogs: dialogs,
+      addresses: addresses
+    };
+  },
+
+  'loadMoreDialogs': function(channelId, lastEmail, addressesAdded) {
+    var currentUserId = this.userId;
+
+    if (!currentUserId) {
+      throw new Meteor.Error('not-logged-in', 'You are not logged-in.');
+    }
+
+    var allMailsFromChannel = Mails.findOne({
+      'channelId': channelId
+    }, {
+      fields: {
+        folders: 1
+      }
+    });
+
+    var newDialogs = [],
+        newAddresses = [];
+
+    // TODO: collect dialogs from last added dialog/address/message
+    if (Array.isArray(allMailsFromChannel.folders) && allMailsFromChannel.folders.length) {
+      // Now we have only 1 folder (INBOX), so we take [0] element
+      allMailsFromChannel.folders[0].messages.every(function(message, index) {
+        var hasElement = checkAvailability(addressesAdded, message.from);
+        if (!hasElement) {
+          newAddresses.push(message.from);
+          newDialogs.push(message);
+        }
+
+        // TODO: save array of added addresses and/or index of last checked message
+        if (newDialogs.length > 20) {
+          return false;
+        } else return true;
+      });
+    }
+
+    return newDialogs;
   },
 
   'getMailDialog': function(channelId, address) {

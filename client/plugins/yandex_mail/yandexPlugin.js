@@ -6,9 +6,11 @@
 		replySubject,
 		deps = new Deps.Dependency(),
 		// updateDialog,
-		// updateDialogs,
+		updateDialogs,
 		// lastDialogsIndex,
-		repliedMessageId;
+		addressesForDialogs,
+		repliedMessageId,
+		scrollTimeout;
 
 	this.YandexPlugin = function(channelData) {
 		this.settingsTemplateName = 'yandexSettingsTemplate';
@@ -77,27 +79,69 @@
 					return;
 				}
 
-				result = result.map(function(dialog) {
+				var dialogsResult = result.dialogs.map(function(dialog) {
 					dialog.channelId = params.channelId;
 					return dialog;
 				});
 
-				dialogsWith = result;
+				dialogsWith = dialogsResult;
+				addressesForDialogs = result.addresses;
 
 				if (Array.isArray(dialogsWith) && dialogsWith.length > 20) {
 					getEmailsData({
 						blocks: [{
-							messages: result
+							messages: dialogsResult
 						}]
 					});
 
-					//uploadDialogs = getEmailsData;
+					updateDialogs = getEmailsData;
+					console.log(result);
+
+					window.addEventListener('scroll', loadMoreDialogs);
+
 					clearInterval(timerId);
 				}
 			});
 		}, 1000);
 
 	};
+
+	function loadMoreDialogs() {
+		var params = self.params;
+
+		clearTimeout(scrollTimeout);
+
+		scrollTimeout = setTimeout(function() {
+			var scrollTop = window.pageYOffset || document.documentElement.scrollTop,
+					dialogs = document.querySelectorAll('.channel__resource-block'),
+					lastDialog = dialogs[dialogs.length - 1],
+					lastDialogBottomCoord = lastDialog.getBoundingClientRect().bottom;
+
+			if (scrollTop > lastDialogBottomCoord) {
+				console.log(lastDialog);
+				console.log(lastDialog.getBoundingClientRect().bottom);
+				console.log(scrollTop);
+
+				// TODO: send also array of current dialog addresses
+				Meteor.call('loadMoreDialogs', params.channelId, dialogsWith[dialogsWith.length - 1], addressesForDialogs, function(error, result) {
+					if (error) {
+						console.log(error);
+						return;
+					}
+					console.log(result);
+					dialogsWith = dialogsWith.concat(result);
+
+					updateDialogs({
+						blocks: [{
+							messages: dialogsWith
+						}]
+					});
+
+				});
+
+			}
+	  }, 100);
+	}
 
 	YandexPlugin.prototype.getSingleBlock = function(getDialogCallback, from) {
 		var params = self.params;
@@ -381,37 +425,37 @@
 			showFullEmail(+event.target.id);
 		},
 
-		'click .js-email__load': function(event) {
-			event.preventDefault();
-
-			if (dialog.allMessageIds.sent.length + dialog.allMessageIds.received.length === 0) {
-				return;
-			}
-
-			var params = self.params;
-
-			params.boxName = 'INBOX';
-			params.ids = dialog.allMessageIds;
-
-			Meteor.call('loadMoreMessages', params, function(error, result) {
-				result.dialogMessages.forEach(function(item, index) {
-					if (!item.isInbox) {
-						result.dialogMessages[index].inboxClass = 'item-sent';
-					}
-				});
-
-				result.dialogMessages = _.sortBy(result.dialogMessages, function(item) {
-					return item.date;
-				});
-
-				result.dialogMessages = result.dialogMessages.reverse();
-
-				dialog.dialogMessages = dialog.dialogMessages.concat(result.dialogMessages);
-				dialog.allMessageIds = result.allMessageIds;
-
-				updateDialog(dialog);
-			});
-		}
+		// 'click .js-email__load': function(event) {
+		// 	event.preventDefault();
+		//
+		// 	if (dialog.allMessageIds.sent.length + dialog.allMessageIds.received.length === 0) {
+		// 		return;
+		// 	}
+		//
+		// 	var params = self.params;
+		//
+		// 	params.boxName = 'INBOX';
+		// 	params.ids = dialog.allMessageIds;
+		//
+		// 	Meteor.call('loadMoreMessages', params, function(error, result) {
+		// 		result.dialogMessages.forEach(function(item, index) {
+		// 			if (!item.isInbox) {
+		// 				result.dialogMessages[index].inboxClass = 'item-sent';
+		// 			}
+		// 		});
+		//
+		// 		result.dialogMessages = _.sortBy(result.dialogMessages, function(item) {
+		// 			return item.date;
+		// 		});
+		//
+		// 		result.dialogMessages = result.dialogMessages.reverse();
+		//
+		// 		dialog.dialogMessages = dialog.dialogMessages.concat(result.dialogMessages);
+		// 		dialog.allMessageIds = result.allMessageIds;
+		//
+		// 		updateDialog(dialog);
+		// 	});
+		// }
 	});
 
 	Template.replyBlock.onRendered(function() {
