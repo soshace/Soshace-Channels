@@ -20,12 +20,16 @@ Meteor.methods({
 
     if (Array.isArray(allMailsFromChannel.folders) && allMailsFromChannel.folders.length) {
       // Now we have only 1 folder (INBOX), so we take [0] element
-      allMailsFromChannel.folders[0].messages.forEach(function(message, i, arr) {
+      allMailsFromChannel.folders[0].messages.every(function(message) {
         var hasElement = checkAvailability(addresses, message.from);
         if (!hasElement) {
           addresses.push(message.from);
           dialogs.push(message);
         }
+
+        if (dialogs.length > 20) {
+          return false;
+        } else return true;
       });
     }
 

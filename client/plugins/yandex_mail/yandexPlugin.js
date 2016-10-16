@@ -5,9 +5,9 @@
 		showForwardBlock,
 		replySubject,
 		deps = new Deps.Dependency(),
-		updateDialog,
-		updateDialogs,
-		lastDialogsIndex,
+		// updateDialog,
+		// updateDialogs,
+		// lastDialogsIndex,
 		repliedMessageId;
 
 	this.YandexPlugin = function(channelData) {
@@ -70,32 +70,34 @@
 			}
 		});
 
-		var timerId = setTimeout(getMailDialogs, 1000, params.channelId, getEmailsData);
+		var timerId = setInterval(function() {
+			Meteor.call('getMailDialogs', params.channelId, function(error, result) {
+				if (error) {
+					console.log(error);
+					return;
+				}
+
+				result = result.map(function(dialog) {
+					dialog.channelId = params.channelId;
+					return dialog;
+				});
+
+				dialogsWith = result;
+
+				if (Array.isArray(dialogsWith) && dialogsWith.length > 20) {
+					getEmailsData({
+						blocks: [{
+							messages: result
+						}]
+					});
+
+					//uploadDialogs = getEmailsData;
+					clearInterval(timerId);
+				}
+			});
+		}, 1000);
+
 	};
-
-	function getMailDialogs(channelId, getEmailsData) {
-		Meteor.call('getMailDialogs', channelId, function(error, result) {
-			if (error) {
-				console.log(error);
-				return;
-			}
-
-			console.log(result);
-
-			result = result.map(function(dialog) {
-				dialog.channelId = channelId;
-				return dialog;
-			});
-
-			getEmailsData({
-				blocks: [{
-					messages: result
-				}]
-			});
-
-			updateDialogs = getEmailsData;
-		});
-	}
 
 	YandexPlugin.prototype.getSingleBlock = function(getDialogCallback, from) {
 		var params = self.params;
@@ -118,7 +120,7 @@
 			};
 
 			getDialogCallback(messages);
-			updateDialog = getDialogCallback;
+			// updateDialog = getDialogCallback;
 		});
 	};
 
@@ -460,39 +462,39 @@
 		},
 	});
 
-	Template.yandexPreviewTemplate.events({
-		'click .js-yandex__load-more': function(event) {
-			event.preventDefault();
-
-			var params = self.params;
-
-			params.boxName = 'INBOX';
-			params.lastIndex = lastDialogsIndex;
-			params.dialogsWith = _.pluck(dialogsWith, 'from');
-
-			Meteor.call('getYandexMessages', params, function(error, results) {
-				if (error) {
-					console.log(error);
-					return;
-				}
-
-				_.map(results.items, function(item) {
-					item.channelId = self.channelId;
-					if (item.attr.flags.indexOf('\\Seen') === -1) {
-						item.class = ' message__unseen';
-					}
-				});
-
-				dialogsWith = dialogsWith.concat(results.items.reverse());
-
-				updateDialogs({
-					blocks: [{
-						messages: dialogsWith
-					}],
-					commonParams: results.box
-				});
-			});
-		}
-	});
+	// Template.yandexPreviewTemplate.events({
+	// 	'click .js-yandex__load-more': function(event) {
+	// 		event.preventDefault();
+	//
+	// 		var params = self.params;
+	//
+	// 		params.boxName = 'INBOX';
+	// 		params.lastIndex = lastDialogsIndex;
+	// 		params.dialogsWith = _.pluck(dialogsWith, 'from');
+	//
+	// 		Meteor.call('getYandexMessages', params, function(error, results) {
+	// 			if (error) {
+	// 				console.log(error);
+	// 				return;
+	// 			}
+	//
+	// 			_.map(results.items, function(item) {
+	// 				item.channelId = self.channelId;
+	// 				if (item.attr.flags.indexOf('\\Seen') === -1) {
+	// 					item.class = ' message__unseen';
+	// 				}
+	// 			});
+	//
+	// 			dialogsWith = dialogsWith.concat(results.items.reverse());
+	//
+	// 			updateDialogs({
+	// 				blocks: [{
+	// 					messages: dialogsWith
+	// 				}],
+	// 				commonParams: results.box
+	// 			});
+	// 		});
+	// 	}
+	// });
 
 })();
