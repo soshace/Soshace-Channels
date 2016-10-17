@@ -81,6 +81,10 @@ Schemas.Folder = new SimpleSchema({
   },
   uidNext: {
     type: Number
+  },
+  specAttrib: {
+    type: String,
+    optional: true
   }
 });
 

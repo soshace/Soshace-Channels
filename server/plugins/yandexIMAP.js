@@ -136,22 +136,31 @@ Meteor.methods({
 	  if (!mails) {
 	    addChannelMail(params.channelId);
 
-	    initImap(params)
-	    .then(
-	      imap => getMessagesFromBox(imap, 'INBOX', params.channelId)
-	    )
-	    .then(
-	      imap => getMessagesFromBox(imap, 'Отправленные', params.channelId)
-	    )
-
+			return new Promise(function(resolve, reject) {
+				initImap(params)
+					.then(
+						imap => getMailBoxes(imap)
+					)
+					.then(
+						result => getMailBoxesTotal(result.boxes, result.imap, params.channelId)
+					)
+					.then(
+						result => {
+							resolve(result.boxesWithTotal);
+							getMessagesFromBox(result.imap, 'INBOX', params.channelId)
+							.then(
+								imap => getMessagesFromBox(imap, 'Отправленные', params.channelId)
+							)
+						}
+					)
+			});
 	    console.log('boxes created');
-
 	    return;
 	  }
 
 	  console.log(mails);
 
-	  var inbox = mails.folders[0]
+	  var inbox = mails.folders[0];
 
 	  if (!inbox) {
 	  	return;
@@ -199,7 +208,77 @@ function initImap(params) {
 
 		imap.connect();
 	});
-};
+}
+
+function getMailBoxes(imap) {
+	return new Promise(function(resolve, reject) {
+		var boxes = [];
+		imap.getBoxes(function(err, res) {
+			// TODO: Check for nested folders!!! Circular folders can't be passed to client
+			for (var boxName in res) {
+				boxes.push({
+					name: boxName,
+					specAttrib: res[boxName]['special_use_attrib']
+				});
+			}
+			resolve( {boxes, imap} );
+		});
+	});
+}
+
+function getMailBoxesTotal(boxes, imap, channelId) {
+	return new Promise(function(resolve, reject) {
+		var count = 0,
+			  boxesWithTotal = [];
+
+		getBoxTotal();
+
+		function getBoxTotal() {
+			var box = boxes[count];
+
+			if (count === boxes.length) {
+				resolve( {boxesWithTotal, imap} );
+				return;
+			}
+
+			imap.openBox(box.name, false, function(err, res) {
+				if (err) {
+					console.log(err);
+				}
+				var newBox = Object.assign({}, box);
+				newBox.total = res.messages.total;
+				boxesWithTotal.push(newBox);
+
+				//saveFolderToDB(channelId, box.name, box.specAttrib);
+				count++;
+				return getBoxTotal();
+			});
+		}
+	});
+}
+
+function saveFolderToDB(channelId, boxName, specAttrib) {
+	// var box = Mails.findOne({channelId: channelId});
+	// var folders = box.folders,
+	// 		folderCreated = false;
+	//
+  // folders.forEach(item => {
+  // 	if (item.name === boxName) {
+  // 		folderCreated = true;
+  // 	}
+  // });
+	//
+  // if (!folderCreated) {
+  	var newFolder = {
+  		name: boxName,
+  		messages: [],
+  		uidNext: 0,
+			specAttrib: specAttrib || ''
+  	};
+
+  	Mails.update({channelId: channelId}, {$push: {'folders': newFolder}});
+  //}
+}
 
 // function moveMessageToBox(uid, imap, srcBox, destBox) {
 // 	return new Promise(function(resolve, reject) {
@@ -464,8 +543,8 @@ function getMessageFromBox(request) {
 				item.date = result.date || 0;
 
 				if (item.date) {
-					item.date = moment(item.date, 'ddd MMM DD YYYY hh:mm:ss Z').valueOf();				
-				} 
+					item.date = moment(item.date, 'ddd MMM DD YYYY hh:mm:ss Z').valueOf();
+				}
 
 				item.plainText = result.text;
 
@@ -532,7 +611,6 @@ function removeBlockquote(html) {
 		return (html1 + html2);
 		// return clearHtml
 	}
-
 
 	return html;
 };
@@ -643,27 +721,11 @@ function getMessagesFromBox(imap, boxName, channelId) {
 function saveMessageToDB(channelId, boxName, message) {
   var box = Mails.findOne({channelId: channelId});
 
-  var folders = box.folders;
-  var folderCreated = false;
-  folders.forEach(item => {
-  	if (item.name === boxName) {
-  		folderCreated = true;
-  	}
-  })
-
-  if (!folderCreated) {
-  	var newFolder = {
-  		name: boxName,
-  		messages: [],
-  		uidNext: 0
-  	}
-
-  	Mails.update({channelId: channelId}, {$push: {'folders': newFolder}})
-  }
-
-  Mails.update({channelId: channelId, 'folders.name': boxName}, {
-    $push: {'folders.$.messages': message}
-  })
+	if (box) {
+		Mails.update({channelId: channelId, 'folders.name': boxName}, {
+	    $push: {'folders.$.messages': message}
+	  });
+	}
 };
 
 function addChannelMail(channelId) {
@@ -707,7 +769,7 @@ function isBoxUpdated(imap, params, dbBox) {
 function updateBoxParameters(channelId, boxName, uidNext) {
 	Mails.update({channelId: channelId, 'folders.name': boxName}, {
 	  $set: {'folders.$.uidNext': uidNext}
-	})	
+	});
 }
 
 Meteor.startup(function () {
