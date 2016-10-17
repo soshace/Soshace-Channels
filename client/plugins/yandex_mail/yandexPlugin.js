@@ -87,7 +87,7 @@
 				dialogsWith = dialogsResult;
 				addressesForDialogs = result.addresses;
 
-				if (Array.isArray(dialogsWith) && dialogsWith.length > 20) {
+				if (Array.isArray(dialogsWith) && dialogsWith.length > 5) {
 					getEmailsData({
 						blocks: [{
 							messages: dialogsResult
@@ -95,7 +95,6 @@
 					});
 
 					updateDialogs = getEmailsData;
-					console.log(result);
 
 					window.addEventListener('scroll', loadMoreDialogs);
 

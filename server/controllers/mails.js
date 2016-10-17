@@ -29,7 +29,7 @@ Meteor.methods({
 
         // TODO: save array of added addresses and/or index of last checked message
 
-        if (dialogs.length > 20) {
+        if (dialogs.length > 5) {
           return false;
         } else return true;
       });

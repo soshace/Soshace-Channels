@@ -680,7 +680,7 @@ function isBoxUpdated(imap, params, dbBox) {
 	return new Promise(function(resolve, error) {
 		imap.openBox(boxName, false, function(err, box) {
 			var uidNext = box.uidnext;
-			var totalCount = box.total;
+			var totalCount = box.messages.total;
 
 			var dbUid = dbBox.uidNext;
 			var dbTotalCount = dbBox.totalCount;
