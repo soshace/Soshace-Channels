@@ -41,28 +41,28 @@ Meteor.methods({
 			);
 	},
 
-	'getImapBoxes': function(params) {
-		return initImap(params)
-			.then(
-				imap => {
-					return new Promise(function(resolve, reject) {
-						imap.getBoxes(function(err, result) {
-							// TODO: Check for nested folders!!! Circular folders can't be passed to client
-							var boxes = {};
-							for (var key in result) {
-								if (result.hasOwnProperty(key)) {
-									boxes[key] = {};
-									boxes[key]['special_use_attrib'] = result[key]['special_use_attrib'];
-								}
-							}
-							imap.end();
-							resolve(boxes);
-						});
-					});
-				},
-				error => console.log(error)
-			)
-	},
+	// 'getImapBoxes': function(params) {
+	// 	return initImap(params)
+	// 		.then(
+	// 			imap => {
+	// 				return new Promise(function(resolve, reject) {
+	// 					imap.getBoxes(function(err, result) {
+	// 						// TODO: Check for nested folders!!! Circular folders can't be passed to client
+	// 						var boxes = {};
+	// 						for (var key in result) {
+	// 							if (result.hasOwnProperty(key)) {
+	// 								boxes[key] = {};
+	// 								boxes[key]['special_use_attrib'] = result[key]['special_use_attrib'];
+	// 							}
+	// 						}
+	// 						imap.end();
+	// 						resolve(boxes);
+	// 					});
+	// 				});
+	// 			},
+	// 			error => console.log(error)
+	// 		)
+	// },
 
 	'moveMessageToSent': function(params) {
 		return initImap(params)

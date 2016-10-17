@@ -43,23 +43,23 @@
 			token: this.token
 		};
 
-		Meteor.call('getImapBoxes', self.params, function(error, result) {
-			self.boxes = result;
-
-			for (var box in result) {
-				var attr = result[box]['special_use_attrib'];
-
-				if (attr === '\\Trash') {
-					self.trashBox = box;
-				}
-				if (attr === '\\Sent') {
-					self.sentBox = box;
-				}
-				if (attr === '\\Spam' || attr === '\\Junk') {
-					self.spamBox = box;
-				}
-			}
-		});
+		// Meteor.call('getImapBoxes', self.params, function(error, result) {
+		// 	self.boxes = result;
+		//
+		// 	for (var box in result) {
+		// 		var attr = result[box]['special_use_attrib'];
+		//
+		// 		if (attr === '\\Trash') {
+		// 			self.trashBox = box;
+		// 		}
+		// 		if (attr === '\\Sent') {
+		// 			self.sentBox = box;
+		// 		}
+		// 		if (attr === '\\Spam' || attr === '\\Junk') {
+		// 			self.spamBox = box;
+		// 		}
+		// 	}
+		// });
 	};
 
 	YandexPlugin.prototype.getChannelBlocks = function(getEmailsData) {
@@ -70,38 +70,58 @@
 				console.log(error);
 				return;
 			}
-		});
+			console.log('total:::');
+			console.log(result);
 
-		var timerId = setInterval(function() {
-			Meteor.call('getMailDialogs', params.channelId, function(error, result) {
-				if (error) {
-					console.log(error);
-					return;
-				}
-
-				var dialogsResult = result.dialogs.map(function(dialog) {
-					dialog.channelId = params.channelId;
-					return dialog;
+			if (result) {
+				// Initial loading
+				// wait for data and add it to page partially
+				var total = 0;
+				result.forEach(function(mailBox) {
+					if (mailBox.name === 'Отправленные' || mailBox.name === 'INBOX') {
+						total += mailBox.total;
+					}
 				});
 
-				dialogsWith = dialogsResult;
-				addressesForDialogs = result.addresses;
+				var timerId = setInterval(function() {
+					Meteor.call('getMailDialogs', params.channelId, function(error, result) {
+						if (error) {
+							console.log(error);
+							return;
+						}
 
-				if (Array.isArray(dialogsWith) && dialogsWith.length > 5) {
-					getEmailsData({
-						blocks: [{
-							messages: dialogsResult
-						}]
+						var dialogsResult = result.dialogs.map(function(dialog) {
+							dialog.channelId = params.channelId;
+							return dialog;
+						});
+
+						dialogsWith = dialogsResult;
+						addressesForDialogs = result.addresses;
+
+						console.log(total);
+						console.log(dialogsWith);
+
+						if (Array.isArray(dialogsWith) && (dialogsWith.length > 20 || dialogsWith.length === total)) {
+							getEmailsData({
+								blocks: [{
+									messages: dialogsResult
+								}]
+							});
+
+							updateDialogs = getEmailsData;
+
+							window.addEventListener('scroll', loadMoreDialogs);
+
+							clearInterval(timerId);
+						}
 					});
-
-					updateDialogs = getEmailsData;
-
-					window.addEventListener('scroll', loadMoreDialogs);
-
-					clearInterval(timerId);
-				}
-			});
-		}, 1000);
+				}, 1000);
+				//
+			} else {
+				// 1. getMailDialogs
+				// 2. subscr for updates
+			}
+		});
 
 	};
 
